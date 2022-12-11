@@ -1,7 +1,6 @@
 package com.sovereigncraft.economy.eco;
 
 import com.sovereigncraft.economy.SCEconomy;
-import com.sovereigncraft.economy.ConfigHandler;
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.economy.EconomyResponse.ResponseType;
 import org.bukkit.Bukkit;
@@ -64,7 +63,7 @@ public class VaultImpl implements net.milkbowl.vault.economy.Economy {
 	}
 	
 	private boolean createAccount(UUID uuid) {
-		return SCEconomy.createAccount(uuid);
+		return SCEconomy.getEco().createAccount(uuid);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -90,7 +89,7 @@ public class VaultImpl implements net.milkbowl.vault.economy.Economy {
 	}
 	
 	private EconomyResponse deposit(UUID uuid, double amount) {
-		if (!SCEconomy.deposit(uuid, amount)) {
+		if (!SCEconomy.getEco().deposit(uuid, amount)) {
 			return new EconomyResponse(0, 0, ResponseType.FAILURE, "Failed to deposit funds.");
 		}
 		return new EconomyResponse(amount, getBalance(uuid), ResponseType.SUCCESS, "");
@@ -119,7 +118,7 @@ public class VaultImpl implements net.milkbowl.vault.economy.Economy {
 	}
 	
 	private double getBalance(UUID uuid) {
-		return SCEconomy.getBalance(uuid).getBalance();
+		return SCEconomy.getEco().getBalance(uuid);
 	}
 
 	@Override
@@ -150,7 +149,7 @@ public class VaultImpl implements net.milkbowl.vault.economy.Economy {
 	}
 	
 	private boolean has(UUID uuid, double amount) {
-		return SCEconomy.has(uuid, amount);
+		return SCEconomy.getEco().has(uuid, amount);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -176,7 +175,7 @@ public class VaultImpl implements net.milkbowl.vault.economy.Economy {
 	}
 	
 	private boolean hasAccount(UUID uuid) {
-		return SCEconomy.hasAccount(uuid);
+		return SCEconomy.getEco().hasAccount(uuid);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -202,7 +201,7 @@ public class VaultImpl implements net.milkbowl.vault.economy.Economy {
 	}
 	
 	private EconomyResponse withdraw(UUID uuid, double amount) {
-		if (!SCEconomy.withdraw(uuid, amount)) {
+		if (!SCEconomy.getEco().withdraw(uuid, amount)) {
 			return new EconomyResponse(0, 0, ResponseType.FAILURE, "Failed to withdraw funds.");
 		}
 		return new EconomyResponse(amount, getBalance(uuid), ResponseType.SUCCESS, "");

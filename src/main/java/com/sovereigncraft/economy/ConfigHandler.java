@@ -2,6 +2,8 @@ package com.sovereigncraft.economy;
 
 import org.bukkit.configuration.file.FileConfiguration;
 
+import java.util.UUID;
+
 public class ConfigHandler {
     private static FileConfiguration getConfig() {
         return SCEconomy.getInstance().getConfig();
@@ -20,9 +22,7 @@ public class ConfigHandler {
         return getConfig().getString("AdminUser");
     }
 
-    public static String getFloatUser() {
-        return getConfig().getString("float-user"); }
-
+    public static UUID getServerUUID() { return UUID.fromString(getConfig().getString("ServerUUID")); }
     public static String getUserID() {
         return getConfig().getString("user-id");
     }
@@ -33,4 +33,7 @@ public class ConfigHandler {
 
     public static String getAdminWallet() {
         return getConfig().getString("adminwallet"); }
+    public static Double getStartingBalance() {
+        return getConfig().getDouble("startingBalance");
+    }
 }

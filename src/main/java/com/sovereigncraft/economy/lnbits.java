@@ -10,6 +10,7 @@ import java.net.http.HttpResponse;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class lnbits {
     //string to construct the various API URLs for appropriate methods
@@ -18,14 +19,14 @@ public class lnbits {
     static String userWalletCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/usermanager/api/v1/wallets";
     static String walletCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/wallet";
     //Methods to construct a string of JSON as required for different methods
-    public static String processInvoicePutString(String invoice) {
+    public String processInvoicePutString(String invoice) {
         Gson gson = new Gson();
         Map<String, String> stringMap = new LinkedHashMap<>();
         stringMap.put("out", "true");
         stringMap.put("bolt11", invoice);
         return gson.toJson(stringMap);
     }
-    public static String createInvoicePutString(Integer amt) {
+    public String createInvoicePutString(Double amt) {
         Gson gson = new Gson();
         Map<String, String> stringMap = new LinkedHashMap<>();
         stringMap.put("out", "false");
@@ -33,44 +34,52 @@ public class lnbits {
         stringMap.put("memo", "Vault");
         return gson.toJson(stringMap);
     }
-    public static String userPutString(String uuid){
+    public String userPutString(UUID uuid){
         Gson gson = new Gson();
         Map<String, String> stringMap = new LinkedHashMap<>();
         stringMap.put("admin_id", ConfigHandler.getAdminUser());
-        stringMap.put("wallet_name", uuid);
-        stringMap.put("user_name", uuid);
+        stringMap.put("wallet_name", String.valueOf(uuid));
+        stringMap.put("user_name", String.valueOf(uuid));
         return gson.toJson(stringMap);
     }
     //create an invoice and return the bolt 11 ln string
-    public static String createInvoice(String User, Integer amount) throws IOException, InterruptedException {
+    public String createInvoice(UUID uuid, Double amount) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(invoiceCmd))
-                .headers("X-Api-Key", getWalletinkey(User))
+                .headers("X-Api-Key", (String) getWalletinkey(uuid))
                 .version(HttpClient.Version.HTTP_1_1)
                 .POST(HttpRequest.BodyPublishers.ofString(createInvoicePutString(amount)))
                 .build();
         HttpClient client = HttpClient.newHttpClient();
         HttpResponse<String> response = null;
-        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         String responseJSON = response.body();
-        String bolt11 = (String) json.JSON2Map(responseJSON).get("payment_request");
-        return bolt11;
+        return (String) json.JSON2Map(responseJSON).get("payment_request");
     }
 
     //process an invoice
-    public static void processInvoice(String player, String invoice) throws IOException, InterruptedException {
+    public Boolean processInvoice(UUID uuid, String invoice) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(invoiceCmd))
-                .headers("X-Api-Key", getWalletAdminKey(player))
+                .headers("X-Api-Key", getWalletAdminKey(uuid))
                 .version(HttpClient.Version.HTTP_1_1)
                 .POST(HttpRequest.BodyPublishers.ofString(processInvoicePutString(invoice)))
                 .build();
         HttpClient client = HttpClient.newHttpClient();
-        client.send(request, HttpResponse.BodyHandlers.ofString());
+        try {
+            client.send(request, HttpResponse.BodyHandlers.ofString());
+            return true;
+        } catch (IOException | InterruptedException e) {
+            return false;
+        }
     }
 
     // Create a user and wallet for a new user
-    public static boolean createWallet(String uuid) throws IOException, InterruptedException {
+    public boolean createWallet(UUID uuid) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(usersCmd))
                 .headers("X-Api-Key", ConfigHandler.getAPIKey())
@@ -78,14 +87,16 @@ public class lnbits {
                 .POST(HttpRequest.BodyPublishers.ofString(userPutString(uuid)))
                 .build();
         HttpClient client = HttpClient.newHttpClient();
-        HttpResponse<String> response = null;
-        response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
+        try {
+            client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            return false;
+        }
         return true;
     }
 
     //Get all users' LNBits account details
-    public static Map getUsers() throws IOException, InterruptedException {
+    public Map getUsers(){
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(usersCmd))
                 .headers("X-Api-Key", ConfigHandler.getAdminKey())
@@ -94,17 +105,21 @@ public class lnbits {
                 .build();
         HttpClient client = HttpClient.newHttpClient();
         HttpResponse<String> response = null;
-        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         String responseJSON = response.body();
         String cleanerJSON = "{ 'users': " + responseJSON + " }";
         return json.JSON2Map(cleanerJSON);
     }
-    public static Map getUser(String uuid) throws IOException, InterruptedException {
-        Map map = getUsers();
+    public Map getUser(UUID uuid) {
+        Map map = SCEconomy.getEco().getUsers();
         List users = (List) map.get("users");
         for (Object currentUser : users){
             Map user = (Map) currentUser;
-            if (uuid.equals((String) user.get("name"))){
+            if (String.valueOf(uuid).equals((String) user.get("name"))){
                 return user;
             }
         } throw new NullPointerException();
@@ -114,41 +129,51 @@ public class lnbits {
 
     //Get the details for the users wallet used in game. Used for balance inquiry
 
-    public static String getWalletinkey(String name) throws IOException, InterruptedException {
-        Map wallet = getWallet(name);
+    public String getWalletinkey(UUID uuid) {
+        Map wallet = getWallet(uuid);
         return (String) wallet.get("inkey");
     }
-    public static String getWalletAdminKey(String name) throws IOException, InterruptedException {
-        Map wallet = getWallet(name);
+    public String getWalletAdminKey(UUID uuid) {
+        Map wallet = getWallet(uuid);
         return (String) wallet.get("adminkey");
     }
-    public static Map getWalletDetail(String name) throws IOException, InterruptedException {
+    public Map getWalletDetail(UUID uuid) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(walletCmd))
-                .headers("X-Api-Key", (String) getWalletAdminKey(name))
+                .headers("X-Api-Key", (String) getWalletAdminKey(uuid))
                 .version(HttpClient.Version.HTTP_1_1)
                 .GET()
                 .build();
         HttpClient client = HttpClient.newHttpClient();
         HttpResponse<String> response = null;
-        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         String responseJSON = response.body();
         return json.JSON2Map(responseJSON);
     }
-    public static Map getWallet(String uuid) throws IOException, InterruptedException {
-        Map map = getWallets();
+    public Map getWallet(UUID uuid) {
+        Map map = SCEconomy.getEco().getWallets();
         List wallets = (List) map.get("wallets");
         for (Object currentWallet : wallets){
             Map wallet = (Map) currentWallet;
-            if (uuid.equals((String) wallet.get("name"))){
-                if (getUser(uuid).get("id").equals((String) wallet.get("user"))){
+            if (String.valueOf(uuid).equals((String) wallet.get("name"))){
+                if (String.valueOf(getUser(uuid).get("id")).equals((String) wallet.get("user"))){
                     return wallet;
                 }
 
             }
         } throw new NullPointerException();
     }
-    public static Map getWallets() throws IOException, InterruptedException {
+    public Boolean hasAccount(UUID uuid) {
+        Map map = SCEconomy.getEco().getWallet(uuid);
+        if (map == null) {
+            return false;
+        } return true;
+    }
+    public Map getWallets() {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(userWalletCmd))
                 .headers("X-Api-Key", ConfigHandler.getAdminKey())
@@ -157,9 +182,42 @@ public class lnbits {
                 .build();
         HttpClient client = HttpClient.newHttpClient();
         HttpResponse<String> response = null;
-        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         String responseJSON = response.body();
         String cleanerJSON = "{ 'wallets': " + responseJSON + " }";
         return json.JSON2Map(cleanerJSON);
+    }
+    public boolean withdraw(UUID uuid, Double amount) {
+        SCEconomy.getEco().processInvoice(uuid, SCEconomy.getEco().createInvoice( ConfigHandler.getServerUUID(), amount));
+        return true;
+    }
+    public boolean deposit(UUID uuid, Double amount) {
+        if (SCEconomy.getEco().processInvoice(ConfigHandler.getServerUUID(), SCEconomy.getEco().createInvoice(uuid, amount))){
+            return false;
+        }
+        return true;
+    }
+    public Double getBalance(UUID uuid) {
+        Map map = SCEconomy.getEco().getWalletDetail(uuid);
+        Double bal =  (Double) map.get("balance") / 1000;
+        return bal;
+    }
+    public Boolean has(UUID uuid, Double amt) {
+        if (getBalance(uuid) >= amt) {
+            return true;
+        } return false;
+    }
+    public boolean createAccount(UUID uuid) {
+        if (SCEconomy.getEco().createWallet(uuid)){
+            if(SCEconomy.getEco().deposit(uuid, ConfigHandler.getStartingBalance())){
+                return true;
+            }
+            return true;
+        }return false;
+
     }
 }

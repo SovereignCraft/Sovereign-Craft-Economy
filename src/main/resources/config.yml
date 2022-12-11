@@ -10,30 +10,34 @@ locale: "en-US"
 # Note: The custom symbol may not work if minecraft doesn't allow that symbol.
 #       The custom symbol may need to be in unicode format (e.g. \u26C3 for 
 #       dollar sign) to be able to work.
-customSymbolEnabled: true
+customSymbolEnabled: false
 customSymbol: ""
 
-mysql:
-  use-mysql: false
-  host: "localhost"
-  port: 1111
-  database: "database"
-  username: "username"
-  password: "password"
+lnbits:
+  #UUID of wallet to provide liquidity or a "Float"
+  ServerUUID: ""
+  #AdminKey of Admin wallet
+  AdminKey:
+  #Apikey from usermanager user
+  APIKey:
+  #Admin User for main wallet
+  AdminUser:
+  #usernamager User ID
+  UserID:
+  #Usermanager User name
+  UserName:
+  #LNBits server DNS or IP
+  server:
+  #LNBits port
+  port:
 
 suffixes:
   # amount is multiplied by 10^number.
   # e.g. for k, the amount is multiplied by 10^3 (1,000)
   k: 3
   K: 3
-  m: 6
-  M: 6
-  b: 9
-  B: 9
-  t: 12
-  T: 12
-  q: 15
-  Q: 15
+  BTC: 8
+  Bitcoin: 8
 
 messages:
 
