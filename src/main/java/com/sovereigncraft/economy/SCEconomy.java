@@ -1,10 +1,10 @@
 package com.sovereigncraft.economy;
 
-
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.ServicePriority;
+import com.sovereigncraft.economy.commands.BalanceCommand;
+import com.sovereigncraft.economy.commands.PayCommand;
 import com.sovereigncraft.economy.eco.*;
 import com.sovereigncraft.economy.listeners.PlayerJoinListener;
 
@@ -26,6 +26,8 @@ public final class SCEconomy extends JavaPlugin {
             disable("Economy couldn't be registed, Vault plugin is missing!");
             return;
         }
+        this.getCommand("balance").setExecutor(new BalanceCommand());
+        this.getCommand("pay").setExecutor(new PayCommand());
         this.getLogger().info("Vault found, Economy has been registered.");
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         eco = new lnbits();
