@@ -1,4 +1,4 @@
-name: Sovereign Craft Economy
+name: Sovereign-Craft-Economy
 version: '${project.version}'
 main: com.sovereigncraft.economy.SCEconomy
 api-version: 1.19

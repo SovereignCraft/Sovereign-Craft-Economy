@@ -32,13 +32,11 @@ public class BalanceCommand implements org.bukkit.command.CommandExecutor {
 				}
 				
 				Double balance = SCEconomy.getEco().getBalance(player.getUniqueId());
-				sender.sendMessage("Your balance is:", Double.toString(balance), "Sats");
-				
+				sender.sendMessage(String.join(",","Your balance is:", Double.toString(balance), "Sats"));
 				return true;
 				
 			}
 			else {
-				
 				sender.sendMessage("Too many arguments");
 				
 				return true;

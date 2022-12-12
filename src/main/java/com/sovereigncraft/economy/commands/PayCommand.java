@@ -37,8 +37,8 @@ public class PayCommand implements org.bukkit.command.CommandExecutor {
 			}
 			
 			if (!SCEconomy.getEco().hasAccount(other.getUniqueId())) {
-				sender.sendMessage("This person has no wallet on this server", String.valueOf(ImmutableMap.of(
-						"%player%", other.getName())));
+				sender.sendMessage(String.join(",","This person has no wallet on this server", String.valueOf(ImmutableMap.of(
+						"%player%", other.getName()))));
 				return true;
 			}
 			
@@ -66,15 +66,15 @@ public class PayCommand implements org.bukkit.command.CommandExecutor {
 			}
 			
 			SCEconomy.getEco().withdraw(player.getUniqueId(), amount);
-			sender.sendMessage("You paid", String.valueOf(ImmutableMap.of(
+			sender.sendMessage(String.join(",","You paid", String.valueOf(ImmutableMap.of(
 					"%player%", other.getName(),
-					"%amount%", amount)));
+					"%amount%", amount))));
 			
 			SCEconomy.getEco().deposit(other.getUniqueId(), amount);
 			if (other instanceof Player) {
-				((Player) other).sendMessage( "You received", String.valueOf(ImmutableMap.of(
+				((Player) other).sendMessage( String.join(",","You received", String.valueOf(ImmutableMap.of(
 						"%player%", player.getName(),
-						"%amount%", amount)));
+						"%amount%", amount))));
 			}
 			
 			return true;
