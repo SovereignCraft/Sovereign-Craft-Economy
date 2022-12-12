@@ -8,10 +8,6 @@ import com.sovereigncraft.economy.commands.PayCommand;
 import com.sovereigncraft.economy.eco.*;
 import com.sovereigncraft.economy.listeners.PlayerJoinListener;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.UUID;
-
 public final class SCEconomy extends JavaPlugin {
 
     private static lnbits eco;
@@ -19,7 +15,7 @@ public final class SCEconomy extends JavaPlugin {
     private static VaultImpl vaultImpl;
     @Override
     public void onEnable() {
-        saveDefaultConfig();
+        this.saveDefaultConfig();
         instance = this;
         vaultImpl = new VaultImpl();
         if (!setupEconomy()) {
