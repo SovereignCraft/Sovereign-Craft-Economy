@@ -4,32 +4,20 @@ BalanceTopTimerInterval: 1200
 currencyNameSingular: "Satoshi"
 currencyNamePlural: "Sats"
 startingBalance: 100
-# Changing the locale will change wht format the money is in, see 
-# https://www.techonthenet.com/js/language_tags.php for examples.
-locale: "en-US"
-# Note: The custom symbol may not work if minecraft doesn't allow that symbol.
-#       The custom symbol may need to be in unicode format (e.g. \u26C3 for 
-#       dollar sign) to be able to work.
-customSymbolEnabled: false
-customSymbol: ""
+customSymbol: "⚡"
 
-lnbits:
-  #UUID of wallet to provide liquidity or a "Float"
-  ServerUUID: ""
-  #AdminKey of Admin wallet
-  AdminKey:
-  #Apikey from usermanager user
-  APIKey:
-  #Admin User for main wallet
-  AdminUser:
-  #usernamager User ID
-  UserID:
-  #Usermanager User name
-  UserName:
-  #LNBits server DNS or IP
-  server:
-  #LNBits port
-  port:
+#UUID of wallet to provide liquidity or a "Float" Can be generated as a random generator
+ServerUUID: ""
+#AdminKey of Admin wallet (top level in LN bits)
+AdminKey:
+#Apikey from usermanager user
+APIKey:
+#Admin User for main wallet
+AdminUser:
+#LNBits server DNS or IP
+host:
+#LNBits port
+port: 5000
 
 suffixes:
   # amount is multiplied by 10^number.

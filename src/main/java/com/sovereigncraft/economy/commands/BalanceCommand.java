@@ -1,5 +1,6 @@
 package com.sovereigncraft.economy.commands;
 
+import com.sovereigncraft.economy.ConfigHandler;
 import com.sovereigncraft.economy.SCEconomy;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -32,9 +33,7 @@ public class BalanceCommand implements org.bukkit.command.CommandExecutor {
 					sender.sendMessage("you have no account. That shouldn't be. Please report to sovtoshi@sovereigncraft.com");
 					return true;
 				}
-				
-				Double balance = SCEconomy.getEco().getBalance(player.getUniqueId());
-				sender.sendMessage(" Your balance is: " + SCEconomy.getEco().numberFormat(balance) + " ⚡");
+				sender.sendMessage(" Your balance is: " + SCEconomy.getEco().getBalanceString(player.getUniqueId()));
 				return true;
 				
 			}

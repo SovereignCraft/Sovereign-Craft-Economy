@@ -224,6 +224,9 @@ public class LNBits {
         Double bal =  (Double) map.get("balance") / 1000;
         return bal;
     }
+    public String getBalanceString(UUID uuid) {
+        return SCEconomy.getEco().numberFormat(getBalance(uuid)) + " ⚡";
+    }
     public String numberFormat(Double number){
         DecimalFormat df = new DecimalFormat("###,###,###");
         df.setGroupingSize(3);
