@@ -11,6 +11,8 @@ import com.google.common.collect.ImmutableMap;
 
 import com.sovereigncraft.economy.SCEconomy;
 
+import java.text.DecimalFormat;
+
 public class BalanceCommand implements org.bukkit.command.CommandExecutor {
 
 	@SuppressWarnings("deprecation")
@@ -20,7 +22,7 @@ public class BalanceCommand implements org.bukkit.command.CommandExecutor {
 				if (args.length == 0) {
 				
 				if (!(sender instanceof Player)) {
-					sender.sendMessage( "Only players can get their message");
+					sender.sendMessage( "Only players can get their balance");
 					return true;
 				}
 				
@@ -32,7 +34,7 @@ public class BalanceCommand implements org.bukkit.command.CommandExecutor {
 				}
 				
 				Double balance = SCEconomy.getEco().getBalance(player.getUniqueId());
-				sender.sendMessage(String.join(",","Your balance is:", Double.toString(balance), "Sats"));
+				sender.sendMessage(" Your balance is: " + SCEconomy.getEco().numberFormat(balance) + " ⚡");
 				return true;
 				
 			}

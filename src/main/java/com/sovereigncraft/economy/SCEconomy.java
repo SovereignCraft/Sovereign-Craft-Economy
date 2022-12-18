@@ -1,21 +1,30 @@
 package com.sovereigncraft.economy;
 
+import com.sovereigncraft.economy.commands.WebWalletCommand;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.ServicePriority;
+import com.sovereigncraft.economy.LNBits;
 import com.sovereigncraft.economy.commands.BalanceCommand;
 import com.sovereigncraft.economy.commands.PayCommand;
 import com.sovereigncraft.economy.eco.*;
+import com.sovereigncraft.economy.eco.VaultImpl;
 import com.sovereigncraft.economy.listeners.PlayerJoinListener;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public final class SCEconomy extends JavaPlugin {
 
-    private static lnbits eco;
     private static SCEconomy instance;
+    private static LNBits eco;
+
     private static VaultImpl vaultImpl;
     @Override
     public void onEnable() {
-        this.saveDefaultConfig();
+        saveDefaultConfig();
         instance = this;
         vaultImpl = new VaultImpl();
         if (!setupEconomy()) {
@@ -24,14 +33,16 @@ public final class SCEconomy extends JavaPlugin {
         }
         this.getCommand("balance").setExecutor(new BalanceCommand());
         this.getCommand("pay").setExecutor(new PayCommand());
+        this.getCommand("webwallet").setExecutor(new WebWalletCommand());
         this.getLogger().info("Vault found, Economy has been registered.");
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
-        eco = new lnbits();
+        eco = new LNBits();
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
+        System.out.println("Disabling SovereignCraft Economy");
     }
     public static void disable(String message) {
         warn(message);
@@ -51,7 +62,8 @@ public final class SCEconomy extends JavaPlugin {
                 ServicePriority.Highest);
         return true;
     }
-    public static lnbits getEco() {
+    public static LNBits getEco() {
         return eco;
     }
+
 }

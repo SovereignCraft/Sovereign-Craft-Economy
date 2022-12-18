@@ -2,7 +2,12 @@ name: Sovereign-Craft-Economy
 version: '${project.version}'
 main: com.sovereigncraft.economy.SCEconomy
 api-version: 1.19
-depend: [ LNBits, Vault, Spigot, JDK17 ]
+depend: [Vault]
 authors: [ Sovtoshi ]
 description: Bitcoin Lightning Economy for Minecraft
 website: SovereignCraft.com
+commands:
+  pay:
+  balance:
+    aliases: [bal]
+  webwallet:

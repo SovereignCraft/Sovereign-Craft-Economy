@@ -8,7 +8,7 @@ public class ConfigHandler {
     private static FileConfiguration getConfig() {
         return SCEconomy.getInstance().getConfig();
     }
-    public static String getHost() { return getConfig().getString("Host"); }
+    public static String getHost() { return getConfig().getString("host"); }
 
     public static String getPort() {
         return getConfig().getString("port");
@@ -23,16 +23,11 @@ public class ConfigHandler {
     }
 
     public static UUID getServerUUID() { return UUID.fromString(getConfig().getString("ServerUUID")); }
-    public static String getUserID() {
-        return getConfig().getString("user-id");
-    }
 
     public static String getAdminKey() {
-        return getConfig().getString("admin-key");
+        return getConfig().getString("AdminKey");
     }
 
-    public static String getAdminWallet() {
-        return getConfig().getString("adminwallet"); }
     public static Double getStartingBalance() {
         return getConfig().getDouble("startingBalance");
     }

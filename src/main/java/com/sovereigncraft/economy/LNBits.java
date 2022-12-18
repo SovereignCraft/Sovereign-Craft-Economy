@@ -1,23 +1,23 @@
 package com.sovereigncraft.economy;
 
 import com.google.gson.Gson;
+import org.checkerframework.framework.qual.SubtypeOf;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.text.DecimalFormat;
+import java.util.*;
 
-public class lnbits {
+public class LNBits {
     //string to construct the various API URLs for appropriate methods
-    static String usersCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/usermanager/api/v1/users";
-    static String invoiceCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/payments";
-    static String userWalletCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/usermanager/api/v1/wallets";
-    static String walletCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/wallet";
+    public static String usersCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/usermanager/api/v1/users";
+    public static String invoiceCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/payments";
+    public static String userWalletCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/usermanager/api/v1/wallets";
+    public static String walletCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/wallet";
     //Methods to construct a string of JSON as required for different methods
     public String processInvoicePutString(String invoice) {
         Gson gson = new Gson();
@@ -44,9 +44,13 @@ public class lnbits {
     }
     //create an invoice and return the bolt 11 ln string
     public String createInvoice(UUID uuid, Double amount) {
+        //System.out.println("Creating an Invoice");
+        //System.out.println(getWalletinkey(uuid));
+        //System.out.println(invoiceCmd);
+        //System.out.println(createInvoicePutString(amount));
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(invoiceCmd))
-                .headers("X-Api-Key", (String) getWalletinkey(uuid))
+                .headers("X-Api-Key", getWalletinkey(uuid))
                 .version(HttpClient.Version.HTTP_1_1)
                 .POST(HttpRequest.BodyPublishers.ofString(createInvoicePutString(amount)))
                 .build();
@@ -58,6 +62,7 @@ public class lnbits {
             throw new RuntimeException(e);
         }
         String responseJSON = response.body();
+        //System.out.println(String.join(",", "payment request: ", (String) json.JSON2Map(responseJSON).get("payment_request")));
         return (String) json.JSON2Map(responseJSON).get("payment_request");
     }
 
@@ -80,6 +85,9 @@ public class lnbits {
 
     // Create a user and wallet for a new user
     public boolean createWallet(UUID uuid) {
+        //System.out.println("Create Wallet Called this API:");
+        //System.out.println(usersCmd);
+        //System.out.println(ConfigHandler.getAPIKey());
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(usersCmd))
                 .headers("X-Api-Key", ConfigHandler.getAPIKey())
@@ -87,6 +95,7 @@ public class lnbits {
                 .POST(HttpRequest.BodyPublishers.ofString(userPutString(uuid)))
                 .build();
         HttpClient client = HttpClient.newHttpClient();
+        //System.out.println(userPutString(uuid));
         try {
             client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException e) {
@@ -97,6 +106,7 @@ public class lnbits {
 
     //Get all users' LNBits account details
     public Map getUsers(){
+        //System.out.println("getting users");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(usersCmd))
                 .headers("X-Api-Key", ConfigHandler.getAdminKey())
@@ -115,7 +125,7 @@ public class lnbits {
         return json.JSON2Map(cleanerJSON);
     }
     public Map getUser(UUID uuid) {
-        Map map = SCEconomy.getEco().getUsers();
+        Map map = getUsers();
         List users = (List) map.get("users");
         for (Object currentUser : users){
             Map user = (Map) currentUser;
@@ -130,6 +140,7 @@ public class lnbits {
     //Get the details for the users wallet used in game. Used for balance inquiry
 
     public String getWalletinkey(UUID uuid) {
+        //System.out.println("constructing inkey");
         Map wallet = getWallet(uuid);
         return (String) wallet.get("inkey");
     }
@@ -155,7 +166,9 @@ public class lnbits {
         return json.JSON2Map(responseJSON);
     }
     public Map getWallet(UUID uuid) {
-        Map map = SCEconomy.getEco().getWallets();
+        //System.out.println("getting a wallet");
+        Map map = getWallets();
+        //System.out.println("Wallets gotten");
         List wallets = (List) map.get("wallets");
         for (Object currentWallet : wallets){
             Map wallet = (Map) currentWallet;
@@ -165,15 +178,16 @@ public class lnbits {
                 }
 
             }
-        } throw new NullPointerException();
+        } return (new HashMap<>());
     }
     public Boolean hasAccount(UUID uuid) {
-        Map map = SCEconomy.getEco().getWallet(uuid);
-        if (map == null) {
-            return false;
-        } return true;
+        //System.out.println("checking wallet");
+        Map wallet = getWallet(uuid);
+        return (wallet != null && wallet.containsKey("user"));
     }
     public Map getWallets() {
+        //System.out.println("Getting all the wallets");
+        //System.out.println(String.join(",", "with admin key: ", ConfigHandler.getAdminKey()));
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(userWalletCmd))
                 .headers("X-Api-Key", ConfigHandler.getAdminKey())
@@ -189,22 +203,31 @@ public class lnbits {
         }
         String responseJSON = response.body();
         String cleanerJSON = "{ 'wallets': " + responseJSON + " }";
+        //System.out.println("I'm a map!");
         return json.JSON2Map(cleanerJSON);
     }
     public boolean withdraw(UUID uuid, Double amount) {
-        SCEconomy.getEco().processInvoice(uuid, SCEconomy.getEco().createInvoice( ConfigHandler.getServerUUID(), amount));
+        processInvoice(uuid, createInvoice( ConfigHandler.getServerUUID(), amount));
         return true;
     }
     public boolean deposit(UUID uuid, Double amount) {
-        if (SCEconomy.getEco().processInvoice(ConfigHandler.getServerUUID(), SCEconomy.getEco().createInvoice(uuid, amount))){
-            return false;
+        //System.out.println("Deposit running");
+        Boolean payment = processInvoice(ConfigHandler.getServerUUID(), createInvoice(uuid, amount));
+        //System.out.println("Payment complete");
+        if (payment){
+            return true;
         }
-        return true;
+        return false;
     }
     public Double getBalance(UUID uuid) {
-        Map map = SCEconomy.getEco().getWalletDetail(uuid);
+        Map map = getWalletDetail(uuid);
         Double bal =  (Double) map.get("balance") / 1000;
         return bal;
+    }
+    public String numberFormat(Double number){
+        DecimalFormat df = new DecimalFormat("###,###,###");
+        df.setGroupingSize(3);
+        return df.format(number);
     }
     public Boolean has(UUID uuid, Double amt) {
         if (getBalance(uuid) >= amt) {
@@ -212,8 +235,12 @@ public class lnbits {
         } return false;
     }
     public boolean createAccount(UUID uuid) {
-        if (SCEconomy.getEco().createWallet(uuid)){
-            if(SCEconomy.getEco().deposit(uuid, ConfigHandler.getStartingBalance())){
+        Boolean account = createWallet(uuid);
+        if (account){
+            //System.out.println("deposit starting balance command");
+            //System.out.println(String.join(",", "Attempting to deposit:", Double.toString(ConfigHandler.getStartingBalance())));
+            Boolean deposit = deposit(uuid, ConfigHandler.getStartingBalance());
+            if(deposit){
                 return true;
             }
             return true;

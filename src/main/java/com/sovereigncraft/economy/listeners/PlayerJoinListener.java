@@ -11,10 +11,14 @@ public class PlayerJoinListener implements Listener {
 
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		
+
 		Player player = event.getPlayer();
-		
+		System.out.println("Player joined and event ran");
+		System.out.println(player.getUniqueId());
+		//SCEconomy.getEco().createAccount(player.getUniqueId());
+		//async not working
 		if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
+			System.out.println("no wallet detected");
 			new BukkitRunnable() {
 
 				@Override
@@ -23,7 +27,11 @@ public class PlayerJoinListener implements Listener {
 				}
 			}.runTaskAsynchronously(SCEconomy.getInstance());
 		}
-		
+		/*if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
+			System.out.println("no wallet detected");
+			SCEconomy.getEco().createAccount(player.getUniqueId());
+		}*/
+
 	}
 	
 }
