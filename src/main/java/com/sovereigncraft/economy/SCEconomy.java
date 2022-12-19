@@ -1,14 +1,15 @@
 package com.sovereigncraft.economy;
 
-import com.sovereigncraft.economy.commands.WebWalletCommand;
+import com.sovereigncraft.economy.commands.*;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.ServicePriority;
 import com.sovereigncraft.economy.LNBits;
-import com.sovereigncraft.economy.commands.BalanceCommand;
-import com.sovereigncraft.economy.commands.PayCommand;
+
 import com.sovereigncraft.economy.eco.*;
 import com.sovereigncraft.economy.eco.VaultImpl;
 import com.sovereigncraft.economy.listeners.PlayerJoinListener;
@@ -31,10 +32,11 @@ public final class SCEconomy extends JavaPlugin {
             disable("Economy couldn't be registed, Vault plugin is missing!");
             return;
         }
+        this.getLogger().info("Vault found, Economy has been registered.");
         this.getCommand("balance").setExecutor(new BalanceCommand());
         this.getCommand("pay").setExecutor(new PayCommand());
         this.getCommand("webwallet").setExecutor(new WebWalletCommand());
-        this.getLogger().info("Vault found, Economy has been registered.");
+        this.getCommand("donate").setExecutor(new DonateCommand());
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         eco = new LNBits();
     }
@@ -58,8 +60,7 @@ public final class SCEconomy extends JavaPlugin {
         if (this.getServer().getPluginManager().getPlugin("Vault") == null) {
             return false;
         }
-        this.getServer().getServicesManager().register(net.milkbowl.vault.economy.Economy.class, vaultImpl, this,
-                ServicePriority.Highest);
+        this.getServer().getServicesManager().register(Economy.class, vaultImpl, this, ServicePriority.Highest);
         return true;
     }
     public static LNBits getEco() {

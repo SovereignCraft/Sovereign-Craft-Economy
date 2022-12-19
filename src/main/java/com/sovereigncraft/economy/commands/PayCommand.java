@@ -13,7 +13,7 @@ public class PayCommand implements org.bukkit.command.CommandExecutor {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String lebel, String[] args) {
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 			
 			if (args.length == 2) {
 			

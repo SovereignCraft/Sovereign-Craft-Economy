@@ -1,8 +1,10 @@
 package com.sovereigncraft.economy.eco;
 
 import com.sovereigncraft.economy.SCEconomy;
+
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.economy.EconomyResponse.ResponseType;
+
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
@@ -123,7 +125,7 @@ public class VaultImpl implements net.milkbowl.vault.economy.Economy {
 
 	@Override
 	public String getName() {
-		return "Economy";
+		return "Sovereign-Craft-Economy";
 	}
 
 	@SuppressWarnings("deprecation")
