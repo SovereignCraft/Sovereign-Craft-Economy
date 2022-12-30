@@ -1,6 +1,7 @@
 package com.sovereigncraft.economy;
 
 import com.google.gson.Gson;
+import org.bukkit.Bukkit;
 import org.checkerframework.framework.qual.SubtypeOf;
 
 import java.io.IOException;
@@ -31,7 +32,7 @@ public class LNBits {
         Map<String, String> stringMap = new LinkedHashMap<>();
         stringMap.put("out", "false");
         stringMap.put("amount", amt.toString());
-        stringMap.put("memo", "Vault");
+        stringMap.put("memo", "Sovereign Craft");
         return gson.toJson(stringMap);
     }
     public String userPutString(UUID uuid){
@@ -84,6 +85,17 @@ public class LNBits {
     }
 
     // Create a user and wallet for a new user
+    public boolean noWalletMessage(UUID uuid){
+        String url = "Https://sovereigncraft.com/TOS";
+        System.out.println(url);
+        Bukkit.getServer().dispatchCommand(
+                Bukkit.getConsoleSender(),
+                "tellraw " +
+                        " {\"text\":\"" + "You have no wallet. Please accept the Terms of Service by clicking this message" +
+                        "\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"" +
+                        url + "\"}}");
+        return true;
+    }
     public boolean createWallet(UUID uuid) {
         //System.out.println("Create Wallet Called this API:");
         //System.out.println(usersCmd);
@@ -207,8 +219,7 @@ public class LNBits {
         return json.JSON2Map(cleanerJSON);
     }
     public boolean withdraw(UUID uuid, Double amount) {
-        processInvoice(uuid, createInvoice( ConfigHandler.getServerUUID(), amount));
-        return true;
+        return processInvoice(uuid, createInvoice( ConfigHandler.getServerUUID(), amount));
     }
     public boolean deposit(UUID uuid, Double amount) {
         //System.out.println("Deposit running");
@@ -225,7 +236,7 @@ public class LNBits {
         return bal;
     }
     public String getBalanceString(UUID uuid) {
-        return SCEconomy.getEco().numberFormat(getBalance(uuid)) + " ⚡";
+        return "⚡" + SCEconomy.getEco().numberFormat(getBalance(uuid));
     }
     public String numberFormat(Double number){
         DecimalFormat df = new DecimalFormat("###,###,###");

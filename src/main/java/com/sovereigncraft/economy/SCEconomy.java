@@ -34,10 +34,12 @@ public final class SCEconomy extends JavaPlugin {
         }
         this.getLogger().info("Vault found, Economy has been registered.");
         this.getCommand("balance").setExecutor(new BalanceCommand());
+        this.getCommand("acceptTOS").setExecutor(new AcceptTOSCommand());
         this.getCommand("pay").setExecutor(new PayCommand());
         this.getCommand("webwallet").setExecutor(new WebWalletCommand());
         this.getCommand("donate").setExecutor(new DonateCommand());
-        this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
+        // Automatic wallet creation on player join
+        //this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         eco = new LNBits();
     }
 

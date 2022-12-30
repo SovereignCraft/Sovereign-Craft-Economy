@@ -30,7 +30,7 @@ public class BalanceCommand implements org.bukkit.command.CommandExecutor {
 				Player player = (Player) sender;
 				
 				if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-					sender.sendMessage("you have no account. That shouldn't be. Please report to sovtoshi@sovereigncraft.com");
+					SCEconomy.getEco().noWalletMessage(player.getUniqueId());
 					return true;
 				}
 				sender.sendMessage(" Your balance is: " + SCEconomy.getEco().getBalanceString(player.getUniqueId()));
