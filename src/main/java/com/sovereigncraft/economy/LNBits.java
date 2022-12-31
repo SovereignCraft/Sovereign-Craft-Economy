@@ -2,10 +2,9 @@ package com.sovereigncraft.economy;
 
 import com.google.gson.Gson;
 import org.bukkit.Bukkit;
-import org.checkerframework.framework.qual.SubtypeOf;
+import org.bukkit.entity.Player;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -85,12 +84,18 @@ public class LNBits {
     }
 
     // Create a user and wallet for a new user
-    public boolean noWalletMessage(UUID uuid){
-        String url = "Https://sovereigncraft.com/TOS";
+    public boolean tosMessage(Player sender){
+        if (!(sender instanceof Player)) {
+            sender.sendMessage( "Only players can get their web wallet");
+            return true;
+        }
+
+        Player player = (Player) sender;
+        String url = ConfigHandler.getTOSURL();
         System.out.println(url);
         Bukkit.getServer().dispatchCommand(
                 Bukkit.getConsoleSender(),
-                "tellraw " +
+                "tellraw " + player.getName() +
                         " {\"text\":\"" + "You have no wallet. Please accept the Terms of Service by clicking this message" +
                         "\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"" +
                         url + "\"}}");

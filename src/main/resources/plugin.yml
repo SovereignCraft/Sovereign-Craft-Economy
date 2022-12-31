@@ -13,4 +13,5 @@ commands:
     aliases: [bal]
   webwallet:
   donate:
+  tos:
   acceptTOS:

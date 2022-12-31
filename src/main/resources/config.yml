@@ -18,6 +18,7 @@ AdminUser:
 host:
 #LNBits port
 port: 5000
+TOSURL: "https://sovereigncraft.com/TOS"
 
 suffixes:
   # amount is multiplied by 10^number.
