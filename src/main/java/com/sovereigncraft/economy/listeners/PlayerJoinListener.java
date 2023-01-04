@@ -18,14 +18,17 @@ public class PlayerJoinListener implements Listener {
 		//SCEconomy.getEco().createAccount(player.getUniqueId());
 		//async not working
 		if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-			System.out.println("no wallet detected");
-			new BukkitRunnable() {
+			player.sendMessage("To get started with your ⚡ wallet Type /TOS");
+			/*new BukkitRunnable() {
 
 				@Override
 				public void run() {
 					SCEconomy.getEco().createAccount(player.getUniqueId());
 				}
-			}.runTaskAsynchronously(SCEconomy.getInstance());
+			}.runTaskAsynchronously(SCEconomy.getInstance()); */
+		} else {
+			player.sendMessage("To deposit/use your ⚡ wallet in real life type /webwallet.");
+			player.sendMessage("To sync your wallet to your device add the LNDHub extension to your webwallet, click the extension & follow the LNDHub instructions in the web portal");
 		}
 		/*if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
 			System.out.println("no wallet detected");

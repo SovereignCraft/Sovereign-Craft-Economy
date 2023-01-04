@@ -39,8 +39,7 @@ public final class SCEconomy extends JavaPlugin {
         this.getCommand("pay").setExecutor(new PayCommand());
         this.getCommand("webwallet").setExecutor(new WebWalletCommand());
         this.getCommand("donate").setExecutor(new DonateCommand());
-        // Automatic wallet creation on player join
-        //this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
+        this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         eco = new LNBits();
     }
 

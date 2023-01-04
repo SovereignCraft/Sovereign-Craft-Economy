@@ -96,7 +96,7 @@ public class LNBits {
         Bukkit.getServer().dispatchCommand(
                 Bukkit.getConsoleSender(),
                 "tellraw " + player.getName() +
-                        " {\"text\":\"" + "You have no wallet. Please accept the Terms of Service by clicking this message" +
+                        " {\"text\":\"" + "Please accept the Terms of Service by clicking this message" +
                         "\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"" +
                         url + "\"}}");
         return true;

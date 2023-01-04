@@ -23,11 +23,11 @@ public class PayCommand implements org.bukkit.command.CommandExecutor {
 			}
 			
 			Player player = (Player) sender;
-			
-			if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-				sender.sendMessage("You don't have an account which is strange. Perhaps report this to sovtoshi@sovereigncraft.com");
-				return true;
-			}
+
+				if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
+					SCEconomy.getEco().tosMessage(player);
+					return true;
+				}
 			
 			OfflinePlayer other = Bukkit.getOfflinePlayer(args[0]);
 			
@@ -63,18 +63,13 @@ public class PayCommand implements org.bukkit.command.CommandExecutor {
 			if (!SCEconomy.getEco().has(player.getUniqueId(), amount)) {
 				sender.sendMessage("Stack more Sats");
 				return true;
-			}
-			
-			SCEconomy.getEco().withdraw(player.getUniqueId(), amount);
-			sender.sendMessage(String.join(",","You paid", String.valueOf(ImmutableMap.of(
-					"%player%", other.getName(),
-					"%amount%", amount))));
-			
-			SCEconomy.getEco().deposit(other.getUniqueId(), amount);
-			if (other instanceof Player) {
-				((Player) other).sendMessage( String.join(",","You received", String.valueOf(ImmutableMap.of(
-						"%player%", player.getName(),
-						"%amount%", amount))));
+			} else if (!(other instanceof Player)) {
+				sender.sendMessage("There is no player by that name");
+			} else {
+				SCEconomy.getEco().withdraw(player.getUniqueId(), amount);
+				sender.sendMessage("You paid " + other.getName() + " ⚡" + SCEconomy.getEco().numberFormat(amount) );
+				SCEconomy.getEco().deposit(other.getUniqueId(), amount);
+				((Player) other).sendMessage("You received" + " ⚡" + SCEconomy.getEco().numberFormat(amount) + " from " + player.getName());
 			}
 			
 			return true;

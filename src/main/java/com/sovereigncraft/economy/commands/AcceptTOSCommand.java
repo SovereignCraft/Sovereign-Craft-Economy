@@ -20,7 +20,7 @@ public class AcceptTOSCommand implements org.bukkit.command.CommandExecutor {
 			}
 			Player player = (Player) sender;
 			if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-				System.out.println("no wallet detected for " + player.getName() + " - creating");
+				//System.out.println("no wallet detected for " + player.getName() + " - creating");
 				new BukkitRunnable() {
 
 					@Override
@@ -28,13 +28,18 @@ public class AcceptTOSCommand implements org.bukkit.command.CommandExecutor {
 						SCEconomy.getEco().createAccount(player.getUniqueId());
 					}
 				}.runTaskAsynchronously(SCEconomy.getInstance());
-
-			} else {
-				sender.sendMessage("Too many arguments");
-
-				return true;
-
+				player.sendMessage("Your wallet is being created. Use the command /webwallet to access it directly.");
+				player.sendMessage("To sync your wallet to your device add the LNDHub extension to your webwallet, click the extension & follow the LNDHub instructions in the web portal");
 			}
+			else {
+				player.sendMessage("You already appear to have a Wallet");
+			}
+
+			}else {
+			sender.sendMessage("Too many arguments");
+
+			return true;
+
 		/*if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
 			System.out.println("no wallet detected");
 			SCEconomy.getEco().createAccount(player.getUniqueId());

@@ -19,8 +19,13 @@ public class WebWalletCommand implements org.bukkit.command.CommandExecutor {
 					sender.sendMessage( "Only players can get their web wallet");
 					return true;
 				}
+
 				
 				Player player = (Player) sender;
+				if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
+					SCEconomy.getEco().tosMessage(player);
+					return true;
+				}
 				String url = "Https://wallet.sovereigncraft.com/wallet?usr=" + SCEconomy.getEco().getUser(player.getUniqueId()).get("id");
 				System.out.println(url);
 					Bukkit.getServer().dispatchCommand(

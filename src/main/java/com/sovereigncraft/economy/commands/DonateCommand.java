@@ -18,7 +18,7 @@ public class DonateCommand implements org.bukkit.command.CommandExecutor {
             }
             Player player = (Player) sender;
             if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-                sender.sendMessage("You don't have an account which is strange. Perhaps report this to sovtoshi@sovereigncraft.com");
+                SCEconomy.getEco().tosMessage(player);
                 return true;
             }
             double amount = 0;

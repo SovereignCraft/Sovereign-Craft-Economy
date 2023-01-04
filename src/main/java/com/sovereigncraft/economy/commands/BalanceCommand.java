@@ -30,6 +30,7 @@ public class BalanceCommand implements org.bukkit.command.CommandExecutor {
 				Player player = (Player) sender;
 				
 				if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
+					player.sendMessage("You have not created your wallet.");
 					SCEconomy.getEco().tosMessage(player);
 					return true;
 				}
