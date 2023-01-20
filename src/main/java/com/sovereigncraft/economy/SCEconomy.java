@@ -1,10 +1,12 @@
 package com.sovereigncraft.economy;
 
 import com.sovereigncraft.economy.commands.*;
+import com.sovereigncraft.economy.commands.DonateCommand;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.ServicePriority;
@@ -19,6 +21,7 @@ import java.util.Arrays;
 
 public final class SCEconomy extends JavaPlugin {
 
+    private static DonateCommand donateCommand;
     private static SCEconomy instance;
     private static LNBits eco;
 
@@ -34,11 +37,13 @@ public final class SCEconomy extends JavaPlugin {
         }
         this.getLogger().info("Vault found, Economy has been registered.");
         this.getCommand("balance").setExecutor(new BalanceCommand());
-        this.getCommand("tos").setExecutor(new TOSCommand());
+        //this.getCommand("tos").setExecutor(new TOSCommand());
         this.getCommand("acceptTOS").setExecutor(new AcceptTOSCommand());
         this.getCommand("pay").setExecutor(new PayCommand());
         this.getCommand("webwallet").setExecutor(new WebWalletCommand());
-        this.getCommand("donate").setExecutor(new DonateCommand());
+        donateCommand = new DonateCommand();
+        this.getCommand("donate").setExecutor(donateCommand);
+        //this.getCommand("donate").setTabCompleter(donateCommand);
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         eco = new LNBits();
     }

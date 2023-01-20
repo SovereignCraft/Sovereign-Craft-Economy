@@ -1,4 +1,4 @@
-package com.sovereigncraft.economy.commands;
+/* package com.sovereigncraft.economy.commands;
 
 import com.sovereigncraft.economy.SCEconomy;
 import org.bukkit.command.Command;
@@ -28,4 +28,4 @@ public class TOSCommand implements org.bukkit.command.CommandExecutor {
 
 		return true;
 	}
-}
+} */
