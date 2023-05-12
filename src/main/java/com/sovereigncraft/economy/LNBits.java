@@ -44,10 +44,6 @@ public class LNBits {
     }
     //create an invoice and return the bolt 11 ln string
     public String createInvoice(UUID uuid, Double amount) {
-        //System.out.println("Creating an Invoice");
-        //System.out.println(getWalletinkey(uuid));
-        //System.out.println(invoiceCmd);
-        //System.out.println(createInvoicePutString(amount));
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(invoiceCmd))
                 .headers("X-Api-Key", getWalletinkey(uuid))
@@ -65,7 +61,28 @@ public class LNBits {
         //System.out.println(String.join(",", "payment request: ", (String) json.JSON2Map(responseJSON).get("payment_request")));
         return (String) json.JSON2Map(responseJSON).get("payment_request");
     }
-
+    public Boolean userDelete(UUID uid){
+        Map user = getUser(uid);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(usersCmd + "/" + user.get("id") ))
+                .headers("X-Api-Key", ConfigHandler.getAdminKey())
+                .version(HttpClient.Version.HTTP_1_1)
+                .DELETE()
+                .build();
+        HttpClient client = HttpClient.newHttpClient();
+        try {
+            System.out.println("Success: " + client.send(request, HttpResponse.BodyHandlers.ofString()));
+        } catch (IOException | InterruptedException e) {
+            /*if (e instanceof IOExcepton){
+                System.out.print("IO Exception");
+            }
+            if (e instanceof  InterruptedException){
+                System.out.print("Interrupted Exception");
+            }
+            return false; */
+        }
+        return true;
+    }
     //process an invoice
     public Boolean processInvoice(UUID uuid, String invoice) {
         HttpRequest request = HttpRequest.newBuilder()
@@ -102,9 +119,6 @@ public class LNBits {
         return true;
     }
     public boolean createWallet(UUID uuid) {
-        //System.out.println("Create Wallet Called this API:");
-        //System.out.println(usersCmd);
-        //System.out.println(ConfigHandler.getAPIKey());
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(usersCmd))
                 .headers("X-Api-Key", ConfigHandler.getAPIKey())
@@ -112,7 +126,6 @@ public class LNBits {
                 .POST(HttpRequest.BodyPublishers.ofString(userPutString(uuid)))
                 .build();
         HttpClient client = HttpClient.newHttpClient();
-        //System.out.println(userPutString(uuid));
         try {
             client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException e) {
@@ -123,7 +136,6 @@ public class LNBits {
 
     //Get all users' LNBits account details
     public Map getUsers(){
-        //System.out.println("getting users");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(usersCmd))
                 .headers("X-Api-Key", ConfigHandler.getAdminKey())
@@ -155,7 +167,6 @@ public class LNBits {
 
 
     //Get the details for the users wallet used in game. Used for balance inquiry
-
     public String getWalletinkey(UUID uuid) {
         //System.out.println("constructing inkey");
         Map wallet = getWallet(uuid);
@@ -203,8 +214,6 @@ public class LNBits {
         return (wallet != null && wallet.containsKey("user"));
     }
     public Map getWallets() {
-        //System.out.println("Getting all the wallets");
-        //System.out.println(String.join(",", "with admin key: ", ConfigHandler.getAdminKey()));
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(userWalletCmd))
                 .headers("X-Api-Key", ConfigHandler.getAdminKey())
