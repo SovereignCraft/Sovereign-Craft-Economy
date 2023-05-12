@@ -18,7 +18,7 @@ public class PlayerJoinListener implements Listener {
 		//SCEconomy.getEco().createAccount(player.getUniqueId());
 		//async not working
 		if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-			player.sendMessage("To get started with your ⚡ wallet Type /TOS");
+			player.sendMessage("To get started with your ⚡ wallet Type /tos");
 			/*new BukkitRunnable() {
 
 				@Override
