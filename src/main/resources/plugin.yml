@@ -19,5 +19,9 @@ commands:
     description: Opens a webpage with your lightning wallet
   donate:
     description: Sends a donation to the server operations team. Thank You!
+  deposit:
+    description: Deposit Lightning with a QR code in game
   acceptTOS:
     description: Creates a new Lighting wallet if one does not exist. Please read TOS first.
+  refreshwallet:
+    description: regenerates wallet in case it was compromised
