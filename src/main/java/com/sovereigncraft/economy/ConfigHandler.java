@@ -9,6 +9,7 @@ public class ConfigHandler {
         return SCEconomy.getInstance().getConfig();
     }
     public static String getHost() { return getConfig().getString("host"); }
+    public static String getPubHost() { return getConfig().getString("pubhost"); }
 
     public static String getPort() {
         return getConfig().getString("port");

@@ -8,6 +8,14 @@ author: Sovtoshi
 description: Bitcoin Lightning Economy for Minecraft
 website: SovereignCraft.com
 commands:
+  cls:
+    description: Clear Screen
+  qrguide:
+    description: QRCode link to the player guide
+  qrvote:
+    description: QRCode Link to Vote guide
+  syncwallet:
+    description: Sync your wallet with LNDHub
   pay:
     description: Send some money to another player
     aliases: [send, tip]
@@ -25,3 +33,19 @@ commands:
     description: Creates a new Lighting wallet if one does not exist. Please read TOS first.
   refreshwallet:
     description: regenerates wallet in case it was compromised
+#  playerqr:
+#    description: Create a Private QR
+#    usage: /playerqr <text|link>
+#    permission: qrcodemap.create
+#    aliases:
+#      - privateqr
+#      - pqr
+  screen:
+    description: a dynamic updating map for private commands
+    usage: /screen
+  qrcode:
+    description: Create a QR-Code
+    usage: /qrcode <text|link>
+    aliases:
+      - qr
+      - qc

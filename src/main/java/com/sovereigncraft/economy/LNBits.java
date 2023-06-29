@@ -1,6 +1,7 @@
 package com.sovereigncraft.economy;
 
 import com.google.gson.Gson;
+import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -14,6 +15,7 @@ import java.util.*;
 
 public class LNBits {
     //string to construct the various API URLs for appropriate methods
+    public static String extensionsCmd = "https://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/extensions";
     public static String usersCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/usermanager/api/v1/users";
     public static String invoiceCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/payments";
     public static String userWalletCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/usermanager/api/v1/wallets";
@@ -98,6 +100,21 @@ public class LNBits {
         } catch (IOException | InterruptedException e) {
             return false;
         }
+    }
+    @SneakyThrows
+    public void extension(UUID uuid, String extension, Boolean enable) {
+        String action = "";
+        if (enable){
+            action = "enable";
+        } else { action = "disable"; }
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(extensionsCmd))
+                .headers("usr", (String) getUser(uuid).get("admin"), action, extension)
+                .version(HttpClient.Version.HTTP_1_1)
+                .POST(HttpRequest.BodyPublishers.ofString(processInvoicePutString(extensionsCmd)))
+                .build();
+        HttpClient client = HttpClient.newHttpClient();
+        client.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
     // Create a user and wallet for a new user

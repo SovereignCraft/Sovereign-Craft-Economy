@@ -21,10 +21,10 @@ public class DepositCommand implements org.bukkit.command.CommandExecutor {
                 return true;
             }
 
-            Player cur_player = (Player) sender;
+            Player player = (Player) sender;
 
-            if (!SCEconomy.getEco().hasAccount(cur_player.getUniqueId())) {
-                SCEconomy.getEco().tosMessage(cur_player);
+            if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
+                SCEconomy.getEco().tosMessage(player);
                 return true;
             }
 
@@ -40,9 +40,12 @@ public class DepositCommand implements org.bukkit.command.CommandExecutor {
                 return true;
             }
             else {
-                String invoice = SCEconomy.getEco().createInvoice(cur_player.getUniqueId(), amount);
-                System.out.println(invoice);
-                cur_player.chat("/qrcode " + invoice);
+                String data = SCEconomy.getEco().createInvoice(player.getUniqueId(), amount);
+                if (SCEconomy.playerQRInterface.get(player.getUniqueId()) == null) {
+                    SCEconomy.playerQRInterface.put(player.getUniqueId(), data);
+                } else SCEconomy.playerQRInterface.replace(player.getUniqueId(), data);
+                //SCEconomy.playerQRInterface.get(player.getUniqueId());
+                //cur_player.chat("/qrcode " + invoice);
                 }
 
             return true;

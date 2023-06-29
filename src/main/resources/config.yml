@@ -16,6 +16,7 @@ APIKey:
 AdminUser:
 #LNBits server DNS or IP
 host:
+pubhost:
 #LNBits port
 port: 5000
 TOSURL: "https://sovereigncraft.com/TOS"
