@@ -18,6 +18,8 @@ public class LNBits {
     public static String extensionsCmd = "https://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/extensions";
     public static String usersCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/usermanager/api/v1/users";
     public static String invoiceCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/payments";
+    public static String lnurlpCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/lnurlp/api/v1/links";
+    public static String lnurlwCmd = "https://" + ConfigHandler.getHost() + "/withdraw/api/v1/links";
     public static String userWalletCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/usermanager/api/v1/wallets";
     public static String walletCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/wallet";
     //Methods to construct a string of JSON as required for different methods
@@ -36,6 +38,28 @@ public class LNBits {
         stringMap.put("memo", "Sovereign Craft");
         return gson.toJson(stringMap);
     }
+    public String createlnurlpPutString(String description, int min, int max, String comment, String username) {
+        Gson gson = new Gson();
+        Map<String, String> stringMap = new LinkedHashMap<>();
+        stringMap.put("description", description);
+        stringMap.put("min", String.valueOf(min));
+        stringMap.put("max", String.valueOf(max));
+        stringMap.put("fiat_base_multiplier", "100");
+        stringMap.put("username", username.toLowerCase());
+        return gson.toJson(stringMap);
+    }
+    public String createlnurlwPutString(Double amt) {
+        Gson gson = new Gson();
+        int qty = amt.intValue();
+        Map<String, String> stringMap = new LinkedHashMap<>();
+        stringMap.put("title", "Sovereign Craft Withdraw");
+        stringMap.put("min_withdrawable", String.valueOf(qty));
+        stringMap.put("max_withdrawable", String.valueOf(qty));
+        stringMap.put("uses", "1");
+        stringMap.put("wait_time", "1");
+        stringMap.put("is_unique", "true");
+        return gson.toJson(stringMap);
+    }
     public String userPutString(UUID uuid){
         Gson gson = new Gson();
         Map<String, String> stringMap = new LinkedHashMap<>();
@@ -45,6 +69,37 @@ public class LNBits {
         return gson.toJson(stringMap);
     }
     //create an invoice and return the bolt 11 ln string
+    public void createlnurlp(UUID uuid, String description, int min, int max, String comment, String username) {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(lnurlpCmd))
+                .headers("X-Api-Key", getWalletAdminKey(uuid))
+                .version(HttpClient.Version.HTTP_1_1)
+                .POST(HttpRequest.BodyPublishers.ofString(createlnurlpPutString(description, min, max, comment, username)))
+                .build();
+        HttpClient client = HttpClient.newHttpClient();
+        try {
+          client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public String createlnurlw(UUID uuid, Double amt) {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(lnurlwCmd))
+                .headers("X-Api-Key", getWalletAdminKey(uuid))
+                .version(HttpClient.Version.HTTP_1_1)
+                .POST(HttpRequest.BodyPublishers.ofString(createlnurlwPutString(amt)))
+                .build();
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response = null;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        String responseJSON = response.body();
+        return (String) json.JSON2Map(responseJSON).get("lnurl");
+    }
     public String createInvoice(UUID uuid, Double amount) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(invoiceCmd))
@@ -270,7 +325,7 @@ public class LNBits {
         return "⚡" + SCEconomy.getEco().numberFormat(getBalance(uuid));
     }
     public String numberFormat(Double number){
-        DecimalFormat df = new DecimalFormat("###,###,###");
+        DecimalFormat df = new DecimalFormat("###,###,##0.00");
         df.setGroupingSize(3);
         return df.format(number);
     }

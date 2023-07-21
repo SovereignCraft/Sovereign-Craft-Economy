@@ -28,7 +28,9 @@ commands:
   donate:
     description: Sends a donation to the server operations team. Thank You!
   deposit:
-    description: Deposit Lightning with a QR code in game
+    description: Deposit Lightning with a QR screen in game
+  withdraw:
+    description: Withdraw Lightning with a QR screen in game
   acceptTOS:
     description: Creates a new Lighting wallet if one does not exist. Please read TOS first.
   refreshwallet:

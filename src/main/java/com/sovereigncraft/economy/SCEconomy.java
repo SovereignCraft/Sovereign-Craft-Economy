@@ -54,6 +54,7 @@ public final class SCEconomy extends JavaPlugin {
         this.getCommand("acceptTOS").setExecutor(new AcceptTOSCommand());
         this.getCommand("pay").setExecutor(new PayCommand());
         this.getCommand("deposit").setExecutor(new DepositCommand());
+        this.getCommand("withdraw").setExecutor(new WithdrawCommand());
         this.getCommand("webwallet").setExecutor(new WebWalletCommand());
         this.getCommand("refreshwallet").setExecutor(new RefreshWalletCommand());
         donateCommand = new DonateCommand();

@@ -30,6 +30,7 @@ public class PlayerJoinListener implements Listener {
 			player.sendMessage("To deposit/use your ⚡ wallet in real life type /webwallet.");
 			player.sendMessage("To sync your wallet to your device add the LNDHub extension to your webwallet, click the extension & follow the LNDHub instructions in the web portal");
 		}
+		SCEconomy.getEco().createlnurlp(player.getUniqueId(), "SCLNAddress", 10 , 5000000, "SCLNAddress", player.getName());
 		/*if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
 			System.out.println("no wallet detected");
 			SCEconomy.getEco().createAccount(player.getUniqueId());
