@@ -24,7 +24,7 @@ public class DonateCommand implements org.bukkit.command.CommandExecutor {
             }
             Player player = (Player) sender;
             if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-                SCEconomy.getEco().tosMessage(player);
+                sender.sendMessage("Your wallet isn't working");
                 return true;
             }
             double amount = 0;
@@ -52,12 +52,4 @@ public class DonateCommand implements org.bukkit.command.CommandExecutor {
             return true;
         }
     }
-    /* @Override
-    public List<String> onTabComplete(CommandSender sender, Command command, String s, String[] args) {
-        List<String> results = new ArrayList<>();
-        if (args.length == 1) {
-            results.add("<Amount>");
-        }
-        return results;
-    }*/
 }

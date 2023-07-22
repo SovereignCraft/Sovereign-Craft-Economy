@@ -1,9 +1,6 @@
 package com.sovereigncraft.economy.commands;
 
-import com.google.common.collect.ImmutableMap;
 import com.sovereigncraft.economy.SCEconomy;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -24,7 +21,7 @@ public class DepositCommand implements org.bukkit.command.CommandExecutor {
             Player player = (Player) sender;
 
             if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-                SCEconomy.getEco().tosMessage(player);
+                sender.sendMessage("Your wallet is not working.");
                 return true;
             }
 

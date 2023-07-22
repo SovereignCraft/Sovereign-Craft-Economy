@@ -25,7 +25,7 @@ public class PayCommand implements org.bukkit.command.CommandExecutor {
 			Player player = (Player) sender;
 
 				if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-					SCEconomy.getEco().tosMessage(player);
+					sender.sendMessage("Your wallet isn't working");
 					return true;
 				}
 			

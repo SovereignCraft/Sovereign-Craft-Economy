@@ -1,18 +1,10 @@
 package com.sovereigncraft.economy.commands;
 
-import com.sovereigncraft.economy.ConfigHandler;
 import com.sovereigncraft.economy.SCEconomy;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.google.common.collect.ImmutableMap;
-
-import com.sovereigncraft.economy.SCEconomy;
-
-import java.text.DecimalFormat;
 
 public class BalanceCommand implements org.bukkit.command.CommandExecutor {
 
@@ -30,8 +22,7 @@ public class BalanceCommand implements org.bukkit.command.CommandExecutor {
 				Player player = (Player) sender;
 				
 				if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-					player.sendMessage("You have not created your wallet.");
-					SCEconomy.getEco().tosMessage(player);
+					player.sendMessage("Your wallet is not working.");
 					return true;
 				}
 				sender.sendMessage(" Your balance is: " + SCEconomy.getEco().getBalanceString(player.getUniqueId()));

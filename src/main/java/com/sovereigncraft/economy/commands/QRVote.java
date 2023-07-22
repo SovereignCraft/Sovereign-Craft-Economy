@@ -28,9 +28,7 @@ public class QRVote implements CommandExecutor {
         if (SCEconomy.playerQRInterface.get(player.getUniqueId()) == null) {
             SCEconomy.playerQRInterface.put(player.getUniqueId(), data);
         } else SCEconomy.playerQRInterface.replace(player.getUniqueId(), data);
-        //SCEconomy.playerQRInterface.get(player.getUniqueId());
-        //QRCreator QRCreator = new QRCreator(data);
-        //QRCreator.playerGenerate(player);
+
 
         sender.sendMessage(prefix+SCEconomy.getMessage("messages.success"));
 

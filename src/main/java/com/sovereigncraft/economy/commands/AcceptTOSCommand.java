@@ -40,12 +40,6 @@ public class AcceptTOSCommand implements org.bukkit.command.CommandExecutor {
 
 			return true;
 
-		/*if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-			System.out.println("no wallet detected");
-			SCEconomy.getEco().createAccount(player.getUniqueId());
-		}*/
-
-
 		}
 
 		return true;

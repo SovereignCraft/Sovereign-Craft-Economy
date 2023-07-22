@@ -19,7 +19,6 @@ public class TemplateCreator {
         //code needed to add the data to the hashmap
         createDynBackground(mapView, true);
         createDynQR(mapView);
-        //createWatermark(mapView, true);
     }
     @SneakyThrows
     public void createTemplate (String data, MapView mapView){

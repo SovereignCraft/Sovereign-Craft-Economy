@@ -32,5 +32,4 @@ public class ConfigHandler {
     public static Double getStartingBalance() {
         return getConfig().getDouble("startingBalance");
     }
-    public static String getTOSURL() { return getConfig().getString("TOSURL"); }
 }

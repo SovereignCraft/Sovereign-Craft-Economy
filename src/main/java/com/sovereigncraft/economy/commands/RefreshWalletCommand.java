@@ -23,14 +23,13 @@ public class RefreshWalletCommand implements org.bukkit.command.CommandExecutor 
 				
 				if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
 					player.sendMessage("You have not created your wallet.");
-					SCEconomy.getEco().tosMessage(player);
+					sender.sendMessage("Your wallet isn't working");
 					return true;
 				}
 				Double bal = SCEconomy.getEco().getBalance(player.getUniqueId());
 				SCEconomy.getEco().withdraw(player.getUniqueId(),bal);
 				SCEconomy.getEco().userDelete(player.getUniqueId());
 				if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-					//System.out.println("no wallet detected for " + player.getName() + " - creating");
 					SCEconomy.getEco().createAccount(player.getUniqueId());
 					player.sendMessage("Your wallet has been recreated. Use the command /webwallet to access the new one and re-sync it to your mobile wallet wf required.");
 					player.sendMessage("To sync your wallet to your device add the LNDHub extension to your webwallet, click the extension & follow the LNDHub instructions in the web portal");

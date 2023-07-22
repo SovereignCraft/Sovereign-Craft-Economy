@@ -27,9 +27,6 @@ public class CLS implements CommandExecutor {
         String data = "";
         if (SCEconomy.playerQRInterface.get(player.getUniqueId()) == null) {
         } else SCEconomy.playerQRInterface.remove(player.getUniqueId());
-        //SCEconomy.playerQRInterface.get(player.getUniqueId());
-        //QRCreator QRCreator = new QRCreator(data);
-        //QRCreator.playerGenerate(player);
 
         sender.sendMessage(prefix+SCEconomy.getMessage("messages.success"));
 

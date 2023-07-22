@@ -115,7 +115,6 @@ public class LNBits {
             throw new RuntimeException(e);
         }
         String responseJSON = response.body();
-        //System.out.println(String.join(",", "payment request: ", (String) json.JSON2Map(responseJSON).get("payment_request")));
         return (String) json.JSON2Map(responseJSON).get("payment_request");
     }
     public Boolean userDelete(UUID uid){
@@ -128,15 +127,8 @@ public class LNBits {
                 .build();
         HttpClient client = HttpClient.newHttpClient();
         try {
-            System.out.println("Success: " + client.send(request, HttpResponse.BodyHandlers.ofString()));
+             client.send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException e) {
-            /*if (e instanceof IOExcepton){
-                System.out.print("IO Exception");
-            }
-            if (e instanceof  InterruptedException){
-                System.out.print("Interrupted Exception");
-            }
-            return false; */
         }
         return true;
     }
@@ -170,25 +162,6 @@ public class LNBits {
                 .build();
         HttpClient client = HttpClient.newHttpClient();
         client.send(request, HttpResponse.BodyHandlers.ofString());
-    }
-
-    // Create a user and wallet for a new user
-    public boolean tosMessage(Player sender){
-        if (!(sender instanceof Player)) {
-            sender.sendMessage( "Only players can get their web wallet");
-            return true;
-        }
-
-        Player player = (Player) sender;
-        String url = ConfigHandler.getTOSURL();
-        System.out.println(url);
-        Bukkit.getServer().dispatchCommand(
-                Bukkit.getConsoleSender(),
-                "tellraw " + player.getName() +
-                        " {\"text\":\"" + "Please accept the Terms of Service by clicking this message" +
-                        "\",\"clickEvent\":{\"action\":\"open_url\",\"value\":\"" +
-                        url + "\"}}");
-        return true;
     }
     public boolean createWallet(UUID uuid) {
         HttpRequest request = HttpRequest.newBuilder()
@@ -240,7 +213,6 @@ public class LNBits {
 
     //Get the details for the users wallet used in game. Used for balance inquiry
     public String getWalletinkey(UUID uuid) {
-        //System.out.println("constructing inkey");
         Map wallet = getWallet(uuid);
         return (String) wallet.get("inkey");
     }
@@ -266,9 +238,7 @@ public class LNBits {
         return json.JSON2Map(responseJSON);
     }
     public Map getWallet(UUID uuid) {
-        //System.out.println("getting a wallet");
         Map map = getWallets();
-        //System.out.println("Wallets gotten");
         List wallets = (List) map.get("wallets");
         for (Object currentWallet : wallets){
             Map wallet = (Map) currentWallet;
@@ -281,7 +251,6 @@ public class LNBits {
         } return (new HashMap<>());
     }
     public Boolean hasAccount(UUID uuid) {
-        //System.out.println("checking wallet");
         Map wallet = getWallet(uuid);
         return (wallet != null && wallet.containsKey("user"));
     }
@@ -301,16 +270,13 @@ public class LNBits {
         }
         String responseJSON = response.body();
         String cleanerJSON = "{ 'wallets': " + responseJSON + " }";
-        //System.out.println("I'm a map!");
         return json.JSON2Map(cleanerJSON);
     }
     public boolean withdraw(UUID uuid, Double amount) {
         return processInvoice(uuid, createInvoice( ConfigHandler.getServerUUID(), amount));
     }
     public boolean deposit(UUID uuid, Double amount) {
-        //System.out.println("Deposit running");
         Boolean payment = processInvoice(ConfigHandler.getServerUUID(), createInvoice(uuid, amount));
-        //System.out.println("Payment complete");
         if (payment){
             return true;
         }
@@ -337,8 +303,6 @@ public class LNBits {
     public boolean createAccount(UUID uuid) {
         Boolean account = createWallet(uuid);
         if (account){
-            //System.out.println("deposit starting balance command");
-            //System.out.println(String.join(",", "Attempting to deposit:", Double.toString(ConfigHandler.getStartingBalance())));
             Boolean deposit = deposit(uuid, ConfigHandler.getStartingBalance());
             if(deposit){
                 return true;

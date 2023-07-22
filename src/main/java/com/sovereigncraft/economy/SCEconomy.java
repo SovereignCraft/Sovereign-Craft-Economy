@@ -8,22 +8,12 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.ServicePriority;
-import com.sovereigncraft.economy.LNBits;
-
-import com.sovereigncraft.economy.eco.*;
 import com.sovereigncraft.economy.eco.VaultImpl;
 import com.sovereigncraft.economy.listeners.PlayerJoinListener;
-import org.checkerframework.checker.units.qual.C;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 public final class SCEconomy extends JavaPlugin {
@@ -64,10 +54,6 @@ public final class SCEconomy extends JavaPlugin {
         //this.getCommand("playerqr").setExecutor(new PlayerQRCode());
         Bukkit.getPluginManager().registerEvents(new MapInitialize(), this);
         playerQRInterface = new HashMap<>();
-        /*getCommand("screen").setExecutor(new getMapInterface());
-        getCommand("qrcode").setExecutor(new QRCode());
-        getCommand("playerqr").setExecutor(new PlayerQRCode());
-        Bukkit.getPluginManager().registerEvents(new MapInitialize(), this); */
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         eco = new LNBits();
         File mapsData = new File(getDataFolder()+File.separator+"data.yml");

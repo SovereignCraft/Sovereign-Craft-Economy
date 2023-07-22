@@ -21,7 +21,7 @@ public class WithdrawCommand implements org.bukkit.command.CommandExecutor {
             Player player = (Player) sender;
 
             if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-                SCEconomy.getEco().tosMessage(player);
+                sender.sendMessage("Your wallet isn't working");
                 return true;
             }
 
@@ -41,8 +41,6 @@ public class WithdrawCommand implements org.bukkit.command.CommandExecutor {
                 if (SCEconomy.playerQRInterface.get(player.getUniqueId()) == null) {
                     SCEconomy.playerQRInterface.put(player.getUniqueId(), data);
                 } else SCEconomy.playerQRInterface.replace(player.getUniqueId(), data);
-                //SCEconomy.playerQRInterface.get(player.getUniqueId());
-                //cur_player.chat("/qrcode " + invoice);
                 }
 
             return true;

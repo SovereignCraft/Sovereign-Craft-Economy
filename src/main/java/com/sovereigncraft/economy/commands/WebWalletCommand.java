@@ -23,7 +23,7 @@ public class WebWalletCommand implements org.bukkit.command.CommandExecutor {
 				
 				Player player = (Player) sender;
 				if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-					SCEconomy.getEco().tosMessage(player);
+					sender.sendMessage("Your wallet isn't working");
 					return true;
 				}
 				String url = "Https://wallet.sovereigncraft.com/wallet?usr=" + SCEconomy.getEco().getUser(player.getUniqueId()).get("id");

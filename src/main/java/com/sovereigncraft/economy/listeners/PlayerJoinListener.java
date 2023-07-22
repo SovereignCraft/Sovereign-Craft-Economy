@@ -13,10 +13,6 @@ public class PlayerJoinListener implements Listener {
 	public void onPlayerJoin(PlayerJoinEvent event) {
 
 		Player player = event.getPlayer();
-		//System.out.println("Player joined and event ran");
-		//System.out.println(player.getUniqueId());
-		//SCEconomy.getEco().createAccount(player.getUniqueId());
-		//async not working
 		if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
 			player.sendMessage("Your ⚡ wallet is being created Type /tos to view our terms of service.");
 			new BukkitRunnable() {
@@ -31,10 +27,6 @@ public class PlayerJoinListener implements Listener {
 			player.sendMessage("To sync your wallet to your device add the LNDHub extension to your webwallet, click the extension & follow the LNDHub instructions in the web portal");
 		}
 		SCEconomy.getEco().createlnurlp(player.getUniqueId(), "SCLNAddress", 10 , 5000000, "SCLNAddress", player.getName());
-		/*if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-			System.out.println("no wallet detected");
-			SCEconomy.getEco().createAccount(player.getUniqueId());
-		}*/
 
 	}
 	
