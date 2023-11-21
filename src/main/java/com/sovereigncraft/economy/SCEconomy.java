@@ -31,7 +31,7 @@ public final class SCEconomy extends JavaPlugin {
         instance = this;
         vaultImpl = new VaultImpl();
         if (!setupEconomy()) {
-            disable("Economy couldn't be registed, Vault plugin is missing!");
+            disable("Economy couldn't be registered, Vault plugin is missing!");
             return;
         }
         this.getLogger().info("Vault found, Economy has been registered.");
