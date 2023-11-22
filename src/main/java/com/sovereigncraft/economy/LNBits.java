@@ -15,7 +15,7 @@ import java.util.*;
 
 public class LNBits {
     //string to construct the various API URLs for appropriate methods
-    public static String extensionsCmd = "https://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/extensions";
+    public static String extensionsCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/extensions";
     public static String usersCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/usermanager/api/v1/users";
     public static String invoiceCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/payments";
     public static String lnurlpCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/lnurlp/api/v1/links";
@@ -173,6 +173,12 @@ public class LNBits {
         HttpClient client = HttpClient.newHttpClient();
         try {
             client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (SCEconomy.playerAdminKey.containsKey(uuid)){
+                SCEconomy.playerAdminKey.remove((uuid).toString());
+            }
+            if (SCEconomy.playerInKey.containsKey(uuid)){
+                SCEconomy.playerInKey.remove((uuid).toString());
+            }
         } catch (IOException | InterruptedException e) {
             return false;
         }
@@ -213,17 +219,32 @@ public class LNBits {
 
     //Get the details for the users wallet used in game. Used for balance inquiry
     public String getWalletinkey(UUID uuid) {
+        //check if Invoice Key is stored in the hashmap
+        if (SCEconomy.playerInKey.containsKey(uuid)){
+            // Bukkit.getLogger().info("using cached key");
+            return SCEconomy.playerInKey.get(uuid).toString();
+        }
         Map wallet = getWallet(uuid);
-        return (String) wallet.get("inkey");
+        SCEconomy.playerInKey.put(uuid,(String) wallet.get("inkey"));
+        return SCEconomy.playerInKey.get(uuid).toString();
+        //return (String) wallet.get("inkey");
     }
     public String getWalletAdminKey(UUID uuid) {
+        //check if the Admin Key is stored in the hashmap
+        if (SCEconomy.playerAdminKey.containsKey(uuid)){
+            // Bukkit.getLogger().info("using cached key");
+            //check if admin key doesn't actually return a wallet and if it doesn't remove the entry
+            return SCEconomy.playerAdminKey.get(uuid).toString();
+        }
+        // Bukkit.getLogger().info("finding admin key");
         Map wallet = getWallet(uuid);
-        return (String) wallet.get("adminkey");
+        SCEconomy.playerAdminKey.put(uuid,(String) wallet.get("adminkey"));
+        return SCEconomy.playerAdminKey.get(uuid).toString();
     }
     public Map getWalletDetail(UUID uuid) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(walletCmd))
-                .headers("X-Api-Key", (String) getWalletAdminKey(uuid))
+                .headers("X-Api-Key", getWalletAdminKey(uuid))
                 .version(HttpClient.Version.HTTP_1_1)
                 .GET()
                 .build();
@@ -252,7 +273,16 @@ public class LNBits {
     }
     public Boolean hasAccount(UUID uuid) {
         Map wallet = getWallet(uuid);
-        return (wallet != null && wallet.containsKey("user"));
+        if (wallet != null && wallet.containsKey("user")) {
+            return true;
+        }
+        if (SCEconomy.playerAdminKey.containsKey(uuid)){
+            SCEconomy.playerAdminKey.remove((uuid).toString());
+        }
+        if (SCEconomy.playerInKey.containsKey(uuid)){
+            SCEconomy.playerInKey.remove((uuid).toString());
+        }
+        return false;
     }
     public Map getWallets() {
         HttpRequest request = HttpRequest.newBuilder()

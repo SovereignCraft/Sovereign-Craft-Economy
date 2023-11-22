@@ -13,7 +13,9 @@ commands:
   qrguide:
     description: QRCode link to the player guide
   qrvote:
-    description: QRCode Link to Vote guide
+    description: QRCode link to vote guide
+  qrwebwallet:
+    description: QRCode link to Web Wallet
   syncwallet:
     description: Sync your wallet with LNDHub
   pay:

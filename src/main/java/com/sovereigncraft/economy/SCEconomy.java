@@ -24,6 +24,8 @@ public final class SCEconomy extends JavaPlugin {
 
     private static VaultImpl vaultImpl;
     public static HashMap playerQRInterface;
+    public static HashMap playerAdminKey;
+    public static HashMap playerInKey;
     @SneakyThrows
     @Override
     public void onEnable() {
@@ -39,6 +41,7 @@ public final class SCEconomy extends JavaPlugin {
         this.getCommand("syncwallet").setExecutor(new SyncWallet());
         this.getCommand("qrguide").setExecutor(new QRGuide());
         this.getCommand("qrvote").setExecutor(new QRVote());
+        this.getCommand("qrwebwallet").setExecutor(new QRWebWallet());
         this.getCommand("cls").setExecutor(new CLS());
         //this.getCommand("tos").setExecutor(new TOSCommand());
         this.getCommand("acceptTOS").setExecutor(new AcceptTOSCommand());
@@ -54,6 +57,8 @@ public final class SCEconomy extends JavaPlugin {
         //this.getCommand("playerqr").setExecutor(new PlayerQRCode());
         Bukkit.getPluginManager().registerEvents(new MapInitialize(), this);
         playerQRInterface = new HashMap<>();
+        playerAdminKey = new HashMap<>();
+        playerInKey = new HashMap<>();
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         eco = new LNBits();
         File mapsData = new File(getDataFolder()+File.separator+"data.yml");

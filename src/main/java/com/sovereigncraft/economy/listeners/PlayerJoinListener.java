@@ -14,17 +14,27 @@ public class PlayerJoinListener implements Listener {
 
 		Player player = event.getPlayer();
 		if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-			player.sendMessage("Your ⚡ wallet is being created Type /tos to view our terms of service.");
+			player.sendMessage("Your ⚡ wallet is being created.");
 			new BukkitRunnable() {
 
 				@Override
 				public void run() {
 					SCEconomy.getEco().createAccount(player.getUniqueId());
+					if (SCEconomy.playerAdminKey.containsKey(player.getUniqueId())){
+						SCEconomy.playerAdminKey.remove(player.getUniqueId());
+					}
+					if (SCEconomy.playerInKey.containsKey(player.getUniqueId())){
+						SCEconomy.playerInKey.remove(player.getUniqueId());
+					}
 				}
 			}.runTaskAsynchronously(SCEconomy.getInstance());
-		} else {
-			player.sendMessage("To deposit/use your ⚡ wallet in real life type /webwallet.");
-			player.sendMessage("To sync your wallet to your device add the LNDHub extension to your webwallet, click the extension & follow the LNDHub instructions in the web portal");
+
+		}
+		if (SCEconomy.playerAdminKey.containsKey(player.getUniqueId())){
+			SCEconomy.playerAdminKey.remove(player.getUniqueId());
+		}
+		if (SCEconomy.playerInKey.containsKey(player.getUniqueId())){
+			SCEconomy.playerInKey.remove(player.getUniqueId());
 		}
 		SCEconomy.getEco().createlnurlp(player.getUniqueId(), "SCLNAddress", 10 , 5000000, "SCLNAddress", player.getName());
 

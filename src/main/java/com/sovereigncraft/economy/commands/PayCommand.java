@@ -37,8 +37,7 @@ public class PayCommand implements org.bukkit.command.CommandExecutor {
 			}
 			
 			if (!SCEconomy.getEco().hasAccount(other.getUniqueId())) {
-				sender.sendMessage(String.join(",","This person has no wallet on this server", String.valueOf(ImmutableMap.of(
-						"%player%", other.getName()))));
+				sender.sendMessage(String.join(",","This person has no wallet on this server"));
 				return true;
 			}
 			
