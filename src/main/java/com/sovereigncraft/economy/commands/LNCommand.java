@@ -38,6 +38,10 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
             sender.sendMessage("Your wallet isn't working");
             return true;
         }
+        if (Objects.equals(args[0], "bal") && args.length == 1) {
+        sender.sendMessage(" Your balance is: " + SCEconomy.getEco().getBalanceString(player.getUniqueId()));
+        return true;
+    }
         if (Objects.equals(args[0], "cls") && args.length == 1) {
             String data = "";
             if (SCEconomy.playerQRInterface.get(player.getUniqueId()) == null) {
