@@ -37,7 +37,7 @@ public final class SCEconomy extends JavaPlugin {
             return;
         }
         this.getLogger().info("Vault found, Economy has been registered.");
-        this.getCommand("ln").setExecutor(new BalanceCommand());
+        this.getCommand("ln").setExecutor(new LNCommand());
         this.getCommand("balance").setExecutor(new BalanceCommand());
         this.getCommand("syncwallet").setExecutor(new SyncWallet());
         this.getCommand("qrguide").setExecutor(new QRGuide());
