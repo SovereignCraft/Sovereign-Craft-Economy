@@ -151,6 +151,27 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
 
             return true;
         }
+        if (Objects.equals(args[0], "qrguide") && args.length == 1) {
+            String data = "https://sovereigncraft.com/guide/";
+            if (SCEconomy.playerQRInterface.get(player.getUniqueId()) == null) {
+                SCEconomy.playerQRInterface.put(player.getUniqueId(), data);
+            } else SCEconomy.playerQRInterface.replace(player.getUniqueId(), data);
+
+            sender.sendMessage(prefix+SCEconomy.getMessage("messages.success"));
+
+            return true;
+        }
+        if (Objects.equals(args[0], "qrvote") && args.length == 1) {
+            String data = "https://sovereigncraft.com/vote";
+            if (SCEconomy.playerQRInterface.get(player.getUniqueId()) == null) {
+                SCEconomy.playerQRInterface.put(player.getUniqueId(), data);
+            } else SCEconomy.playerQRInterface.replace(player.getUniqueId(), data);
+
+
+            sender.sendMessage(prefix+SCEconomy.getMessage("messages.success"));
+            return true;
+        }
+
         if (Objects.equals(args[0], "refreshwallet") && args.length == 1) {
 
             Double bal = SCEconomy.getEco().getBalance(player.getUniqueId());
@@ -209,6 +230,7 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
             return true;
 
         }
+        sender.sendMessage("Command not found");
             return true;
     }
 

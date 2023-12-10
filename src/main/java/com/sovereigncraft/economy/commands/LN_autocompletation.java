@@ -20,7 +20,7 @@ public class LN_autocompletation implements TabCompleter {
             if (args.length == 1) {
                 String input = args[0].toLowerCase();
                 List<String> options;
-                options = Arrays.asList("screen", "deposit", "withdraw", "cls", "webwallet", "bal", "pay", "qrvote", "qrguide", "qrwebwallet", "qrsyncwallet", "syncwallet", "refreshwallet");
+                options = Arrays.asList("screen", "deposit", "withdraw", "cls", "webwallet", "bal", "pay", "qrvote", "qrguide", "qrwebwallet", "syncwallet", "refreshwallet");
                 List<String> filteredOptions = new ArrayList<>();
                 for (String option : options) {
                     if (option.startsWith(input))
