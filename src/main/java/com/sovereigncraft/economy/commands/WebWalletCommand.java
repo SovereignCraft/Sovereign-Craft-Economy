@@ -27,7 +27,6 @@ public class WebWalletCommand implements org.bukkit.command.CommandExecutor {
 					return true;
 				}
 				String url = "Https://wallet.sovereigncraft.com/wallet?usr=" + SCEconomy.getEco().getUser(player.getUniqueId()).get("id");
-				System.out.println(url);
 					Bukkit.getServer().dispatchCommand(
 							Bukkit.getConsoleSender(),
 							"tellraw " + player.getName() +

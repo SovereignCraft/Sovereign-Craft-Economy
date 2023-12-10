@@ -8,6 +8,8 @@ author: Sovtoshi
 description: Bitcoin Lightning Economy for Minecraft
 website: SovereignCraft.com
 commands:
+  ln:
+    description: /ln screen|webwallet|option [amount]
   cls:
     description: Clear Screen
   qrguide:
