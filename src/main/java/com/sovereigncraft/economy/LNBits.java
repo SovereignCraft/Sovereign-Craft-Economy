@@ -321,7 +321,7 @@ public class LNBits {
         return "⚡" + SCEconomy.getEco().numberFormat(getBalance(uuid));
     }
     public String numberFormat(Double number){
-        DecimalFormat df = new DecimalFormat("###,###,##0.00");
+        DecimalFormat df = new DecimalFormat("###,###,##0.000");
         df.setGroupingSize(3);
         return df.format(number);
     }
