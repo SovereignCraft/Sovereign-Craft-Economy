@@ -15,6 +15,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.MapMeta;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class LNCommand implements org.bukkit.command.CommandExecutor {
@@ -39,9 +41,21 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
             return true;
         }
         if (Objects.equals(args[0], "bal") && args.length == 1) {
-        sender.sendMessage(" Your balance is: " + SCEconomy.getEco().getBalanceString(player.getUniqueId()));
-        return true;
-    }
+            sender.sendMessage(" Your balance is: " + SCEconomy.getEco().getBalanceString(player.getUniqueId()));
+            return true;
+        }
+        if (Objects.equals(args[0], "bal") && args.length == 2) {
+            List<String> options = SCEconomy.getEco().getCurrencies();
+            for (String object : options) {
+                if (Objects.equals(object, args[1].toUpperCase())){
+                    Double bal = SCEconomy.getEco().getConversion("sat", SCEconomy.getEco().getBalance(player.getUniqueId()), args[1].toUpperCase());
+                    sender.sendMessage(" Your balance is: " + SCEconomy.getEco().numberFiatFormat(bal) + " " + args[1].toUpperCase());
+                    return true;
+                }
+            }
+            sender.sendMessage(args[1].toUpperCase() + " currency not found.");
+            return true;
+        }
         if (Objects.equals(args[0], "cls") && args.length == 1) {
             String data = "";
             if (SCEconomy.playerQRInterface.get(player.getUniqueId()) == null) {
@@ -73,7 +87,6 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
             return true;
         }
         if (Objects.equals(args[0], "deposit") && args.length == 2) {
-
             double amount = 0;
             try {
                 amount = Double.parseDouble(args[1]);
@@ -96,8 +109,37 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
             return true;
 
         }
+        if (Objects.equals(args[0], "deposit") && args.length == 3) {
+            double amount = 0;
+            try {
+                amount = Double.parseDouble(args[1]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage("This amount is invalid");
+                return true;
+            }
+            if (amount <= 0) {
+                sender.sendMessage("you cannot use this command to withdraw");
+                return true;
+            }
+            List<String> options = SCEconomy.getEco().getCurrencies();
+            for (String object : options) {
+                if (Objects.equals(object, args[2].toUpperCase())) {
+                    Double newamount = SCEconomy.getEco().getConversion(args[2].toUpperCase(), amount, "sats");
+                    String data = SCEconomy.getEco().createInvoice(player.getUniqueId(), newamount);
+                    if (SCEconomy.playerQRInterface.get(player.getUniqueId()) == null) {
+                        SCEconomy.playerQRInterface.put(player.getUniqueId(), data);
+                        return true;
+                    }
+                    SCEconomy.playerQRInterface.replace(player.getUniqueId(), data);
+                    return true;
+
+                }
+            }
+            sender.sendMessage(args[2] + " currency not found.");
+            return true;
+        }
         if (Objects.equals(args[0], "pay") && args.length == 3) {
-            OfflinePlayer other = Bukkit.getOfflinePlayer(args[1]);
+        OfflinePlayer other = Bukkit.getOfflinePlayer(args[1]);
 
             if (other == null) {
                 sender.sendMessage("Could not find other player");
@@ -208,6 +250,36 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                             url + "\"}}");
             return true;
         }
+        if (Objects.equals(args[0], "withdraw") && args.length == 3) {
+            double amount = 0;
+            try {
+                amount = Double.parseDouble(args[1]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage("This amount is invalid");
+                return true;
+            }
+            if (amount <= 0) {
+                sender.sendMessage("you cannot use this command to deposit");
+                return true;
+            } else {
+                List<String> options = SCEconomy.getEco().getCurrencies();
+                for (String object : options) {
+                    if (Objects.equals(object, args[2].toUpperCase())) {
+                        Double newamount = SCEconomy.getEco().getConversion(args[2].toUpperCase(), amount, "sats");
+                        String data = SCEconomy.getEco().createlnurlw(player.getUniqueId(), newamount);
+                        if (SCEconomy.playerQRInterface.get(player.getUniqueId()) == null) {
+                            SCEconomy.playerQRInterface.put(player.getUniqueId(), data);
+                            return true;
+                        }
+                        SCEconomy.playerQRInterface.replace(player.getUniqueId(), data);
+                        return true;
+                    }
+
+                }
+                sender.sendMessage(args[2] + " currency not found.");
+                return true;
+            }
+        }
         if (Objects.equals(args[0], "withdraw") && args.length == 2) {
             double amount = 0;
             try {
@@ -220,6 +292,7 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 sender.sendMessage("you cannot use this command to deposit");
                 return true;
             }
+
             else {
                 String data = SCEconomy.getEco().createlnurlw(player.getUniqueId(), amount);
                 if (SCEconomy.playerQRInterface.get(player.getUniqueId()) == null) {

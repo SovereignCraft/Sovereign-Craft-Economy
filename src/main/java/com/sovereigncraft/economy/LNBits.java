@@ -2,8 +2,7 @@ package com.sovereigncraft.economy;
 
 import com.google.gson.Gson;
 import lombok.SneakyThrows;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.bukkit.World;
 
 import java.io.IOException;
 import java.net.URI;
@@ -22,6 +21,8 @@ public class LNBits {
     public static String lnurlwCmd = "https://" + ConfigHandler.getHost() + "/withdraw/api/v1/links";
     public static String userWalletCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/usermanager/api/v1/wallets";
     public static String walletCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/wallet";
+    public static String currenciesCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/currencies";
+    public static String convertCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/conversion";
     //Methods to construct a string of JSON as required for different methods
     public String processInvoicePutString(String invoice) {
         Gson gson = new Gson();
@@ -29,6 +30,45 @@ public class LNBits {
         stringMap.put("out", "true");
         stringMap.put("bolt11", invoice);
         return gson.toJson(stringMap);
+    }
+    public String convertPostString(String from, Double amount, String to) {
+        Gson gson = new Gson();
+        Map<String, String> stringMap = new LinkedHashMap<>();
+        stringMap.put("from_", from.toLowerCase());
+        stringMap.put("amount", String.valueOf(amount));
+        stringMap.put("to", to);
+        return gson.toJson(stringMap);
+    }
+    public Double getConversion (String from, Double amount, String to) {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(convertCmd))
+                .version(HttpClient.Version.HTTP_1_1)
+                .POST(HttpRequest.BodyPublishers.ofString(convertPostString(from.toLowerCase(), amount, to.toLowerCase())))
+                .build();
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response = null;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return (Double) json.JSON2Map(response.body()).get(to);
+    }
+
+    public List<String> getCurrencies(){
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(currenciesCmd))
+                .version(HttpClient.Version.HTTP_1_1)
+                .GET()
+                .build();
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response = null;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return json.JSON2List(String.valueOf(response.body()));
     }
     public String createInvoicePutString(Double amt) {
         Gson gson = new Gson();
@@ -322,6 +362,11 @@ public class LNBits {
     }
     public String numberFormat(Double number){
         DecimalFormat df = new DecimalFormat("###,###,##0.000");
+        df.setGroupingSize(3);
+        return df.format(number);
+    }
+    public String numberFiatFormat(Double number){
+        DecimalFormat df = new DecimalFormat("###,###,##0.00");
         df.setGroupingSize(3);
         return df.format(number);
     }
