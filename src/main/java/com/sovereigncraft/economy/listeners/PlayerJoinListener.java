@@ -1,6 +1,7 @@
 package com.sovereigncraft.economy.listeners;
 
 import com.sovereigncraft.economy.SCEconomy;
+import com.sovereigncraft.economy.ConfigHandler;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -36,8 +37,9 @@ public class PlayerJoinListener implements Listener {
 		if (SCEconomy.playerInKey.containsKey(player.getUniqueId())){
 			SCEconomy.playerInKey.remove(player.getUniqueId());
 		}
-		SCEconomy.getEco().createlnurlp(player.getUniqueId(), "SCLNAddress", 10 , 5000000, "SCLNAddress", player.getName());
-
+		if (ConfigHandler.getLNAddress().equals(true)) {
+			SCEconomy.getEco().createlnurlp(player.getUniqueId(), "SCLNAddress", 10, 5000000, "SCLNAddress", player.getName());
+		}
 	}
 	
 }

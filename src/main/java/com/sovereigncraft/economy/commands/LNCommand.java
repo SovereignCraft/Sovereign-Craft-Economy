@@ -280,10 +280,10 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 return true;
             }
         }
-        if (Objects.equals(args[0], "withdraw") && args.length == 2) {
+        if (Objects.equals(args[0], "send") && Objects.equals(args[1], "lnaddress") && args.length == 4) {
             double amount = 0;
             try {
-                amount = Double.parseDouble(args[1]);
+                amount = Double.parseDouble(args[3]);
             } catch (NumberFormatException e) {
                 sender.sendMessage("This amount is invalid");
                 return true;
@@ -292,17 +292,19 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 sender.sendMessage("you cannot use this command to deposit");
                 return true;
             }
-
+            if (!SCEconomy.getEco().has(player.getUniqueId(), amount)) {
+                sender.sendMessage("Stack more Sats");
+                return true;
+            }
             else {
-                String data = SCEconomy.getEco().createlnurlw(player.getUniqueId(), amount);
-                if (SCEconomy.playerQRInterface.get(player.getUniqueId()) == null) {
-                    SCEconomy.playerQRInterface.put(player.getUniqueId(), data);
-                } else SCEconomy.playerQRInterface.replace(player.getUniqueId(), data);
+                SCEconomy.getEco().sendLNAddress(player.getUniqueId(), args[2], amount);
+                sender.sendMessage("Send attempt completed");
             }
 
             return true;
 
         }
+
         sender.sendMessage("Command not found");
             return true;
     }

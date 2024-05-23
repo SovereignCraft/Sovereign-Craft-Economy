@@ -6,6 +6,7 @@ import org.bukkit.World;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -23,6 +24,8 @@ public class LNBits {
     public static String walletCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/wallet";
     public static String currenciesCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/currencies";
     public static String convertCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/conversion";
+    public static String lnurlscanCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/lnurlscan/";
+    public static String paylnurlCmd = "https://" + ConfigHandler.getHost() + "/api/v1/payments/lnurl";
     //Methods to construct a string of JSON as required for different methods
     public String processInvoicePutString(String invoice) {
         Gson gson = new Gson();
@@ -38,6 +41,55 @@ public class LNBits {
         stringMap.put("amount", String.valueOf(amount));
         stringMap.put("to", to);
         return gson.toJson(stringMap);
+    }
+    public Map sendLNAddress (UUID player, String lnaddr, Double amount){
+        Map lnurl = convertLnaddrtoLnurl(lnaddr);
+        Map paid = payLnurl(player, lnurl, amount);
+        return paid;
+    }
+    public Map convertLnaddrtoLnurl (String lnaddr) {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(lnurlscanCmd + URLEncoder.encode(lnaddr)))
+                .headers("X-Api-Key", ConfigHandler.getAdminKey())
+                .version(HttpClient.Version.HTTP_1_1)
+                .GET()
+                .build();
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response = null;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        String responseJSON = response.body();
+        return json.JSON2Map(responseJSON);
+    }
+    public String payLnurlPostString(Map lnurl, Double amount) {
+        Gson gson = new Gson();
+        int milliAmount = (int) Math.floor(amount * 1000);
+        Map<String, String> stringMap = new LinkedHashMap<>();
+        stringMap.put("description_hash", lnurl.get("description_hash").toString());
+        stringMap.put("callback", lnurl.get("callback").toString());
+        stringMap.put("amount", String.valueOf(milliAmount));
+        stringMap.put("description", lnurl.get("description").toString());
+        stringMap.put("unit", "sat");
+         return gson.toJson(stringMap);
+    }
+    public Map payLnurl(UUID uuid, Map lnurl, Double amount) {
+         HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(paylnurlCmd))
+                .headers("X-Api-Key", getWalletAdminKey(uuid))
+                .version(HttpClient.Version.HTTP_1_1)
+                .POST(HttpRequest.BodyPublishers.ofString(payLnurlPostString(lnurl, amount)))
+                .build();
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response = null;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return json.JSON2Map(response.body());
     }
     public Double getConversion (String from, Double amount, String to) {
         HttpRequest request = HttpRequest.newBuilder()

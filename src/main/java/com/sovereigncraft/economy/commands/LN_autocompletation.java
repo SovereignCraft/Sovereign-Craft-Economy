@@ -21,7 +21,7 @@ public class LN_autocompletation implements TabCompleter {
             if (args.length == 1) {
                 String input = args[0].toLowerCase();
                 List<String> options;
-                options = Arrays.asList("screen", "deposit", "withdraw", "cls", "webwallet", "bal", "pay", "qrvote", "qrguide", "qrwebwallet", "syncwallet", "refreshwallet");
+                options = Arrays.asList("screen", "deposit", "withdraw", "send", "cls", "webwallet", "bal", "pay", "qrvote", "qrguide", "qrwebwallet", "syncwallet", "refreshwallet");
                 List<String> filteredOptions = new ArrayList<>();
                 for (String option : options) {
                     if (option.startsWith(input))
@@ -43,14 +43,45 @@ public class LN_autocompletation implements TabCompleter {
                 }
             }
             if (args.length == 2) {
-                if (args[0].equals("deposit") || args[0].equals("withdraw") || args[0].equals("pay")) {
+                if (args[0].equals("send")) {
                     String input = args[1].toLowerCase();
-                    List<String> options;
-                    options = Arrays.asList("[Enter the amount]");
                     List<String> filteredOptions = new ArrayList<>();
+                    List<String> options = Arrays.asList("lnaddress");
                     for (String option : options) {
-                        if (option.startsWith(input) && !(input.startsWith("[")))
+                        if (option.startsWith(input))
                             filteredOptions.add(option);
+                    }
+                    return filteredOptions;
+                }
+            }
+            if (args.length == 3) {
+                if (args[0].equals("send") && args[1].equals("lnaddress")) {
+                    List<String> filteredOptions = new ArrayList<>();
+                    if (args[2].isEmpty()) {
+                        List<String> options;
+                        options = Arrays.asList("[lnaddress (someone@somewhere.com)]");
+                        filteredOptions.addAll(options);
+                    }
+                    return filteredOptions;
+                }
+            }
+            if (args.length == 4) {
+                if (args[0].equals("send") && args[1].equals("lnaddress")) {
+                    List<String> filteredOptions = new ArrayList<>();
+                    if (args[3].isEmpty()) {
+                        List<String> options;
+                        options = Arrays.asList("[amount]");
+                        filteredOptions.addAll(options);
+                    }
+                    return filteredOptions;
+                }
+            }
+            if (args.length == 2) {
+                if (args[0].equals("deposit") || args[0].equals("withdraw") || args[0].equals("pay")) {
+                    List<String> filteredOptions = new ArrayList<>();
+                    if (args[1].isEmpty()) {
+                        List<String> options = Arrays.asList("[Enter the amount]");
+                        filteredOptions.addAll(options);
                     }
                     return filteredOptions;
                 }

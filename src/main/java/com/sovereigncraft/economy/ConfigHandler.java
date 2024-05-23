@@ -28,7 +28,7 @@ public class ConfigHandler {
     public static String getAdminKey() {
         return getConfig().getString("AdminKey");
     }
-
+    public static Boolean getLNAddress() { return (getConfig().getBoolean("lnaddress")); }
     public static Double getStartingBalance() {
         return getConfig().getDouble("startingBalance");
     }
