@@ -297,8 +297,7 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 return true;
             }
             else {
-                SCEconomy.getEco().sendLNAddress(player.getUniqueId(), args[2], amount);
-                sender.sendMessage("Send attempt completed");
+                SCEconomy.getEco().sendLNAddress(player, args[2], amount);
             }
 
             return true;

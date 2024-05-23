@@ -3,6 +3,7 @@ package com.sovereigncraft.economy;
 import com.google.gson.Gson;
 import lombok.SneakyThrows;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 import java.io.IOException;
 import java.net.URI;
@@ -42,10 +43,16 @@ public class LNBits {
         stringMap.put("to", to);
         return gson.toJson(stringMap);
     }
-    public Map sendLNAddress (UUID player, String lnaddr, Double amount){
+    public void sendLNAddress (Player player, String lnaddr, Double amount){
         Map lnurl = convertLnaddrtoLnurl(lnaddr);
-        Map paid = payLnurl(player, lnurl, amount);
-        return paid;
+        if (lnurl.containsKey("callback")) {
+            if (!lnurl.get("description").toString().isEmpty()) {
+                player.sendMessage("Sending to: " + lnurl.get("description").toString());
+            }
+            Map paid = payLnurl(player.getUniqueId(), lnurl, amount);
+            if (paid.containsKey("payment_hash")) player.sendMessage("Payment Successful");
+            else player.sendMessage("Payment Failed");
+        } else player.sendMessage("Invalid Lightning address");
     }
     public Map convertLnaddrtoLnurl (String lnaddr) {
         HttpRequest request = HttpRequest.newBuilder()
@@ -89,6 +96,7 @@ public class LNBits {
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
+
         return json.JSON2Map(response.body());
     }
     public Double getConversion (String from, Double amount, String to) {
