@@ -17,7 +17,7 @@ import java.util.*;
 public class LNBits {
     //string to construct the various API URLs for appropriate methods
     public static String extensionsCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/extensions";
-    public static String usersCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/usermanager/api/v1/users";
+    public static String usersCmd = "https://" + ConfigHandler.getHost() + "/usermanager/api/v1/users";
     public static String invoiceCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/payments";
     public static String lnurlpCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/lnurlp/api/v1/links";
     public static String lnurlwCmd = "https://" + ConfigHandler.getHost() + "/withdraw/api/v1/links";
@@ -266,13 +266,14 @@ public class LNBits {
     public boolean createWallet(UUID uuid) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(usersCmd))
-                .headers("X-Api-Key", ConfigHandler.getAPIKey())
+                .headers("X-Api-Key", ConfigHandler.getAdminKey())
                 .version(HttpClient.Version.HTTP_1_1)
                 .POST(HttpRequest.BodyPublishers.ofString(userPutString(uuid)))
                 .build();
         HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response = null;
         try {
-            client.send(request, HttpResponse.BodyHandlers.ofString());
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (SCEconomy.playerAdminKey.containsKey(uuid)){
                 SCEconomy.playerAdminKey.remove((uuid).toString());
             }
