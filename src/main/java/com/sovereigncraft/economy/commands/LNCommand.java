@@ -250,6 +250,27 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                             url + "\"}}");
             return true;
         }
+        if (Objects.equals(args[0], "withdraw") && args.length == 2) {
+            double amount = 0;
+            try {
+                amount = Double.parseDouble(args[1]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage("This amount is invalid");
+                return true;
+            }
+            if (amount <= 0) {
+                sender.sendMessage("you cannot use this command to deposit");
+                return true;
+            } else {
+                String data = SCEconomy.getEco().createlnurlw(player.getUniqueId(), amount);
+                if (SCEconomy.playerQRInterface.get(player.getUniqueId()) == null) {
+                    SCEconomy.playerQRInterface.put(player.getUniqueId(), data);
+                    return true;
+                }
+                SCEconomy.playerQRInterface.replace(player.getUniqueId(), data);
+                return true;
+            }
+        }
         if (Objects.equals(args[0], "withdraw") && args.length == 3) {
             double amount = 0;
             try {
