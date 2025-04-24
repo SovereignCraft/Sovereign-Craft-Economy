@@ -25,6 +25,7 @@ public class LNBits {
     public static String lnurlwCmd = "https://" + ConfigHandler.getHost() + "/withdraw/api/v1/links";
     // ===== COMMENTED OUT DUE TO LNBits 1.0.0 API UPDATE =====
     //public static String userWalletCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/usermanager/api/v1/wallets";
+    // might need getPort, unsure.
     public static String userWalletCmd = "https://" + ConfigHandler.getHost() + "/users/api/v1/user"; // For user-specific wallets
     public static String walletCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/wallet";
     public static String currenciesCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/currencies";
