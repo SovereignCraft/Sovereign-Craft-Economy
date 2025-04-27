@@ -2,7 +2,7 @@ package com.sovereigncraft.economy;
 
 import com.google.gson.Gson;
 import lombok.SneakyThrows;
-import org.bukkit.World;
+//import org.bukkit.World; // isn't used.
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
@@ -49,17 +49,17 @@ public class LNBits {
         return gson.toJson(stringMap);
     }
     public void sendLNAddress (Player player, String lnaddr, Double amount){
-        Map lnurl = convertLnaddrtoLnurl(lnaddr);
+        Map<String, Object> lnurl = convertLnaddrtoLnurl(lnaddr);
         if (lnurl.containsKey("callback")) {
             if (!lnurl.get("description").toString().isEmpty()) {
                 player.sendMessage("Sending to: " + lnurl.get("description").toString());
             }
-            Map paid = payLnurl(player.getUniqueId(), lnurl, amount);
+            Map<String, Object> paid = payLnurl(player.getUniqueId(), lnurl, amount);
             if (paid.containsKey("payment_hash")) player.sendMessage("Payment Successful");
             else player.sendMessage("Payment Failed");
         } else player.sendMessage("Invalid Lightning address");
     }
-    public Map convertLnaddrtoLnurl (String lnaddr) {
+    public Map<String, Object> convertLnaddrtoLnurl (String lnaddr) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(lnurlscanCmd + URLEncoder.encode(lnaddr)))
                 .headers("X-Api-Key", ConfigHandler.getAdminKey())
@@ -76,7 +76,7 @@ public class LNBits {
         String responseJSON = response.body();
         return json.JSON2Map(responseJSON);
     }
-    public String payLnurlPostString(Map lnurl, Double amount) {
+    public String payLnurlPostString(Map<String, Object> lnurl, Double amount) {
         Gson gson = new Gson();
         int milliAmount = (int) Math.floor(amount * 1000);
         Map<String, String> stringMap = new LinkedHashMap<>();
@@ -87,7 +87,7 @@ public class LNBits {
         stringMap.put("unit", "sat");
          return gson.toJson(stringMap);
     }
-    public Map payLnurl(UUID uuid, Map lnurl, Double amount) {
+    public Map<String, Object> payLnurl(UUID uuid, Map<String, Object> lnurl, Double amount) {
          HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(paylnurlCmd))
                 .headers("X-Api-Key", getWalletAdminKey(uuid))
@@ -252,7 +252,7 @@ public class LNBits {
     // Deletes a user by UUID (name).
     public Boolean userDelete(UUID uuid) {
         try {
-            Map user = getUser(uuid);  // Uses refactored getUser(UUID)
+            Map<String, Object> user = getUser(uuid);  // Uses refactored getUser(UUID)
             String userId = (String) user.get("id");
             
             HttpRequest request = HttpRequest.newBuilder()
@@ -370,7 +370,7 @@ public class LNBits {
     */
     // ===== REFACTORED FOR LNBits 1.0.0 =====
     // LNBits 1.0.0 returns a raw list of users, so we directly return List<Map>.
-    public List<Map> getUsers() {
+    public List<Map<String, Object>> getUsers() {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(usersCmd))  // https://<host>/users/api/v1/user
@@ -380,8 +380,9 @@ public class LNBits {
                     .build();
             HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            
-            return json.JSON2List(response.body());  // Directly parse as List
+    
+            // Parses response as a List<Map<String, Object>> using JSON2ListOfMaps.
+            return json.JSON2ListOfMaps(response.body());
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -399,7 +400,7 @@ public class LNBits {
         } throw new NullPointerException();
     }
     */
-    public Map getUser(UUID uuid) {
+    public Map<String, Object> getUser(UUID uuid) {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(usersCmd + "?all_wallets=true"))
@@ -410,8 +411,11 @@ public class LNBits {
             HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             
-            List<Map> users = json.JSON2List(response.body());
-            for (Map user : users) {
+            // ===== PARSES USER LIST FROM LNBits 1.0.0 RESPONSE USING JSON2ListOfMaps =====
+            List<Map<String, Object>> users = json.JSON2ListOfMaps(response.body());
+            
+            // ===== ITERATES TO FIND USER MATCHING UUID =====
+            for (Map<String, Object> user : users) {
                 if (String.valueOf(uuid).equals(user.get("name"))) {
                     return user;
                 }
@@ -428,7 +432,7 @@ public class LNBits {
         if (SCEconomy.playerInKey.containsKey(uuid)){
             return SCEconomy.playerInKey.get(uuid).toString();
         }
-        Map wallet = getWallet(uuid);  // getWallet(UUID) uses refactored user-based lookup
+        Map<String, Object> wallet = getWallet(uuid);  // getWallet(UUID) uses refactored user-based lookup
         SCEconomy.playerInKey.put(uuid, (String) wallet.get("inkey"));
         return SCEconomy.playerInKey.get(uuid).toString();
     }
@@ -439,11 +443,11 @@ public class LNBits {
         if (SCEconomy.playerAdminKey.containsKey(uuid)){
             return SCEconomy.playerAdminKey.get(uuid).toString();
         }
-        Map wallet = getWallet(uuid);  // getWallet(UUID) uses refactored user-based lookup
+        Map<String, Object> wallet = getWallet(uuid);  // getWallet(UUID) uses refactored user-based lookup
         SCEconomy.playerAdminKey.put(uuid, (String) wallet.get("adminkey"));
         return SCEconomy.playerAdminKey.get(uuid).toString();
     }
-    public Map getWalletDetail(UUID uuid) {
+    public Map<String, Object> getWalletDetail(UUID uuid) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(walletCmd))
                 .headers("X-Api-Key", getWalletAdminKey(uuid))
@@ -477,9 +481,10 @@ public class LNBits {
     */
     // ===== REFACTORED FOR LNBits 1.0.0 =====
     // Retrieves the first wallet associated with the user.
-    public Map getWallet(UUID uuid) {
-        Map user = getUser(uuid);  // Uses refactored getUser(UUID)
-        List<Map> wallets = (List<Map>) user.get("wallets");  // Extract wallets from user
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> getWallet(UUID uuid) {
+        Map<String, Object> user = getUser(uuid);  // Uses refactored getUser(UUID)
+        List<Map<String, Object>> wallets = (List<Map<String, Object>>) user.get("wallets");  // Extract wallets from user
         
         if (wallets == null || wallets.isEmpty()) {
             throw new NullPointerException("No wallet found for user: " + uuid);
@@ -546,7 +551,7 @@ public class LNBits {
         return false;
     }
     public Double getBalance(UUID uuid) {
-        Map map = getWalletDetail(uuid);
+        Map<String, Object> map = getWalletDetail(uuid);
         Double bal =  (Double) map.get("balance") / 1000;
         return bal;
     }
