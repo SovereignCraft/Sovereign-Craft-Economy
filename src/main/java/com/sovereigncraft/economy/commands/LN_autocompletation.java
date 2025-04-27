@@ -1,11 +1,11 @@
 package com.sovereigncraft.economy.commands;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
+//import org.bukkit.Bukkit; // isn't used.
+//import org.bukkit.Material; // isn't used.
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Player;
+//import org.bukkit.entity.Player; // isn't used.
 import com.sovereigncraft.economy.SCEconomy;
 
 import java.util.ArrayList;
