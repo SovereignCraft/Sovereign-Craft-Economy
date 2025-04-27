@@ -7,7 +7,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.google.common.collect.ImmutableMap;
+//import com.google.common.collect.ImmutableMap; // isn't used.
 
 public class PayCommand implements org.bukkit.command.CommandExecutor {
 
