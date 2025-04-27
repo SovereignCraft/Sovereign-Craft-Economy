@@ -1,7 +1,6 @@
 package com.sovereigncraft.economy;
 
 import com.sovereigncraft.economy.commands.*;
-import com.sovereigncraft.economy.commands.DonateCommand;
 import com.sovereigncraft.economy.listeners.MapInitialize;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,7 +14,7 @@ import com.sovereigncraft.economy.listeners.PlayerJoinListener;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
+//import java.util.List; // isn't used.
 
 public final class SCEconomy extends JavaPlugin {
     @Getter @Setter
