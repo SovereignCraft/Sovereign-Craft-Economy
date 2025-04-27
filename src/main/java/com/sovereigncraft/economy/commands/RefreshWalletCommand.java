@@ -4,7 +4,7 @@ import com.sovereigncraft.economy.SCEconomy;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
+//import org.bukkit.scheduler.BukkitRunnable; // isn't used.
 
 public class RefreshWalletCommand implements org.bukkit.command.CommandExecutor {
 
