@@ -15,7 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.MapMeta;
 
 import java.io.File;
-import java.util.ArrayList;
+//import java.util.ArrayList; // isn't used.
 import java.util.List;
 import java.util.Objects;
 
