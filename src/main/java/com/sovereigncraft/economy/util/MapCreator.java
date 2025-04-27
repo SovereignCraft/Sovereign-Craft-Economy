@@ -25,7 +25,7 @@ public class MapCreator {
         templateCreator.createTemplate(string,mapView);
 
 
-        mapMeta.setMapView(mapView);
+        mapMeta.setMapView(mapView); // This approach works for legacy versions like 1.8 to 1.12.
         itemStack.setItemMeta(mapMeta);
 
         if (SCEconomy.getInstance().getConfig().getBoolean("settings.changeMapName")) {
@@ -41,7 +41,12 @@ public class MapCreator {
         ItemStack itemStack = new ItemStack(Material.FILLED_MAP);
         MapMeta mapMeta = (MapMeta) itemStack.getItemMeta();
         MapView mapView = Bukkit.getMap(SCEconomy.getInstance().getConfig().getInt("interfaceID"));
-        mapMeta.setMapView(mapView);
+        /*
+            this error:
+                incompatible types: possible lossy conversion from int to short
+            happens because Bukkit.getMap(int id) expects a short (16-bit integer), but getInt("interfaceID") returns an int (32-bit integer). Java doesn’t automatically convert int to short without an explicit cast.
+         */
+        mapMeta.setMapView(mapView); // This approach works for legacy versions like 1.8 to 1.12.
         itemStack.setItemMeta(mapMeta);
 
         if (SCEconomy.getInstance().getConfig().getBoolean("settings.changeMapName")) {
@@ -63,7 +68,7 @@ public class MapCreator {
         TemplateCreator templateCreator = new TemplateCreator();
         templateCreator.createPlayerTemplate(mapView);
 
-        mapMeta.setMapView(mapView);
+        mapMeta.setMapView(mapView); // This approach works for legacy versions like 1.8 to 1.12.
         itemStack.setItemMeta(mapMeta);
 
         if (SCEconomy.getInstance().getConfig().getBoolean("settings.changeMapName")) {
