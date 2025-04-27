@@ -11,10 +11,10 @@ import java.util.Map;
 //import java.util.Arrays; // isn't used.
 
 public class json {
-    public static Map JSON2Map (String JSONString) {
+    public static Map<String, Object> JSON2Map (String JSONString) {
         JsonReader jsonReader = new JsonReader( new StringReader(JSONString) );
         Gson gson = new Gson();
-        Map map = gson.fromJson(jsonReader, Map.class);
+        Map<String, Object> map = gson.fromJson(jsonReader, Map.class);
         return map;
     }
     public static List<String> JSON2List (String JSONString){
