@@ -4,14 +4,14 @@ import com.google.common.collect.ImmutableMap;
 import com.sovereigncraft.economy.SCEconomy;
 
 import org.bukkit.command.Command;
-import org.bukkit.command.TabCompleter;
+//import org.bukkit.command.TabCompleter; // isn't used.
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.util.StringUtil;
+//import org.bukkit.util.StringUtil; // isn't used.
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+//import java.util.ArrayList; // isn't used.
+//import java.util.Arrays; // isn't used.
+//import java.util.List; // isn't used.
 
 
 public class DonateCommand implements org.bukkit.command.CommandExecutor {
