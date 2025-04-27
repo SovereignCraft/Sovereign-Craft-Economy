@@ -15,6 +15,7 @@ import com.sovereigncraft.economy.listeners.PlayerJoinListener;
 import java.io.File;
 import java.util.HashMap;
 //import java.util.List; // isn't used.
+import java.util.UUID;
 
 public final class SCEconomy extends JavaPlugin {
     @Getter @Setter
@@ -23,9 +24,17 @@ public final class SCEconomy extends JavaPlugin {
     private static LNBits eco;
 
     private static VaultImpl vaultImpl;
-    public static HashMap playerQRInterface;
-    public static HashMap playerAdminKey;
-    public static HashMap playerInKey;
+
+    /*
+        playerQRInterface – Stores QR code strings (e.g., for syncing wallets or displaying payment info).
+        playerAdminKey – Caches LNBits admin keys per player UUID.
+        playerInKey – Caches LNBits invoice keys per player UUID.
+     */
+
+    public static HashMap<UUID, String> playerQRInterface;
+    public static HashMap<UUID, String> playerAdminKey;
+    public static HashMap<UUID, String> playerInKey;
+
     @SneakyThrows
     @Override
     public void onEnable() {
