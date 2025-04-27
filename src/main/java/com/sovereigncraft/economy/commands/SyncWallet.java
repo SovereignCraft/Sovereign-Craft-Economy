@@ -24,7 +24,7 @@ public class SyncWallet implements CommandExecutor {
         }
 
         Player player = (Player) sender;
-        SCEconomy.getEco().extension(player.getUniqueId(),"LNDHub",true);
+        SCEconomy.getEco().extension("LNDHub",true);
         String data = "lndhub://admin:" + SCEconomy.getEco().getWalletAdminKey(player.getUniqueId()) + "@https://" + ConfigHandler.getPubHost() + "/lndhub/ext/";
         if (SCEconomy.playerQRInterface.get(player.getUniqueId()) == null) {
             SCEconomy.playerQRInterface.put(player.getUniqueId(), data);
