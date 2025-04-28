@@ -11,17 +11,35 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 public class LNBits100 {
     
     private static final String USERS_ENDPOINT = "https://" + ConfigHandler.getHost() + "/users/api/v1/user";
-
     private static HttpClient client = HttpClient.newHttpClient();
     private static Gson gson = new Gson();
+    public static String sha256(String input) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(input.getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString().substring(0, 16);  // Limit to 16 chars (for LNBits username constraint)
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-256 algorithm not found!", e);
+        }
+    }
 
     // ===== Create User with Wallet =====
     public static boolean createUser(UUID uuid) {
         Map<String, Object> payload = new HashMap<>();
-        payload.put("username", uuid.toString());  // Correct: set 'username' not 'id'
+        String username = "mc_" + sha256(uuid.toString());
+        payload.put("username", username);  // Correct: set 'username' not 'id'
     
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(USERS_ENDPOINT))
@@ -31,7 +49,7 @@ public class LNBits100 {
     
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            
+
             debugLog("[createUser] Response: " + response.statusCode() + " - " + response.body());
 
             return response.statusCode() == 201 || response.statusCode() == 200;
