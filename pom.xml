@@ -6,10 +6,10 @@
 
     <groupId>com.sovereigncraft</groupId>
     <artifactId>sovereigncrafteconomy</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <packaging>jar</packaging>
 
-    <name>SovereignCraftEconomy1.0.2</name>
+    <name>SovereignCraftEconomy1.0.3</name>
 
     <description>Bitcoin Lightning Economy for Minecraft</description>
     <properties>
