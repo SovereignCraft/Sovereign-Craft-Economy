@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.sovereigncraft</groupId>
-    <artifactId>economy</artifactId>
+    <artifactId>sovereigncrafteconomy</artifactId>
     <version>1.0.2</version>
     <packaging>jar</packaging>
 
