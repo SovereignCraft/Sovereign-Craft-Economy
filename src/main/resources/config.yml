@@ -26,3 +26,11 @@ BearerTokens:
   conversion: null
   lnurlscan: null
   wallet: null
+
+  suffixes:
+  # amount is multiplied by 10^number.
+  # e.g. for k, the amount is multiplied by 10^3 (1,000)
+  k: 3
+  K: 3
+  BTC: 8
+  Bitcoin: 8
