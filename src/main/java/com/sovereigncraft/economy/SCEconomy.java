@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.ServicePriority;
 import com.sovereigncraft.economy.eco.VaultImpl;
@@ -22,6 +23,7 @@ public final class SCEconomy extends JavaPlugin {
     private static DonateCommand donateCommand;
     private static SCEconomy instance;
     private static LNBits eco;
+    private static LNBits100 LN100;
 
     private static VaultImpl vaultImpl;
 
@@ -35,6 +37,9 @@ public final class SCEconomy extends JavaPlugin {
     public static HashMap<UUID, String> playerAdminKey;
     public static HashMap<UUID, String> playerInKey;
 
+    public static HashMap<UUID, String> userWalletAdminKey;
+    public static HashMap<UUID, String> userWalletInKey;
+
     @SneakyThrows
     @Override
     public void onEnable() {
@@ -46,6 +51,7 @@ public final class SCEconomy extends JavaPlugin {
             return;
         }
         this.getLogger().info("Vault found, Economy has been registered.");
+        notifyOps("SCE Loaded: " + this.getDescription().getVersion());
         this.getCommand("ln").setExecutor(new LNCommand());
         getCommand("ln").setTabCompleter(new LN_autocompletation());
         this.getCommand("balance").setExecutor(new BalanceCommand());
@@ -72,10 +78,19 @@ public final class SCEconomy extends JavaPlugin {
         playerInKey = new HashMap<>();
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         eco = new LNBits();
+
         File mapsData = new File(getDataFolder()+File.separator+"data.yml");
         if (!mapsData.exists()) {
             mapsData.createNewFile();
         }
+
+        //////
+        /// 
+        LN100 = new LNBits100();
+        userWalletAdminKey = new HashMap<>();
+        userWalletInKey = new HashMap<>();
+        this.getCommand("wallet").setExecutor(new WalletCommand());
+
     }
 
     @Override
@@ -106,5 +121,18 @@ public final class SCEconomy extends JavaPlugin {
     public static LNBits getEco() {
         return eco;
     }
+    //////
+    /// 
+    private void notifyOps(String message) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.isOp()) {
+                player.sendMessage("[OP Only] " + message);
+            }
+        }
+    }
+
+    public static LNBits100 getEco100() {
+        return LN100;
+    }    
 
 }

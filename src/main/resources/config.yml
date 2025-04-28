@@ -1,34 +1,28 @@
-# All intervals are in ticks (20 ticks = 1 second)
+# General settings
 BalanceTopTimerInterval: 1200
-
 currencyNameSingular: "Satoshi"
 currencyNamePlural: "Sats"
 startingBalance: 100
 customSymbol: "⚡"
 
-#UUID of wallet to provide liquidity or a "Float" Can be generated as a random generator
 ServerUUID: ""
-#AdminKey of Admin wallet (top level in LN bits)
-AdminKey:
-#Apikey from usermanager user
-APIKey:
-#Admin User for main wallet
-AdminUser:
-#LNBits server DNS or IP
-host:
-pubhost:
-#LNBits port
-port: 5000
-TOSURL: "https://sovereigncraft.com/TOS"
-#should we make an LNAddress?
+TOSURL: ""
 lnaddr: true
-
-suffixes:
-  # amount is multiplied by 10^number.
-  # e.g. for k, the amount is multiplied by 10^3 (1,000)
-  k: 3
-  K: 3
-  BTC: 8
-  Bitcoin: 8
-
 DEBUG: true
+
+# LNBits Server settings
+host: ""
+pubhost: ""
+port: 5000
+
+# Bearer tokens - "blahblahblahblahblahblahblahblahblah"
+BearerTokens:
+  default: "<default-bearer-token>"    # Fallback token if a specific one isn't defined
+  wallets: null    # Optional, overrides default
+  users: null
+  payments: null
+  extension: null
+  currencies: null
+  conversion: null
+  lnurlscan: null
+  wallet: null

@@ -9,7 +9,7 @@
     <version>1.0.2</version>
     <packaging>jar</packaging>
 
-    <name>Sovereign Craft Economy 1.0.2</name>
+    <name>SovereignCraftEconomy1.0.2</name>
 
     <description>Bitcoin Lightning Economy for Minecraft</description>
     <properties>

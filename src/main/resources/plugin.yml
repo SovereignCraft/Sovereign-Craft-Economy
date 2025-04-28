@@ -1,4 +1,4 @@
-name: Sovereign Craft Economy 1.0.2
+name: Sovereign-Craft-Economy-1.0.2
 version: 1.0.2
 main: com.sovereigncraft.economy.SCEconomy
 api-version: 1.19
@@ -55,3 +55,6 @@ commands:
     aliases:
       - qr
       - qc
+  wallet:
+    description: Show your wallet balance
+    usage: /wallet

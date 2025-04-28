@@ -108,6 +108,7 @@ public class LNBits {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(convertCmd))
                 .version(HttpClient.Version.HTTP_1_1)
+                .headers("Authorization", "Bearer " + ConfigHandler.getBearerToken("Currencies"))
                 .POST(HttpRequest.BodyPublishers.ofString(convertPostString(from.toLowerCase(), amount, to.toLowerCase())))
                 .build();
         HttpClient client = HttpClient.newHttpClient();
@@ -123,6 +124,7 @@ public class LNBits {
     public List<String> getCurrencies(){
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(currenciesCmd))
+                .headers("Authorization", "Bearer " + ConfigHandler.getBearerToken("Currencies"))
                 .version(HttpClient.Version.HTTP_1_1)
                 .GET()
                 .build();
@@ -317,7 +319,7 @@ public class LNBits {
         
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .headers("X-Api-Key", ConfigHandler.getAdminKey())
+                .headers("Authorization", "Bearer " + ConfigHandler.getBearerToken("Extension"))
                 .version(HttpClient.Version.HTTP_1_1)
                 .PUT(HttpRequest.BodyPublishers.noBody())  // No payload needed
                 .build();
@@ -327,7 +329,7 @@ public class LNBits {
     public boolean createWallet(UUID uuid) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(usersCmd))
-                .headers("X-Api-Key", ConfigHandler.getAdminKey())
+                .headers("Authorization", "Bearer " + ConfigHandler.getBearerToken("Users"))
                 .version(HttpClient.Version.HTTP_1_1)
                 .POST(HttpRequest.BodyPublishers.ofString(userPutString(uuid)))
                 .build();
@@ -374,7 +376,7 @@ public class LNBits {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(usersCmd))  // https://<host>/users/api/v1/user
-                    .headers("X-Api-Key", ConfigHandler.getAdminKey())
+                    .headers("Authorization", "Bearer " + ConfigHandler.getBearerToken("Users"))
                     .version(HttpClient.Version.HTTP_1_1)
                     .GET()
                     .build();
@@ -407,7 +409,7 @@ public class LNBits {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(usersCmd + "?all_wallets=true"))
-                    .headers("X-Api-Key", ConfigHandler.getAdminKey())
+                    .headers("Authorization", "Bearer " + ConfigHandler.getBearerToken("Users"))
                     .version(HttpClient.Version.HTTP_1_1)
                     .GET()
                     .build();
