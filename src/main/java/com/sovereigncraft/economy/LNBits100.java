@@ -60,7 +60,8 @@ public class LNBits100 {
     
     // ===== Get User by UUID =====
     public static Map<String, Object> getUser(UUID uuid) {
-        String url = USERS_ENDPOINT + "?username=" + uuid.toString();
+        String username = "mc_" + sha256(uuid.toString());
+        String url = USERS_ENDPOINT + "?username=" + username;
     
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
