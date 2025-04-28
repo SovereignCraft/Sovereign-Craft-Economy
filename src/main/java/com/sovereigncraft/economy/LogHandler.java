@@ -9,6 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.lang.reflect.Type;
 
 public class LogHandler {
     private static final File logFile = new File(SCEconomy.getInstance().getDataFolder(), "logs/actions.json");
@@ -57,8 +58,9 @@ public class LogHandler {
         if (json.isEmpty()) {
             return new ArrayList<>();
         }
-        Map[] parsedLogs = gson.fromJson(json.toString(), Map[].class);
-        return new ArrayList<>(Arrays.asList(parsedLogs));
+        Type listType = new com.google.gson.reflect.TypeToken<List<Map<String, Object>>>() {}.getType();
+        List<Map<String, Object>> parsedLogs = gson.fromJson(json.toString(), listType);
+        return parsedLogs != null ? parsedLogs : new ArrayList<>();
     }
 
     // Write log list back to file
