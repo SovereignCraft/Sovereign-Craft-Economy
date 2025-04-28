@@ -31,7 +31,9 @@ public class LNBits100 {
     
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            
             debugLog("[createUser] Response: " + response.statusCode() + " - " + response.body());
+
             return response.statusCode() == 201 || response.statusCode() == 200;
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException("Error creating user: " + uuid, e);
@@ -61,12 +63,8 @@ public class LNBits100 {
 
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> users = (List<Map<String, Object>>) jsonResponse.get("data");
-            if (users == null || users.isEmpty()) {
-                throw new NullPointerException("User not found: " + uuid);
-            }
 
-    
-            if (users.isEmpty()) {
+            if (users == null || users.isEmpty()) {
                 throw new NullPointerException("User not found: " + uuid);
             }
     
@@ -77,29 +75,34 @@ public class LNBits100 {
         }
     }
 
+    // ===== Get Wallets by userId =====
     public static List<Map<String, Object>> getWallets(String userId) throws IOException, InterruptedException {
         String url = USERS_ENDPOINT + "/" + userId + "/wallet";
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .headers("Authorization", "Bearer " + ConfigHandler.getBearerToken("Users"))
+                .headers("Content-Type", "application/json","Authorization", "Bearer " + ConfigHandler.getBearerToken("Users"))
                 .GET()
                 .build();
+        
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            debugLog("[getWallets] Response: " + response.statusCode() + " - " + response.body());
+        
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("Failed to fetch wallets for user: " + userId);
+            }
+        
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> wallets = gson.fromJson(response.body(), List.class);
+        
+            if (wallets == null || wallets.isEmpty()) {
+                throw new NullPointerException("No wallets found for user: " + userId);
+            }
     
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        debugLog("[getWallets] Response: " + response.statusCode() + " - " + response.body());
-    
-        if (response.statusCode() != 200) {
-            throw new RuntimeException("Failed to fetch wallets for user: " + userId);
+            return wallets;
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException("Error fetching wallets: " + userId, e);
         }
-    
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> wallets = gson.fromJson(response.body(), List.class);
-    
-        if (wallets.isEmpty()) {
-            throw new NullPointerException("No wallets found for user: " + userId);
-        }
-    
-        return wallets;
     }
 
     // ===== Debug Logging =====
