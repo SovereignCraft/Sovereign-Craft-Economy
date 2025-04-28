@@ -31,3 +31,4 @@ suffixes:
   BTC: 8
   Bitcoin: 8
 
+DEBUG: true

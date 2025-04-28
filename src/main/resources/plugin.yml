@@ -1,10 +1,10 @@
 name: Sovereign-Craft-Economy
-version: 1.0
+version: 1.0.2
 main: com.sovereigncraft.economy.SCEconomy
 api-version: 1.19
 depend: [Vault]
 load: STARTUP
-author: Sovtoshi
+author: Sovtoshi & Cappy_SC
 description: Bitcoin Lightning Economy for Minecraft
 website: SovereignCraft.com
 commands:

@@ -380,9 +380,12 @@ public class LNBits {
                     .build();
             HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-    
+            if (ConfigHandler.getDebug()) {
+                SCEconomy.getInstance().getLogger().info("[DEBUG] getUsers() response: " + response.body());
+            }
             // Parses response as a List<Map<String, Object>> using JSON2ListOfMaps.
-            return json.JSON2ListOfMaps(response.body());
+            Map<String, Object> parsedResponse = json.JSON2Map(response.body());
+            return (List<Map<String, Object>>) parsedResponse.get("data");  // Extract the array from "data"
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -410,7 +413,9 @@ public class LNBits {
                     .build();
             HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            
+            if (ConfigHandler.getDebug()) {
+                SCEconomy.getInstance().getLogger().info("[DEBUG] getUser() response: " + response.body());
+            }
             // ===== PARSES USER LIST FROM LNBits 1.0.0 RESPONSE USING JSON2ListOfMaps =====
             List<Map<String, Object>> users = json.JSON2ListOfMaps(response.body());
             

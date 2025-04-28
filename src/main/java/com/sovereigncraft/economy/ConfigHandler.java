@@ -37,4 +37,8 @@ public class ConfigHandler {
     public static Double getStartingBalance() {
         return getConfig().getDouble("startingBalance");
     }
+
+    public static Boolean getDebug() {
+        return getConfig().getBoolean("DEBUG");
+    }
 }
