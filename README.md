@@ -39,7 +39,7 @@ This plugin comes with **zero support** for anyone but me. You’re on your own,
 ---
 
 ## 🌟 For the Sovereign Crafters
-This was forged in the fires of my own desires, passion and learning at [SovereignCraft](https://sovereigncraft). If you’re crazy enough to fork it, tweak it, or worship it, be my guest. Just don’t expect it to be easy.
+This was forged in the fires of my own desires, passion and learning at [SovereignCraft](https://sovereigncraft.com). If you’re crazy enough to fork it, tweak it, or worship it, be my guest. Just don’t expect it to be easy.
 
 ---
 
