@@ -1,5 +1,7 @@
 ﻿# Sovereign Craft Economy Plugin
 
+![Static Badge](https://img.shields.io/badge/Discord?style=social&link=https%3A%2F%2Fdiscord.gg%2FFUgxQfZ9Fk8)
+
 **A Minecraft plugin that fuses Vault API to Bitcoin with LNBits!**
 
 Welcome to the **Sovereign Craft Economy Plugin**—a maximalist, uncompromising bridge between Minecraft's Vault economy & LNBits. This isn’t your average economy plugin; it’s a beast that demands serious infrastructure, passion, and maybe a touch of madness.
