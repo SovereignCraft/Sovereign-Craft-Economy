@@ -1,6 +1,6 @@
 ﻿# Sovereign Craft Economy Plugin
 
-![Static Badge](https://img.shields.io/badge/Discord?link=https%3A%2F%2Fdiscord.gg%2FFUgxQfZ9Fk8)
+[Discord Invite](https://discord.gg/FFUgxQfZ9Fk8)
 
 **A Minecraft plugin that fuses Vault API to Bitcoin with LNBits!**
 
