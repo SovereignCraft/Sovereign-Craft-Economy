@@ -6,11 +6,11 @@ currencyNamePlural: "Sats"
 startingBalance: 100
 customSymbol: "⚡"
 
-#UUID of wallet to provide liquidity or a "Float" Can be generated as a random generator
+#UUID of wallet to provide liquidity or a "Float". Can be generated using a random generator
 ServerUUID: ""
 #AdminKey of Admin wallet (top level in LN bits)
 AdminKey:
-#Apikey from usermanager user
+#API key from usermanager user
 APIKey:
 #Admin User for main wallet
 AdminUser:
