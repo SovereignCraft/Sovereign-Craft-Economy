@@ -29,8 +29,6 @@ commands:
     aliases: [bal]
   webwallet:
     description: Opens a webpage with your lightning wallet
-  donate:
-    description: Sends a donation to the server operations team. Thank You!
   deposit:
     description: Deposit Lightning with a QR screen in game
   withdraw:
