@@ -216,7 +216,7 @@ public class LNBits {
             throw new RuntimeException(e);
         }
         String responseJSON = response.body();
-        return (String) json.JSON2Map(responseJSON).get("payment_request");
+        return (String) json.JSON2Map(responseJSON).get("bolt11");
     }
     public Boolean userDelete(UUID uid){
         Map user = getUser(uid);
