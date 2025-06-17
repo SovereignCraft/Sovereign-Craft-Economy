@@ -1,7 +1,6 @@
 package com.sovereigncraft.economy;
 
 import com.sovereigncraft.economy.commands.*;
-import com.sovereigncraft.economy.commands.DonateCommand;
 import com.sovereigncraft.economy.listeners.MapInitialize;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,8 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 
 public final class SCEconomy extends JavaPlugin {
-    @Getter @Setter
-    private static DonateCommand donateCommand;
     private static SCEconomy instance;
     private static LNBits eco;
 
@@ -53,8 +50,6 @@ public final class SCEconomy extends JavaPlugin {
         //this.getCommand("withdraw").setExecutor(new WithdrawCommand());
         //this.getCommand("webwallet").setExecutor(new WebWalletCommand());
         //this.getCommand("refreshwallet").setExecutor(new RefreshWalletCommand());
-        donateCommand = new DonateCommand();
-        //this.getCommand("donate").setExecutor(donateCommand);
         //this.getCommand("screen").setExecutor(new getMapInterface());
         this.getCommand("qrcode").setExecutor(new QRCode());
         //this.getCommand("playerqr").setExecutor(new PlayerQRCode());
