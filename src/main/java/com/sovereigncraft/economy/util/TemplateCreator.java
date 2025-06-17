@@ -94,7 +94,6 @@ public class TemplateCreator {
             public void render(MapView mapView, MapCanvas mapCanvas, Player player) {
                 mapCanvas.drawImage(0, 0, qrbg);
                 String mapdata = (String) SCEconomy.playerQRInterface.get(player.getUniqueId());
-                //System.out.println(player.getUniqueId() + mapdata);
                 if (mapdata != null) {
                     BufferedImage image = playerQR(player);
                     int qrloc = (128 - image.getWidth()) / 2;

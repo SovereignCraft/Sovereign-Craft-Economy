@@ -43,9 +43,9 @@ public class DonateCommand implements org.bukkit.command.CommandExecutor {
                 sender.sendMessage("Stack more Sats");
                 return true;
             }
-            System.out.println("made it to the command");
+            SCEconomy.getInstance().getLogger().info("made it to the command");
             SCEconomy.getEco().withdraw(player.getUniqueId(), amount);
-            System.out.println("now past withdraw");
+            SCEconomy.getInstance().getLogger().info("now past withdraw");
             sender.sendMessage("You donated " + ImmutableMap.of("%amount%", amount) + " thank you so much!");
             return true;
         } else{

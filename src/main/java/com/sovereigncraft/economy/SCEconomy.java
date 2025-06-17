@@ -73,7 +73,7 @@ public final class SCEconomy extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-        System.out.println("Disabling SovereignCraft Economy");
+        getLogger().info("Disabling SovereignCraft Economy");
     }
     public static void disable(String message) {
         warn(message);
