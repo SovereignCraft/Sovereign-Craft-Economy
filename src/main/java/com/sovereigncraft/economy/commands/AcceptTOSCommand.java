@@ -20,7 +20,6 @@ public class AcceptTOSCommand implements org.bukkit.command.CommandExecutor {
 			}
 			Player player = (Player) sender;
 			if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-				//System.out.println("no wallet detected for " + player.getName() + " - creating");
 				new BukkitRunnable() {
 
 					@Override
