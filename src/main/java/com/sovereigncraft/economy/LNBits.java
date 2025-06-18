@@ -17,7 +17,7 @@ import java.util.*;
 
 public class LNBits {
     //string to construct the various API URLs for appropriate methods
-    public static String extensionsCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/extensions";
+    public static String extensionsCmd = "https://" + ConfigHandler.getHost() + "/api/v1/extension/";
     public static String usersCmd = "https://" + ConfigHandler.getHost() + "/usermanager/api/v1/users";
     public static String invoiceCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/payments";
     public static String lnurlpCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/lnurlp/api/v1/links";
@@ -251,15 +251,13 @@ public class LNBits {
     }
     @SneakyThrows
     public void extension(UUID uuid, String extension, Boolean enable) {
-        String action = "";
-        if (enable){
-            action = "enable";
-        } else { action = "disable"; }
+        String action = enable ? "enable" : "disable";
+        String userId = (String) getUser(uuid).get("id");
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(extensionsCmd))
-                .headers("usr", (String) getUser(uuid).get("admin"), action, extension)
+                .uri(URI.create(extensionsCmd + extension + "/" + action + "?usr=" + userId))
+                .header("accept", "application/json")
                 .version(HttpClient.Version.HTTP_1_1)
-                .POST(HttpRequest.BodyPublishers.ofString(processInvoicePutString(extensionsCmd)))
+                .PUT(HttpRequest.BodyPublishers.noBody())
                 .build();
         HttpClient client = HttpClient.newHttpClient();
         client.send(request, HttpResponse.BodyHandlers.ofString());
