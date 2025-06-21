@@ -102,8 +102,6 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 if (SCEconomy.playerQRInterface.get(player.getUniqueId()) == null) {
                     SCEconomy.playerQRInterface.put(player.getUniqueId(), data);
                 } else SCEconomy.playerQRInterface.replace(player.getUniqueId(), data);
-                //SCEconomy.playerQRInterface.get(player.getUniqueId());
-                //cur_player.chat("/qrcode " + invoice);
             }
 
             return true;
