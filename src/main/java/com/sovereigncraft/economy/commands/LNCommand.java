@@ -228,7 +228,7 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
             return true;
         }
         if (Objects.equals(args[0], "syncwallet") && args.length == 1) {
-            SCEconomy.getEco().extension(player.getUniqueId(), "LNDHub", true);
+            SCEconomy.getEco().extension(player.getUniqueId(), "lndhub", true);
             String data = "lndhub://admin:" + SCEconomy.getEco().getWalletAdminKey(player.getUniqueId()) + "@https://" + ConfigHandler.getPubHost() + "/lndhub/ext/";
             if (SCEconomy.playerQRInterface.get(player.getUniqueId()) == null) {
                 SCEconomy.playerQRInterface.put(player.getUniqueId(), data);
