@@ -206,7 +206,7 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 return true;
 
             case "syncwallet":
-                SCEconomy.getEco().extension(player.getUniqueId(), "LNDHub", true);
+                SCEconomy.getEco().extension(player.getUniqueId(), "lndub", true);
                 String syncData = "lndhub://admin:" + SCEconomy.getEco().getWalletAdminKey(player.getUniqueId()) + "@https://" + ConfigHandler.getPubHost() + "/lndhub/ext/";
                 SCEconomy.playerQRInterface.put(player.getUniqueId(), syncData);
                 sender.sendMessage(prefix + SCEconomy.getMessage("messages.success"));
