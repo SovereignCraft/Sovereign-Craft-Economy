@@ -11,6 +11,8 @@ ServerUUID: ""
 #AdminKey of Admin wallet (top level in LN bits)
 AdminKey:
 #API key from usermanager user
+cookie:
+#cookie for admin level commands
 APIKey:
 #Admin User for main wallet
 AdminUser:
