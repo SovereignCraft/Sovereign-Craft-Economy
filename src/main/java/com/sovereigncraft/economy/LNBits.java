@@ -261,8 +261,6 @@ public class LNBits {
                 .build();
         HttpClient client = HttpClient.newHttpClient();
         HttpResponse<String> response = null;
-        response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        Bukkit.getLogger().info("Sync response: " + response.body());
     }
     public boolean createWallet(UUID uuid) {
         HttpRequest request = HttpRequest.newBuilder()
