@@ -1,6 +1,7 @@
 package com.sovereigncraft.economy.lnbits.commands;
 
 import com.sovereigncraft.economy.lnbits.LNBitsClient;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;

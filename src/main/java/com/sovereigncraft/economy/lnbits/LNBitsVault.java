@@ -1,9 +1,11 @@
 package com.sovereigncraft.economy.lnbits;
 
 import com.sovereigncraft.economy.SCE;
+
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.economy.EconomyResponse.ResponseType;
+
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 

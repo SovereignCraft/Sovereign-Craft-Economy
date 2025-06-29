@@ -2,6 +2,7 @@ package com.sovereigncraft.economy;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import org.bukkit.Bukkit;
 
 import java.io.File;

@@ -3,7 +3,7 @@ package com.sovereigncraft.economy;
 import com.sovereigncraft.economy.lnbits.LNBitsClient;
 import com.sovereigncraft.economy.lnbits.LNBitsVault;
 import com.sovereigncraft.economy.lnbits.commands.WalletCommand;
-import com.sovereigncraft.economy.listeners.PlayerJoinListener;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.ServicePriority;
@@ -38,7 +38,7 @@ public final class SCE extends JavaPlugin {
         registerCommands();
 
         // Register event listener
-        getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
+        //getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
 
         // Ensure data file exists
         File dataFile = new File(getDataFolder(), "data.yml");

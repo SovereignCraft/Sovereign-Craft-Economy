@@ -1,6 +1,6 @@
 name: Sovereign-Craft-Economy-1.0.3
 version: 1.0.3
-main: com.sovereigncraft.economy.SCEconomy
+main: com.sovereigncraft.economy.SCE
 api-version: 1.19
 depend: [Vault]
 load: STARTUP
