@@ -4,6 +4,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.util.UUID;
 
 /**
  * Collection of helper utilities used throughout the LNBits integration.
@@ -47,6 +48,16 @@ public class LNBitsUtils {
      */
     public static String getHashedUsername(String uuid) {
         return "mc_" + sha256(uuid);
+    }
+
+    /**
+     * Converts a {@link UUID} to a valid LNBits username.
+     *
+     * @param uuid UUID instance
+     * @return hashed username string
+     */
+    public static String uuidToUsername(UUID uuid) {
+        return getHashedUsername(uuid.toString());
     }
 
     /**
