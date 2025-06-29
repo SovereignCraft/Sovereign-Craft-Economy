@@ -1,5 +1,5 @@
 name: Sovereign-Craft-Economy
-version: 1.0.7
+version: 1.0.9
 main: com.sovereigncraft.economy.SCE
 api-version: 1.19
 depend: [Vault]

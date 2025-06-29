@@ -19,8 +19,7 @@ import java.util.*;
  */
 public class LNBitsUsers {
 
-    // FIXED: Use the correct plural endpoint for GET
-    private static final String USERS_ENDPOINT = "https://" + ConfigHandler.getHost() + "/users/api/v1/users";
+    private static final String USERS_ENDPOINT = "https://" + ConfigHandler.getHost() + "/users/api/v1/user";
     private static final String CREATE_USER_ENDPOINT = "https://" + ConfigHandler.getHost() + "/users/api/v1/user";
 
     private final HttpClient client = HttpClient.newHttpClient();
@@ -65,7 +64,7 @@ public class LNBitsUsers {
      */
     public Map<String, Object> getUser(UUID uuid) {
         String username = LNBitsUtils.getHashedUsername(uuid.toString());
-        String url = USERS_ENDPOINT + "?username=" + username;
+        String url = USERS_ENDPOINT + "?search=" + username;
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -80,9 +79,10 @@ public class LNBitsUsers {
             debugLog("[getUser] Response: " + response.statusCode() + " - " + response.body());
 
             if (response.statusCode() != 200) {
-                throw new RuntimeException("Failed to fetch user for UUID: " + uuid);
+                throw new RuntimeException("Failed to fetch user for UUID: " + uuid + ". Status: " + response.statusCode());
             }
 
+            // Parse the response as a map
             @SuppressWarnings("unchecked")
             Map<String, Object> jsonResponse = gson.fromJson(response.body(), Map.class);
 
@@ -90,16 +90,22 @@ public class LNBitsUsers {
                 Object data = jsonResponse.get("data");
 
                 if (data instanceof List) {
-                    List<Map<String, Object>> users = (List<Map<String, Object>>) data;
-                    if (users.isEmpty()) {
+                    List<?> rawList = (List<?>) data;
+
+                    if (rawList.isEmpty()) {
                         throw new NullPointerException("User not found: " + uuid);
                     }
-                    return users.get(0);
+
+                    // Safe cast to List<Map<String, Object>>
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> user = (Map<String, Object>) rawList.get(0);
+
+                    return user;
                 } else {
-                    throw new RuntimeException("Unexpected response format for user fetch");
+                    throw new RuntimeException("Unexpected 'data' field format in LNBits response.");
                 }
             } else {
-                throw new RuntimeException("Missing 'data' field in LNBits response");
+                throw new RuntimeException("Missing 'data' field in LNBits response.");
             }
 
         } catch (IOException | InterruptedException e) {
