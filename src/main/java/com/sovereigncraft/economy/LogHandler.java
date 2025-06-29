@@ -12,7 +12,7 @@ import java.util.*;
 import java.lang.reflect.Type;
 
 public class LogHandler {
-    private static final File logFile = new File(SCEconomy.getInstance().getDataFolder(), "logs/actions.json");
+    private static final File logFile = new File(SCE.getInstance().getDataFolder(), "logs/actions.json");
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     // Initialize log file directory

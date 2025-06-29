@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public class ConfigHandler {
     private static FileConfiguration getConfig() {
-        return SCEconomy.getInstance().getConfig();
+        return SCE.getInstance().getConfig();
     }
 
     public static String getHost() { 
@@ -50,13 +50,13 @@ public class ConfigHandler {
     }
 
     public static String getBearerToken(String key) {
-        String specificToken = SCEconomy.getInstance().getConfig().getString("BearerTokens." + key, null);
+        String specificToken = SCE.getInstance().getConfig().getString("BearerTokens." + key, null);
         
         if (specificToken != null && !specificToken.equalsIgnoreCase("null")) {
             return specificToken;  // Use specific token
         }
 
-        String defaultToken = SCEconomy.getInstance().getConfig().getString("BearerTokens.default", null);
+        String defaultToken = SCE.getInstance().getConfig().getString("BearerTokens.default", null);
         if (defaultToken != null && !defaultToken.equalsIgnoreCase("null")) {
             return defaultToken;  // Use default token
         }
