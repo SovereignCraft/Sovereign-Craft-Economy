@@ -105,16 +105,18 @@ public class LNBitsPayments {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             debugLog("[getInvoiceStatus] " + response.statusCode() + " - " + response.body());
             if (response.statusCode() != 200) {
-                throw new RuntimeException("Failed to fetch invoice status");
+                throw new RuntimeException("Failed to fetch invoice status: " + response.body());
             }
+
             @SuppressWarnings("unchecked")
             Map<String, Object> result = gson.fromJson(response.body(), Map.class);
-            Object paid = result.get("paid");
-            return paid instanceof Boolean && (Boolean) paid;
-        } catch (IOException e) {
-            throw new RuntimeException("Error checking invoice status", e);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            Object paidObj = result.get("paid");
+
+            return paidObj != null && Boolean.TRUE.equals(paidObj);
+        } catch (IOException | InterruptedException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             throw new RuntimeException("Error checking invoice status", e);
         }
     }
