@@ -40,7 +40,7 @@ public class LNBitsUsers {
                 .uri(URI.create(CREATE_USER_ENDPOINT))
                 .headers(
                         "Content-Type", "application/json",
-                        "Authorization", "Bearer " + ConfigHandler.getBearerToken("Users"))
+                        "Authorization", "Bearer " + ConfigHandler.getBearerToken("default"))
                 .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(payload)))
                 .build();
 
@@ -70,7 +70,7 @@ public class LNBitsUsers {
                 .uri(URI.create(url))
                 .headers(
                         "Content-Type", "application/json",
-                        "Authorization", "Bearer " + ConfigHandler.getBearerToken("Users"))
+                        "Authorization", "Bearer " + ConfigHandler.getBearerToken("default"))
                 .GET()
                 .build();
 
