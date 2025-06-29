@@ -12,6 +12,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
 
+/**
+ * Wrapper around the LNBits user management API. Methods in this class
+ * allow creation and retrieval of LNBits users based on Minecraft UUIDs.
+ */
 public class LNBitsUsers {
 
     private static final String USERS_ENDPOINT = "https://" + ConfigHandler.getHost() + "/users/api/v1/user";
@@ -19,9 +23,12 @@ public class LNBitsUsers {
     private final Gson gson = new Gson();
 
     /**
-     * Create a new LNBits user using a SHA-256 hash of the UUID, prefixed with "mc_".
+     * Create a new LNBits user using a SHA-256 hash of the UUID prefixed with
+     * {@code mc_}.
+     *
      * @param uuid Minecraft UUID of the player
-     * @return true if user creation was successful
+     * @return {@code true} if user creation was successful
+     * @throws RuntimeException if the request fails or the thread is interrupted
      */
     public boolean createUser(UUID uuid) {
         String username = LNBitsUtils.getHashedUsername(uuid.toString());
@@ -47,9 +54,13 @@ public class LNBitsUsers {
     }
 
     /**
-     * Retrieve a user from LNBits by Minecraft UUID (converted to hashed username).
+     * Retrieve a user from LNBits by Minecraft UUID (converted to hashed
+     * username).
+     *
      * @param uuid Minecraft UUID
-     * @return Map containing user details
+     * @return map containing user details
+     * @throws RuntimeException    if the request fails
+     * @throws NullPointerException if the user is not found
      */
     public Map<String, Object> getUser(UUID uuid) {
         String username = LNBitsUtils.getHashedUsername(uuid.toString());
@@ -90,6 +101,9 @@ public class LNBitsUsers {
 
     /**
      * Checks if a user exists for the given UUID.
+     *
+     * @param uuid Minecraft UUID
+     * @return {@code true} if a user record exists
      */
     public boolean userExists(UUID uuid) {
         try {
@@ -101,7 +115,8 @@ public class LNBitsUsers {
     }
 
     /**
-     * Optional debug log to console and OP players
+     * Outputs a debug message to the console and any online operators when
+     * debug mode is enabled.
      */
     private void debugLog(String message) {
         if (ConfigHandler.getDebug()) {

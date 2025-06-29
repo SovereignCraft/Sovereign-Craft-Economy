@@ -12,6 +12,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
 
+/**
+ * Provides convenience methods for interacting with wallet related endpoints
+ * of the LNBits API.
+ */
 public class LNBitsWallets {
 
     private static final HttpClient client = HttpClient.newHttpClient();
@@ -19,8 +23,13 @@ public class LNBitsWallets {
     private static final String BASE_USER_ENDPOINT = "https://" + ConfigHandler.getHost() + "/users/api/v1/user";
 
     /**
-     * Retrieve all wallets for the specified LNBits userId.
-     * This userId is returned by LNBitsUsers.getUser().
+     * Retrieve all wallets for the specified LNBits {@code userId}. The value
+     * for {@code userId} is typically obtained from {@link LNBitsUsers#getUser}.
+     *
+     * @param userId the LNBits user identifier
+     * @return list of wallets belonging to the user
+     * @throws RuntimeException    if the request fails
+     * @throws NullPointerException if no wallets are found
      */
     public List<Map<String, Object>> getWallets(String userId) {
         String url = BASE_USER_ENDPOINT + "/" + userId + "/wallet";
@@ -58,6 +67,10 @@ public class LNBitsWallets {
 
     /**
      * Convenience method to fetch the first wallet for a user.
+     *
+     * @param userId the LNBits user identifier
+     * @return the first wallet returned or {@code null} if none exist
+     * @throws RuntimeException if wallet retrieval fails
      */
     public Map<String, Object> getWallet(String userId) {
         List<Map<String, Object>> wallets = getWallets(userId);
@@ -65,7 +78,13 @@ public class LNBitsWallets {
     }
 
     /**
-     * Shortcut to fetch the first wallet for a player UUID using LNBitsUsers.
+     * Shortcut to fetch the first wallet for a player UUID using
+     * {@link LNBitsUsers}.
+     *
+     * @param uuid  Minecraft UUID of the player
+     * @param users instance of {@link LNBitsUsers} to query
+     * @return the player's first wallet or {@code null} if none exist
+     * @throws RuntimeException if wallet retrieval fails
      */
     public Map<String, Object> getWalletByUUID(UUID uuid, LNBitsUsers users) {
         Map<String, Object> user = users.getUser(uuid);
@@ -73,6 +92,10 @@ public class LNBitsWallets {
         return getWallet(userId);
     }
 
+    /**
+     * Print a debug message to operators and the console when debug mode is
+     * enabled.
+     */
     private static void debugLog(String msg) {
         if (ConfigHandler.getDebug()) {
             for (Player player : Bukkit.getOnlinePlayers()) {
