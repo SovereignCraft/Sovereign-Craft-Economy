@@ -1,7 +1,6 @@
 package com.sovereigncraft.economy.lnbits;
 
 import com.sovereigncraft.economy.ConfigHandler;
-
 import com.google.gson.Gson;
 
 import org.bukkit.Bukkit;
@@ -25,8 +24,7 @@ public class LNBitsUsers {
     private final Gson gson = new Gson();
 
     /**
-     * Create a new LNBits user using a SHA-256 hash of the UUID prefixed with
-     * {@code mc_}.
+     * Create a new LNBits user using a SHA-256 hash of the UUID prefixed with {@code mc_}.
      *
      * @param uuid Minecraft UUID of the player
      * @return {@code true} if user creation was successful
@@ -39,7 +37,9 @@ public class LNBitsUsers {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(USERS_ENDPOINT))
-                .headers("Content-Type", "application/json", "Authorization", "Bearer " + ConfigHandler.getBearerToken("Users"))
+                .headers(
+                        "Content-Type", "application/json",
+                        "Authorization", "Bearer " + ConfigHandler.getBearerToken("Users"))
                 .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(payload)))
                 .build();
 
@@ -56,12 +56,11 @@ public class LNBitsUsers {
     }
 
     /**
-     * Retrieve a user from LNBits by Minecraft UUID (converted to hashed
-     * username).
+     * Retrieve a user from LNBits by Minecraft UUID (converted to hashed username).
      *
      * @param uuid Minecraft UUID
-     * @return map containing user details
-     * @throws RuntimeException    if the request fails
+     * @return Map containing user details
+     * @throws RuntimeException if the request fails
      * @throws NullPointerException if the user is not found
      */
     public Map<String, Object> getUser(UUID uuid) {
@@ -70,7 +69,9 @@ public class LNBitsUsers {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .headers("Content-Type", "application/json", "Authorization", "Bearer " + ConfigHandler.getBearerToken("Users"))
+                .headers(
+                        "Content-Type", "application/json",
+                        "Authorization", "Bearer " + ConfigHandler.getBearerToken("Users"))
                 .GET()
                 .build();
 
@@ -83,9 +84,7 @@ public class LNBitsUsers {
             }
 
             @SuppressWarnings("unchecked")
-            Map<String, Object> jsonResponse = gson.fromJson(response.body(), Map.class);
-            @SuppressWarnings("unchecked")
-            List<Map<String, Object>> users = (List<Map<String, Object>>) jsonResponse.get("data");
+            List<Map<String, Object>> users = gson.fromJson(response.body(), List.class);
 
             if (users == null || users.isEmpty()) {
                 throw new NullPointerException("User not found: " + uuid);
@@ -117,8 +116,9 @@ public class LNBitsUsers {
     }
 
     /**
-     * Outputs a debug message to the console and any online operators when
-     * debug mode is enabled.
+     * Outputs a debug message to the console and any online operators when debug mode is enabled.
+     *
+     * @param message The message to log if debug mode is enabled.
      */
     private void debugLog(String message) {
         if (ConfigHandler.getDebug()) {
