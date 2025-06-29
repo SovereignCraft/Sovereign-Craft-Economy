@@ -123,4 +123,48 @@ public class LNBitsCache {
         String hashed = LNBitsUtils.getHashedUsername(uuid.toString());
         return getCachedUser(hashed);
     }
+
+    /**
+     * Updated getUser method that first attempts to use the cache, falling back to direct API request.
+     */
+    public static Map<String, Object> getUser(UUID uuid) {
+        String username = LNBitsUtils.getHashedUsername(uuid.toString());
+
+        // Try cache first
+        Map<String, Object> cached = getCachedUser(username);
+        if (cached != null) {
+            return cached;
+        }
+
+        // Fallback: fetch directly from LNBits
+        String url = "https://" + ConfigHandler.getHost() + "/users/api/v1/user/" + username;
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .headers(
+                        "Content-Type", "application/json",
+                        "Authorization", "Bearer " + ConfigHandler.getBearerToken("users"))
+                .GET()
+                .build();
+
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 404) {
+                throw new NullPointerException("User not found: " + uuid);
+            }
+
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("Failed to fetch user for UUID: " + uuid + ". Status: " + response.statusCode());
+            }
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> user = gson.fromJson(response.body(), Map.class);
+            return user;
+
+        } catch (Exception e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Error fetching user: " + uuid, e);
+        }
+    }
 }
