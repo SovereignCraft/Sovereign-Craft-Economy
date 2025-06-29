@@ -10,13 +10,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Bukkit command that displays the wallets associated with the executing
+ * player, creating a user if none exists.
+ */
 public class WalletCommand implements CommandExecutor {
     private final LNBitsClient client;
 
+    /**
+     * Constructs the wallet command using the given LNBits client.
+     *
+     * @param client LNBits API client
+     */
     public WalletCommand(LNBitsClient client) {
         this.client = client;
     }
 
+    /**
+     * Executes the {@code /wallet} command, showing all wallets for the
+     * invoking player and creating a user account if necessary.
+     *
+     * @param sender  the command issuer
+     * @param command the executed command
+     * @param label   the command alias used
+     * @param args    command arguments
+     * @return {@code true} always, indicating the command was handled
+     */
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {

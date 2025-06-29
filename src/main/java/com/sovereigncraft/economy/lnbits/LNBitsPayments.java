@@ -12,6 +12,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
 
+/**
+ * Helper class for interacting with LNBits payment endpoints. This includes
+ * creating invoices, paying them and checking their status.
+ */
 public class LNBitsPayments {
 
     private static final HttpClient client = HttpClient.newHttpClient();
@@ -19,8 +23,13 @@ public class LNBitsPayments {
     private static final String PAYMENTS_ENDPOINT = "https://" + ConfigHandler.getHost() + "/api/v1/payments";
 
     /**
-     * Creates a BOLT11 invoice for the given amount in sats.
-     * Requires the inkey (Invoice Key) from the user's wallet.
+     * Creates a BOLT11 invoice for the given amount in satoshis. Requires the
+     * invoice key ({@code inkey}) from the user's wallet.
+     *
+     * @param inkey  wallet invoice key
+     * @param amount amount in satoshis
+     * @return BOLT11 invoice string
+     * @throws RuntimeException if the request fails or is interrupted
      */
     public String createInvoice(String inkey, double amount) {
         return createInvoice(inkey, amount, "Sovereign Craft");
@@ -28,6 +37,12 @@ public class LNBitsPayments {
 
     /**
      * Creates a BOLT11 invoice with a custom memo.
+     *
+     * @param inkey  wallet invoice key
+     * @param amount amount in satoshis
+     * @param memo   memo to attach to the invoice
+     * @return BOLT11 invoice string
+     * @throws RuntimeException if the request fails or is interrupted
      */
     public String createInvoice(String inkey, double amount, String memo) {
         Map<String, Object> payload = new HashMap<>();
@@ -64,6 +79,11 @@ public class LNBitsPayments {
 
     /**
      * Pays a BOLT11 invoice using the admin key of the sender's wallet.
+     *
+     * @param adminkey admin key of the paying wallet
+     * @param bolt11   encoded invoice to pay
+     * @return {@code true} if the payment request was accepted
+     * @throws RuntimeException if the request fails or is interrupted
      */
     public boolean payInvoice(String adminkey, String bolt11) {
         Map<String, Object> payload = new HashMap<>();
@@ -92,6 +112,11 @@ public class LNBitsPayments {
 
     /**
      * Checks the status of an invoice using the payment hash.
+     *
+     * @param adminkey    admin key of the wallet used to query
+     * @param paymentHash payment hash returned when the invoice was created
+     * @return {@code true} if the invoice has been paid
+     * @throws RuntimeException if the request fails or is interrupted
      */
     public boolean getInvoiceStatus(String adminkey, String paymentHash) {
         String url = PAYMENTS_ENDPOINT + "/" + paymentHash;
@@ -121,6 +146,10 @@ public class LNBitsPayments {
         }
     }
 
+    /**
+     * Print a debug message to operators and the server console when debug
+     * mode is active.
+     */
     private static void debugLog(String msg) {
         if (ConfigHandler.getDebug()) {
             for (Player player : Bukkit.getOnlinePlayers()) {

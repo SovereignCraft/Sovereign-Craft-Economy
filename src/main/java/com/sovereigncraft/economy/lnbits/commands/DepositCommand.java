@@ -9,13 +9,32 @@ import org.bukkit.entity.Player;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Bukkit command that allows a player to create a Lightning invoice for
+ * depositing satoshis into their LNBits wallet.
+ */
 public class DepositCommand implements CommandExecutor {
     private final LNBitsClient client;
 
+    /**
+     * Creates a new deposit command using the provided LNBits client.
+     *
+     * @param client LNBits API client
+     */
     public DepositCommand(LNBitsClient client) {
         this.client = client;
     }
 
+    /**
+     * Handles the {@code /deposit} command, creating a Lightning invoice for
+     * the specified satoshi amount.
+     *
+     * @param sender  the command issuer
+     * @param command the executed command
+     * @param label   the command alias used
+     * @param args    command arguments
+     * @return {@code true} always, indicating the command was handled
+     */
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
