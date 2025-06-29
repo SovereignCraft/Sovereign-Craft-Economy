@@ -14,7 +14,7 @@ import java.util.*;
 /**
  * Caches all LNBits users and their associated wallets at startup.
  */
-public class LNBitsCache {
+public class LNBitsCacheUsers {
 
     private static final Map<String, Map<String, Object>> userCache = new HashMap<>();
     private static final HttpClient client = HttpClient.newHttpClient();
@@ -99,7 +99,7 @@ public class LNBitsCache {
      * @param plugin Your JavaPlugin instance
      */
     public static void initializeAsync(JavaPlugin plugin) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, LNBitsCache::loadAllUsers);
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, LNBitsCacheUsers::loadAllUsers);
     }
 
     /**

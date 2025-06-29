@@ -13,7 +13,7 @@ public class LNBitsClient {
     private final LNBitsWallets wallets;
     private final LNBitsPayments payments;
     private final LNBitsUtils utils;
-    private final LNBitsCache cache;
+    private final LNBitsCacheUsers cache;
 
     /**
      * Constructs a new {@link LNBitsClient} with fresh instances of each
@@ -24,7 +24,7 @@ public class LNBitsClient {
         this.wallets = new LNBitsWallets();
         this.payments = new LNBitsPayments();
         this.utils = new LNBitsUtils();
-        this.cache = new LNBitsCache();
+        this.cache = new LNBitsCacheUsers();
     }
 
     // === Accessor methods for sub-clients ===
@@ -70,7 +70,7 @@ public class LNBitsClient {
      *
      * @return cache layer for all known users and wallets
      */
-    public LNBitsCache cache() {
+    public LNBitsCacheUsers cache() {
         return cache;
     }
 } 

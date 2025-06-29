@@ -51,7 +51,7 @@ public class LNBitsVault implements Economy {
     @Override
     public boolean hasAccount(OfflinePlayer player) {
         String username = LNBitsUtils.uuidToUsername(player.getUniqueId());
-        return LNBitsCache.getCachedUser(username) != null;
+        return LNBitsCacheUsers.getCachedUser(username) != null;
     }
 
     @Override
@@ -77,7 +77,7 @@ public class LNBitsVault implements Economy {
     @Override
     public double getBalance(OfflinePlayer player) {
         String username = LNBitsUtils.uuidToUsername(player.getUniqueId());
-        Map<String, Object> user = LNBitsCache.getCachedUser(username);
+        Map<String, Object> user = LNBitsCacheUsers.getCachedUser(username);
         if (user != null && user.containsKey("wallets")) {
             List<Map<String, Object>> wallets = (List<Map<String, Object>>) user.get("wallets");
             if (!wallets.isEmpty()) {

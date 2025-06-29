@@ -1,6 +1,6 @@
 package com.sovereigncraft.economy.lnbits.commands;
 
-import com.sovereigncraft.economy.lnbits.LNBitsCache;
+import com.sovereigncraft.economy.lnbits.LNBitsCacheUsers;
 import com.sovereigncraft.economy.lnbits.LNBitsClient;
 import com.sovereigncraft.economy.LogHandler;
 
@@ -71,7 +71,7 @@ public class WalletCommand implements CommandExecutor {
             }
 
             // Use cache-aware lookup
-            Map<String, Object> user = LNBitsCache.getUser(uuid);
+            Map<String, Object> user = LNBitsCacheUsers.getUser(uuid);
             String userId = (String) user.get("id");
 
             @SuppressWarnings("unchecked")

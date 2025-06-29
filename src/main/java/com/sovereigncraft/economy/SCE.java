@@ -1,6 +1,6 @@
 package com.sovereigncraft.economy;
 
-import com.sovereigncraft.economy.lnbits.LNBitsCache;
+import com.sovereigncraft.economy.lnbits.LNBitsCacheUsers;
 import com.sovereigncraft.economy.lnbits.LNBitsClient;
 import com.sovereigncraft.economy.lnbits.LNBitsVault;
 import com.sovereigncraft.economy.lnbits.commands.WalletCommand;
@@ -29,7 +29,7 @@ public final class SCE extends JavaPlugin {
 
         // Initialize LNBits client
         client = new LNBitsClient();
-        LNBitsCache.initializeAsync(this);
+        LNBitsCacheUsers.initializeAsync(this);
 
         // Register Vault Economy
         if (!setupVault()) {
