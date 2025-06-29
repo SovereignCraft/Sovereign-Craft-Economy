@@ -48,9 +48,29 @@ public class LNBitsWallets {
 
             return wallets;
 
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
+            throw new RuntimeException("Error fetching LNBits wallets for userId: " + userId, e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new RuntimeException("Error fetching LNBits wallets for userId: " + userId, e);
         }
+    }
+
+    /**
+     * Convenience method to fetch the first wallet for a user.
+     */
+    public Map<String, Object> getWallet(String userId) {
+        List<Map<String, Object>> wallets = getWallets(userId);
+        return wallets.isEmpty() ? null : wallets.get(0);
+    }
+
+    /**
+     * Shortcut to fetch the first wallet for a player UUID using LNBitsUsers.
+     */
+    public Map<String, Object> getWalletByUUID(UUID uuid, LNBitsUsers users) {
+        Map<String, Object> user = users.getUser(uuid);
+        String userId = (String) user.get("id");
+        return getWallet(userId);
     }
 
     private static void debugLog(String msg) {

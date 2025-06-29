@@ -46,8 +46,15 @@ public class DepositCommand implements CommandExecutor {
             Map<String, Object> user = client.users().getUser(uuid);
             String userId = (String) user.get("id");
 
+            Map<String, Object> wallet = client.wallets().getWallet(userId);
+            if (wallet == null) {
+                player.sendMessage("§cNo wallet found for your account.");
+                return true;
+            }
+            String inkey = (String) wallet.get("inkey");
+
             // Create invoice
-            String bolt11 = client.payments().createInvoice(userId, amount);
+            String bolt11 = client.payments().createInvoice(inkey, amount);
             player.sendMessage("§aInvoice created! Pay this using your wallet:");
             player.sendMessage("§f" + bolt11);
 
