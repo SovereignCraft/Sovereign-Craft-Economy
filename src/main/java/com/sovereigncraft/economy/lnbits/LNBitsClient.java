@@ -4,7 +4,7 @@ package com.sovereigncraft.economy.lnbits;
  * Root client that exposes domain specific LNBits API wrappers.
  * <p>
  * This class acts as the entry point for interacting with users, wallets,
- * payments and utility functions provided by the LNBits integration.
+ * payments, caching and utility functions provided by the LNBits integration.
  */
 public class LNBitsClient {
 
@@ -13,6 +13,7 @@ public class LNBitsClient {
     private final LNBitsWallets wallets;
     private final LNBitsPayments payments;
     private final LNBitsUtils utils;
+    private final LNBitsCache cache;
 
     /**
      * Constructs a new {@link LNBitsClient} with fresh instances of each
@@ -23,6 +24,7 @@ public class LNBitsClient {
         this.wallets = new LNBitsWallets();
         this.payments = new LNBitsPayments();
         this.utils = new LNBitsUtils();
+        this.cache = new LNBitsCache();
     }
 
     // === Accessor methods for sub-clients ===
@@ -62,4 +64,13 @@ public class LNBitsClient {
     public LNBitsUtils utils() {
         return utils;
     }
-}
+
+    /**
+     * Access the LNBits user+wallet cache layer.
+     *
+     * @return cache layer for all known users and wallets
+     */
+    public LNBitsCache cache() {
+        return cache;
+    }
+} 
