@@ -38,7 +38,7 @@ public class LNBitsWallets {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .headers("Authorization", "Bearer " + ConfigHandler.getBearerToken("Wallets"))
+                .headers("Authorization", "Bearer " + ConfigHandler.getBearerToken("default"))
                 .GET()
                 .build();
 
