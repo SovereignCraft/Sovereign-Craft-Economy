@@ -1,5 +1,6 @@
 package com.sovereigncraft.economy;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.UUID;
@@ -50,19 +51,24 @@ public class ConfigHandler {
     }
 
     public static String getBearerToken(String key) {
-        String specificToken = SCE.getInstance().getConfig().getString("BearerTokens." + key, null);
-        
+        if (key == null) key = "";
+
+        // Normalize to lowercase to avoid case sensitivity issues in config
+        String normalizedKey = key.toLowerCase();
+
+        String specificToken = SCE.getInstance().getConfig().getString("BearerTokens." + normalizedKey, null);
         if (specificToken != null && !specificToken.equalsIgnoreCase("null")) {
-            return specificToken;  // Use specific token
+            return specificToken;
         }
 
         String defaultToken = SCE.getInstance().getConfig().getString("BearerTokens.default", null);
         if (defaultToken != null && !defaultToken.equalsIgnoreCase("null")) {
-            return defaultToken;  // Use default token
+            return defaultToken;
         }
 
-        return null;  // No token to use
+        // Optional: log a warning
+        Bukkit.getLogger().warning("[ConfigHandler] No bearer token found for key '" + key + "' and no default token set.");
+        return null;
     }
 
-    
 }
