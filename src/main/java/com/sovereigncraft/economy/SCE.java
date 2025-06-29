@@ -19,9 +19,11 @@ public final class SCE extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        
         saveDefaultConfig();
         instance = this;
 
+        LogHandler.initialize();
         validateConfig();
 
         // Initialize LNBits client
