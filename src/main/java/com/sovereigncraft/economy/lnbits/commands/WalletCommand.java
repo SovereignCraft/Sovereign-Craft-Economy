@@ -1,5 +1,6 @@
 package com.sovereigncraft.economy.lnbits.commands;
 
+import com.sovereigncraft.economy.lnbits.LNBitsCache;
 import com.sovereigncraft.economy.lnbits.LNBitsClient;
 import com.sovereigncraft.economy.LogHandler;
 
@@ -22,28 +23,10 @@ public class WalletCommand implements CommandExecutor {
 
     private final LNBitsClient client;
 
-    /**
-     * Constructs the WalletCommand with the provided LNBits client.
-     *
-     * @param client The LNBits API client used for user and wallet operations.
-     */
     public WalletCommand(LNBitsClient client) {
         this.client = client;
     }
 
-    /**
-     * Handles execution of the {@code /wallet} command.
-     * <p>
-     * If the executing sender is a player, the plugin checks for an existing wallet.
-     * If none exists, a new one is created. Then all available wallets are listed.
-     * All events are logged via {@link LogHandler#logAction(String, Map)}.
-     *
-     * @param sender  The command sender (must be a player).
-     * @param command The executed command instance.
-     * @param label   The alias used to invoke the command.
-     * @param args    The command arguments (unused).
-     * @return {@code true} if the command was handled successfully.
-     */
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
@@ -87,9 +70,17 @@ public class WalletCommand implements CommandExecutor {
                 ));
             }
 
-            Map<String, Object> user = client.users().getUser(uuid);
+            // Use cache-aware lookup
+            Map<String, Object> user = LNBitsCache.getUser(uuid);
             String userId = (String) user.get("id");
-            List<Map<String, Object>> wallets = client.wallets().getWallets(userId);
+
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> wallets = (List<Map<String, Object>>) user.get("wallets");
+
+            // Fallback to API if not cached
+            if (wallets == null || wallets.isEmpty()) {
+                wallets = client.wallets().getWallets(userId);
+            }
 
             player.sendMessage("§aYour Wallets:");
             List<String> walletSummaries = new ArrayList<>();
