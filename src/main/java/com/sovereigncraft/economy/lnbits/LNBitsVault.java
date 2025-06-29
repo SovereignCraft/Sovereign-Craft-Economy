@@ -1,15 +1,14 @@
 package com.sovereigncraft.economy.lnbits;
 
 import com.sovereigncraft.economy.SCE;
-
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.economy.EconomyResponse.ResponseType;
-
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -17,9 +16,7 @@ import java.util.UUID;
  */
 public class LNBitsVault implements Economy {
 
-    private final LNBitsClient lnbits = new LNBitsClient();
-
-    // === Required Vault Methods ===
+    private final LNBitsClient lnbits = SCE.getClient();
 
     @Override
     public boolean isEnabled() {
@@ -53,7 +50,8 @@ public class LNBitsVault implements Economy {
 
     @Override
     public boolean hasAccount(OfflinePlayer player) {
-        return lnbits.users().userExists(player.getUniqueId());
+        String username = LNBitsUtils.uuidToUsername(player.getUniqueId());
+        return LNBitsCache.getCachedUser(username) != null;
     }
 
     @Override
@@ -66,9 +64,9 @@ public class LNBitsVault implements Economy {
     public boolean hasAccount(String playerName) {
         OfflinePlayer p = Bukkit.getOfflinePlayer(playerName);
         if (p == null || !p.hasPlayedBefore()) {
-            return false; // Player does not exist
+            return false;
         }
-        return p != null && hasAccount(p);
+        return hasAccount(p);
     }
 
     @Override
@@ -78,15 +76,16 @@ public class LNBitsVault implements Economy {
 
     @Override
     public double getBalance(OfflinePlayer player) {
-        UUID uuid = player.getUniqueId();
-        try {
-            var wallet = lnbits.wallets().getWalletByUUID(uuid, lnbits.users());
-            Object bal = wallet.get("balance");
-            return bal instanceof Number ? ((Number) bal).doubleValue() / 1000.0 : 0;
-        } catch (Exception e) {
-            if (SCE.isDebug()) e.printStackTrace();
-            return 0;
+        String username = LNBitsUtils.uuidToUsername(player.getUniqueId());
+        Map<String, Object> user = LNBitsCache.getCachedUser(username);
+        if (user != null && user.containsKey("wallets")) {
+            List<Map<String, Object>> wallets = (List<Map<String, Object>>) user.get("wallets");
+            if (!wallets.isEmpty()) {
+                Object bal = wallets.get(0).get("balance");
+                return bal instanceof Number ? ((Number) bal).doubleValue() / 1000.0 : 0;
+            }
         }
+        return 0;
     }
 
     @Deprecated
@@ -131,7 +130,7 @@ public class LNBitsVault implements Economy {
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer player, double amount) {
         UUID uuid = player.getUniqueId();
-        if (lnbits.users().userExists(uuid)) {
+        if (hasAccount(player)) {
             String inkey = (String) lnbits.wallets().getWalletByUUID(uuid, lnbits.users()).get("inkey");
             String invoice = lnbits.payments().createInvoice(inkey, amount);
             return new EconomyResponse(amount, getBalance(player), ResponseType.SUCCESS, "Issued invoice: " + invoice);
