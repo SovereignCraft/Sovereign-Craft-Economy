@@ -28,16 +28,14 @@ public class WalletCommand implements CommandExecutor {
         try {
             UUID uuid = player.getUniqueId();
             Map<String, Object> user;
-            try {
-                user = client.users().getUser(uuid);
-            } catch (NullPointerException e) {
+            if (!client.users().userExists(uuid)) {
                 player.sendMessage("§eNo wallet found. Creating one...");
                 if (!client.users().createUser(uuid)) {
                     player.sendMessage("§cFailed to create wallet.");
                     return true;
                 }
-                user = client.users().getUser(uuid);
             }
+            user = client.users().getUser(uuid);
 
             String userId = (String) user.get("id");
             List<Map<String, Object>> wallets = client.wallets().getWallets(userId);
@@ -46,7 +44,7 @@ public class WalletCommand implements CommandExecutor {
             for (Map<String, Object> wallet : wallets) {
                 String name = (String) wallet.get("name");
                 double balanceSat = ((Number) wallet.get("balance_msat")).doubleValue() / 1000;
-                player.sendMessage("§b" + name + ": §f⚡" + balanceSat + " sats");
+                player.sendMessage("§b" + name + ": §f⚡" + String.format("%,.0f", balanceSat) + " sats");
             }
 
         } catch (Exception e) {

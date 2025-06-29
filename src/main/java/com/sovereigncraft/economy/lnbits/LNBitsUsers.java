@@ -24,7 +24,7 @@ public class LNBitsUsers {
      * @return true if user creation was successful
      */
     public boolean createUser(UUID uuid) {
-        String username = "mc_" + LNBitsUtils.getHashedUsername(uuid.toString());
+        String username = LNBitsUtils.getHashedUsername(uuid.toString());
         Map<String, Object> payload = new HashMap<>();
         payload.put("username", username);
 
@@ -37,8 +37,11 @@ public class LNBitsUsers {
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             debugLog("[createUser] Response: " + response.statusCode() + " - " + response.body());
-            return response.statusCode() == 201 || response.statusCode() == 200;
-        } catch (IOException | InterruptedException e) {
+            return response.statusCode() == 201 || response.statusCode() == 200 || response.statusCode() == 409;
+        } catch (IOException e) {
+            throw new RuntimeException("Error creating user: " + uuid, e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new RuntimeException("Error creating user: " + uuid, e);
         }
     }
@@ -49,7 +52,7 @@ public class LNBitsUsers {
      * @return Map containing user details
      */
     public Map<String, Object> getUser(UUID uuid) {
-        String username = "mc_" + LNBitsUtils.getHashedUsername(uuid.toString());
+        String username = LNBitsUtils.getHashedUsername(uuid.toString());
         String url = USERS_ENDPOINT + "?username=" + username;
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -77,8 +80,23 @@ public class LNBitsUsers {
 
             return users.get(0);
 
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Error fetching user: " + uuid, e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Error fetching user: " + uuid, e);
+        }
+    }
+
+    /**
+     * Checks if a user exists for the given UUID.
+     */
+    public boolean userExists(UUID uuid) {
+        try {
+            getUser(uuid);
+            return true;
+        } catch (NullPointerException e) {
+            return false;
         }
     }
 
