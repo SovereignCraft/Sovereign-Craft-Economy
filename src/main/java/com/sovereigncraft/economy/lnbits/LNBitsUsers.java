@@ -19,7 +19,10 @@ import java.util.*;
  */
 public class LNBitsUsers {
 
-    private static final String USERS_ENDPOINT = "https://" + ConfigHandler.getHost() + "/users/api/v1/user";
+    // FIXED: Use the correct plural endpoint for GET
+    private static final String USERS_ENDPOINT = "https://" + ConfigHandler.getHost() + "/users/api/v1/users";
+    private static final String CREATE_USER_ENDPOINT = "https://" + ConfigHandler.getHost() + "/users/api/v1/user";
+
     private final HttpClient client = HttpClient.newHttpClient();
     private final Gson gson = new Gson();
 
@@ -28,7 +31,6 @@ public class LNBitsUsers {
      *
      * @param uuid Minecraft UUID of the player
      * @return {@code true} if user creation was successful
-     * @throws RuntimeException if the request fails or the thread is interrupted
      */
     public boolean createUser(UUID uuid) {
         String username = LNBitsUtils.getHashedUsername(uuid.toString());
@@ -36,7 +38,7 @@ public class LNBitsUsers {
         payload.put("username", username);
 
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(USERS_ENDPOINT))
+                .uri(URI.create(CREATE_USER_ENDPOINT))
                 .headers(
                         "Content-Type", "application/json",
                         "Authorization", "Bearer " + ConfigHandler.getBearerToken("Users"))
@@ -47,9 +49,7 @@ public class LNBitsUsers {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             debugLog("[createUser] Response: " + response.statusCode() + " - " + response.body());
             return response.statusCode() == 201 || response.statusCode() == 200 || response.statusCode() == 409;
-        } catch (IOException e) {
-            throw new RuntimeException("Error creating user: " + uuid, e);
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Error creating user: " + uuid, e);
         }
@@ -84,17 +84,25 @@ public class LNBitsUsers {
             }
 
             @SuppressWarnings("unchecked")
-            List<Map<String, Object>> users = gson.fromJson(response.body(), List.class);
+            Map<String, Object> jsonResponse = gson.fromJson(response.body(), Map.class);
 
-            if (users == null || users.isEmpty()) {
-                throw new NullPointerException("User not found: " + uuid);
+            if (jsonResponse.containsKey("data")) {
+                Object data = jsonResponse.get("data");
+
+                if (data instanceof List) {
+                    List<Map<String, Object>> users = (List<Map<String, Object>>) data;
+                    if (users.isEmpty()) {
+                        throw new NullPointerException("User not found: " + uuid);
+                    }
+                    return users.get(0);
+                } else {
+                    throw new RuntimeException("Unexpected response format for user fetch");
+                }
+            } else {
+                throw new RuntimeException("Missing 'data' field in LNBits response");
             }
 
-            return users.get(0);
-
-        } catch (IOException e) {
-            throw new RuntimeException("Error fetching user: " + uuid, e);
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Error fetching user: " + uuid, e);
         }

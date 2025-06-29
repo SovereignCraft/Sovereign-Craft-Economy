@@ -38,7 +38,7 @@ public class LNBitsWallets {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .headers("Authorization", "Bearer " + ConfigHandler.getBearerToken("Users"))
+                .headers("Authorization", "Bearer " + ConfigHandler.getBearerToken("Wallets"))
                 .GET()
                 .build();
 
@@ -75,8 +75,16 @@ public class LNBitsWallets {
      * @throws RuntimeException if wallet retrieval fails
      */
     public Map<String, Object> getWallet(String userId) {
+        debugLog("[getWallet] Fetching first wallet for userId: " + userId);
         List<Map<String, Object>> wallets = getWallets(userId);
-        return wallets.isEmpty() ? null : wallets.get(0);
+
+        if (wallets.isEmpty()) {
+            debugLog("[getWallet] No wallets found for userId: " + userId);
+            return null;
+        }
+
+        debugLog("[getWallet] Returning first wallet (name=" + wallets.get(0).get("name") + ")");
+        return wallets.get(0);
     }
 
     /**
@@ -89,8 +97,11 @@ public class LNBitsWallets {
      * @throws RuntimeException if wallet retrieval fails
      */
     public Map<String, Object> getWalletByUUID(UUID uuid, LNBitsUsers users) {
+        debugLog("[getWalletByUUID] Resolving user for UUID: " + uuid);
         Map<String, Object> user = users.getUser(uuid);
         String userId = (String) user.get("id");
+
+        debugLog("[getWalletByUUID] Resolved userId: " + userId + " for UUID: " + uuid);
         return getWallet(userId);
     }
 
