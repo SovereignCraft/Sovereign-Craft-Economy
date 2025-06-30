@@ -80,6 +80,12 @@ public class WalletCommand implements CommandExecutor {
             // Fallback to API if not cached
             if (wallets == null || wallets.isEmpty()) {
                 wallets = client.wallets().getWallets(userId);
+                user.put("wallets", wallets);
+
+                // Re-cache updated user and persist
+                String username = (String) user.get("username");
+                LNBitsCacheUsers.getAllCachedUsers().put(username, user);
+                LNBitsCacheUsers.saveCacheToFile();
             }
 
             player.sendMessage("§aYour Wallets:");
