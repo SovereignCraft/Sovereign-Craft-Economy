@@ -48,7 +48,7 @@ public class LNBitsCacheUsers {
     /**
      * Saves the current in-memory userCache to disk.
      */
-    private static void saveCacheToFile() {
+    public static void saveCacheToFile() {
         try {
             File file = getCacheFile();
             file.getParentFile().mkdirs(); // Ensure directories exist
