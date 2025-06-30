@@ -2,22 +2,17 @@ package com.sovereigncraft.economy;
 
 import com.sovereigncraft.economy.lnbits.LNBitsCacheUsers;
 import com.sovereigncraft.economy.lnbits.LNBitsClient;
-import com.sovereigncraft.economy.lnbits.LNBitsVault;
-import com.sovereigncraft.economy.lnbits.commands.WalletCommand;
 import com.sovereigncraft.economy.lnbits.commands.BalanceCommand;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
-import net.milkbowl.vault.economy.Economy;
 
 import java.io.File;
 
 public final class SCE extends JavaPlugin {
     private static SCE instance;
     private static LNBitsClient client;
-    private static LNBitsVault vault;
 
     @Override
     public void onEnable() {
@@ -31,13 +26,6 @@ public final class SCE extends JavaPlugin {
         // Initialize LNBits client
         client = new LNBitsClient();
         LNBitsCacheUsers.initializeAsync(this);
-
-        // Register Vault Economy
-        if (!setupVault()) {
-            getLogger().warning("Vault plugin not found or economy registration failed.");
-            Bukkit.getPluginManager().disablePlugin(this);
-            return;
-        }
 
         // Register wallet command
         registerCommands();
@@ -68,13 +56,6 @@ public final class SCE extends JavaPlugin {
         // Add any future cleanup logic here
     }
 
-    private boolean setupVault() {
-        if (getServer().getPluginManager().getPlugin("Vault") == null) return false;
-        vault = new LNBitsVault();
-        getServer().getServicesManager().register(Economy.class, vault, this, ServicePriority.Highest);
-        return true;
-    }
-
     private void validateConfig() {
         if (getConfig().getString("host", "").isEmpty()) {
             getLogger().warning("Config 'host' is not set! LNBits integration may fail.");
@@ -86,7 +67,7 @@ public final class SCE extends JavaPlugin {
 
     private void registerCommands() {
         if (getCommand("wallet") != null) {
-            getCommand("wallet").setExecutor(new WalletCommand(client));
+            //getCommand("wallet").setExecutor(new WalletCommand(client));
         }
         if (getCommand("balance") != null) {
             getCommand("balance").setExecutor(new BalanceCommand(client));
@@ -109,9 +90,5 @@ public final class SCE extends JavaPlugin {
 
     public static LNBitsClient getClient() {
         return client;
-    }
-
-    public static LNBitsVault getVault() {
-        return vault;
     }
 }

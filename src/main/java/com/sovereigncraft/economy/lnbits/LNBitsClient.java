@@ -10,7 +10,6 @@ public class LNBitsClient {
 
     // Root client references for domain-specific operations
     private final LNBitsUsers users;
-    private final LNBitsWallets wallets;
     private final LNBitsPayments payments;
     private final LNBitsUtils utils;
     private final LNBitsCacheUsers cache;
@@ -21,7 +20,6 @@ public class LNBitsClient {
      */
     public LNBitsClient() {
         this.users = new LNBitsUsers();
-        this.wallets = new LNBitsWallets();
         this.payments = new LNBitsPayments();
         this.utils = new LNBitsUtils();
         this.cache = new LNBitsCacheUsers();
@@ -36,15 +34,6 @@ public class LNBitsClient {
      */
     public LNBitsUsers users() {
         return users;
-    }
-
-    /**
-     * Access the wallet related LNBits operations.
-     *
-     * @return client for wallet API endpoints
-     */
-    public LNBitsWallets wallets() {
-        return wallets;
     }
 
     /**
