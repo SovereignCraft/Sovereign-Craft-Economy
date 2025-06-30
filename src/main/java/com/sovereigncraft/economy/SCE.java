@@ -4,6 +4,7 @@ import com.sovereigncraft.economy.lnbits.LNBitsCacheUsers;
 import com.sovereigncraft.economy.lnbits.LNBitsClient;
 import com.sovereigncraft.economy.lnbits.LNBitsVault;
 import com.sovereigncraft.economy.lnbits.commands.WalletCommand;
+import com.sovereigncraft.economy.lnbits.commands.BalanceCommand;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -86,6 +87,9 @@ public final class SCE extends JavaPlugin {
     private void registerCommands() {
         if (getCommand("wallet") != null) {
             getCommand("wallet").setExecutor(new WalletCommand(client));
+        }
+        if (getCommand("balance") != null) {
+            getCommand("balance").setExecutor(new BalanceCommand(client));
         }
         // Future commands can be added here
     }

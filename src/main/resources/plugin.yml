@@ -12,3 +12,6 @@ commands:
   wallet:
     description: View all your LNBits Lightning wallets and their balances.
     usage: /wallet
+  balance:
+    description: Display the balance of your primary Lightning wallet.
+    usage: /balance
