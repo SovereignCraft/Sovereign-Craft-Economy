@@ -194,4 +194,51 @@ public class LNBitsCacheUsers {
             throw new RuntimeException("Error fetching user: " + uuid, e);
         }
     }
+
+    public static Map<String, Object> getOrFetchAndCacheUserWithWallets(UUID uuid) {
+        String username = LNBitsUtils.getHashedUsername(uuid.toString());
+        Map<String, Object> cached = getCachedUser(username);
+        if (cached != null && cached.containsKey("wallets")) {
+            return cached;
+        }
+
+        // Fetch user
+        String url = "https://" + ConfigHandler.getHost() + "/users/api/v1/user/" + username;
+        HttpRequest userReq = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .headers("Authorization", "Bearer " + ConfigHandler.getBearerToken("users"),
+                        "Content-Type", "application/json")
+                .GET().build();
+
+        try {
+            HttpResponse<String> userRes = client.send(userReq, HttpResponse.BodyHandlers.ofString());
+            if (userRes.statusCode() != 200) throw new RuntimeException("Failed to fetch user");
+
+            Map<String, Object> user = gson.fromJson(userRes.body(), Map.class);
+
+            // Fetch wallets
+            String userId = (String) user.get("id");
+            String walletUrl = "https://" + ConfigHandler.getHost() + "/users/api/v1/user/" + userId + "/wallet";
+            HttpRequest walletReq = HttpRequest.newBuilder()
+                    .uri(URI.create(walletUrl))
+                    .headers("Authorization", "Bearer " + ConfigHandler.getBearerToken("users"),
+                            "Content-Type", "application/json")
+                    .GET().build();
+
+            HttpResponse<String> walletRes = client.send(walletReq, HttpResponse.BodyHandlers.ofString());
+            if (walletRes.statusCode() != 200) throw new RuntimeException("Failed to fetch wallets");
+
+            List<Map<String, Object>> wallets = gson.fromJson(walletRes.body(), List.class);
+            user.put("wallets", wallets);
+
+            userCache.put(username, user);
+            saveCacheToFile();
+
+            return user;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching user and wallets", e);
+        }
+    }
+
 }

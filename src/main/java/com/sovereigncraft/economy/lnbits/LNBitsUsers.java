@@ -19,7 +19,6 @@ import java.util.*;
  */
 public class LNBitsUsers {
 
-    private static final String USERS_ENDPOINT = "https://" + ConfigHandler.getHost() + "/users/api/v1/user";
     private static final String CREATE_USER_ENDPOINT = "https://" + ConfigHandler.getHost() + "/users/api/v1/user";
 
     private final HttpClient client = HttpClient.newHttpClient();
@@ -51,81 +50,6 @@ public class LNBitsUsers {
         } catch (IOException | InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Error creating user: " + uuid, e);
-        }
-    }
-
-    /**
-     * Retrieve a user from LNBits by Minecraft UUID (converted to hashed username).
-     *
-     * @param uuid Minecraft UUID
-     * @return Map containing user details
-     * @throws RuntimeException if the request fails
-     * @throws NullPointerException if the user is not found
-     */
-    public Map<String, Object> getUser(UUID uuid) {
-        String username = LNBitsUtils.getHashedUsername(uuid.toString());
-        String url = USERS_ENDPOINT + "?search=" + username;
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .headers(
-                        "Content-Type", "application/json",
-                        "Authorization", "Bearer " + ConfigHandler.getBearerToken("default"))
-                .GET()
-                .build();
-
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            debugLog("[getUser] Response: " + response.statusCode() + " - " + response.body());
-
-            if (response.statusCode() != 200) {
-                throw new RuntimeException("Failed to fetch user for UUID: " + uuid + ". Status: " + response.statusCode());
-            }
-
-            // Parse the response as a map
-            @SuppressWarnings("unchecked")
-            Map<String, Object> jsonResponse = gson.fromJson(response.body(), Map.class);
-
-            if (jsonResponse.containsKey("data")) {
-                Object data = jsonResponse.get("data");
-
-                if (data instanceof List) {
-                    List<?> rawList = (List<?>) data;
-
-                    if (rawList.isEmpty()) {
-                        throw new NullPointerException("User not found: " + uuid);
-                    }
-
-                    // Safe cast to List<Map<String, Object>>
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> user = (Map<String, Object>) rawList.get(0);
-
-                    return user;
-                } else {
-                    throw new RuntimeException("Unexpected 'data' field format in LNBits response.");
-                }
-            } else {
-                throw new RuntimeException("Missing 'data' field in LNBits response.");
-            }
-
-        } catch (IOException | InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("Error fetching user: " + uuid, e);
-        }
-    }
-
-    /**
-     * Checks if a user exists for the given UUID.
-     *
-     * @param uuid Minecraft UUID
-     * @return {@code true} if a user record exists
-     */
-    public boolean userExists(UUID uuid) {
-        try {
-            getUser(uuid);
-            return true;
-        } catch (NullPointerException e) {
-            return false;
         }
     }
 

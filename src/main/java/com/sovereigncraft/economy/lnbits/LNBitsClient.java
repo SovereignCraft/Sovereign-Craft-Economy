@@ -70,7 +70,7 @@ public class LNBitsClient {
      *
      * @return cache layer for all known users and wallets
      */
-    public LNBitsCacheUsers cache() {
+    public LNBitsCacheUsers cacheUsers() {
         return cache;
     }
 } 

@@ -1,60 +1,14 @@
-name: Sovereign-Craft-Economy
-version: 1.0.9
+name: SovereignCraftEconomy
+version: 1.0.11
 main: com.sovereigncraft.economy.SCE
 api-version: 1.19
-depend: [Vault]
 load: STARTUP
+depend: [Vault]
 author: Sovtoshi & Cappy_SC
 description: Bitcoin Lightning Economy for Minecraft
-website: SovereignCraft.com
+website: https://SovereignCraft.com
+
 commands:
-  ln:
-    description: /ln screen|webwallet|option [amount]
-  cls:
-    description: Clear Screen
-  qrguide:
-    description: QRCode link to the player guide
-  qrvote:
-    description: QRCode link to vote guide
-  qrwebwallet:
-    description: QRCode link to Web Wallet
-  syncwallet:
-    description: Sync your wallet with LNDHub
-  pay:
-    description: Send some money to another player
-    aliases: [send, tip]
-    usage: /pay <player> <amount>
-  balance:
-    description: Get your balance
-    aliases: [bal]
-  webwallet:
-    description: Opens a webpage with your lightning wallet
-  donate:
-    description: Sends a donation to the server operations team. Thank You!
-  deposit:
-    description: Deposit Lightning with a QR screen in game
-  withdraw:
-    description: Withdraw Lightning with a QR screen in game
-  acceptTOS:
-    description: Creates a new Lighting wallet if one does not exist. Please read TOS first.
-  refreshwallet:
-    description: regenerates wallet in case it was compromised
-#  playerqr:
-#    description: Create a Private QR
-#    usage: /playerqr <text|link>
-#    permission: qrcodemap.create
-#    aliases:
-#      - privateqr
-#      - pqr
-  screen:
-    description: a dynamic updating map for private commands
-    usage: /screen
-  qrcode:
-    description: Create a QR-Code
-    usage: /qrcode <text|link>
-    aliases:
-      - qr
-      - qc
   wallet:
-    description: Show your wallet balance
+    description: View all your LNBits Lightning wallets and their balances.
     usage: /wallet

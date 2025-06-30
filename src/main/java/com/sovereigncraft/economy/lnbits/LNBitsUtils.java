@@ -4,7 +4,13 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.util.Map;
 import java.util.UUID;
+
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import com.sovereigncraft.economy.LogHandler;
 
 /**
  * Collection of helper utilities used throughout the LNBits integration.
@@ -82,5 +88,24 @@ public class LNBitsUtils {
         DecimalFormat df = new DecimalFormat("###,###,##0.00");
         df.setGroupingSize(3);
         return df.format(amount);
+    }
+
+    /**
+     * Ensures the command sender is a player.
+     *
+     * @param sender CommandSender to check.
+     * @return the Player if valid, otherwise null.
+     */
+    public static Player requirePlayer(CommandSender sender, String commandName) {
+        if (sender instanceof Player player) {
+            return player;
+        } else {
+            sender.sendMessage("Only players can use this command.");
+            LogHandler.logAction(commandName + "_rejected", Map.of(
+                "sender", sender.getName(),
+                "reason", "non-player"
+            ));
+            return null;
+        }
     }
 }
