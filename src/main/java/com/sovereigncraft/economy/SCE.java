@@ -70,7 +70,7 @@ public final class SCE extends JavaPlugin {
             //getCommand("wallet").setExecutor(new WalletCommand(client));
         }
         if (getCommand("balance") != null) {
-            getCommand("balance").setExecutor(new BalanceCommand(client));
+            getCommand("balance").setExecutor(new BalanceCommand());
         }
         // Future commands can be added here
     }

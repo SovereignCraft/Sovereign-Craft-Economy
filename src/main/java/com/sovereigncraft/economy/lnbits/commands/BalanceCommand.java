@@ -17,13 +17,16 @@ import java.util.Map;
  */
 public class BalanceCommand implements CommandExecutor {
 
-    private final LNBitsClient client;
-
-    public BalanceCommand(LNBitsClient client) {
-        this.client = client;
-    }
-
-    @Override
+    public BalanceCommand() {}
+    /**
+     * Executes the /balance command.
+     *
+     * @param sender The command sender (should be a Player).
+     * @param command The command being executed.
+     * @param label The alias used for the command.
+     * @param args The arguments passed to the command.
+     * @return true if the command was executed successfully, false otherwise.
+     */
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         Player player = LNBitsUtils.requirePlayer(sender, "balance");
         if (player == null) return true;
