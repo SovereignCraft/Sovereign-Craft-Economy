@@ -1,8 +1,9 @@
 package com.sovereigncraft.economy;
 
-import com.sovereigncraft.economy.lnbits.LNBitsCacheUsers;
+import com.sovereigncraft.economy.lnbits.LNBitsCacheInitializer;
 import com.sovereigncraft.economy.lnbits.LNBitsClient;
 import com.sovereigncraft.economy.lnbits.commands.BalanceCommand;
+import com.sovereigncraft.economy.lnbits.commands.PayCommand;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -25,7 +26,7 @@ public final class SCE extends JavaPlugin {
 
         // Initialize LNBits client
         client = new LNBitsClient();
-        LNBitsCacheUsers.initializeAsync(this);
+        LNBitsCacheInitializer.initializeAsync(this);
 
         // Register wallet command
         registerCommands();
@@ -71,6 +72,9 @@ public final class SCE extends JavaPlugin {
         }
         if (getCommand("balance") != null) {
             getCommand("balance").setExecutor(new BalanceCommand());
+        }
+        if (getCommand("pay") != null) {
+            getCommand("pay").setExecutor(new PayCommand());
         }
         // Future commands can be added here
     }

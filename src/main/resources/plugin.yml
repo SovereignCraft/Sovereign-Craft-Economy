@@ -14,3 +14,6 @@ commands:
   balance:
     description: Display the balance of your primary Lightning wallet.
     usage: /balance
+  pay:
+    description: Pay another player using LNBits
+    usage: /pay <username> <amount>

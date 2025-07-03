@@ -1,8 +1,8 @@
 package com.sovereigncraft.economy.lnbits.commands;
 
-import com.sovereigncraft.economy.lnbits.LNBitsCacheUsers;
-import com.sovereigncraft.economy.lnbits.LNBitsClient;
+import com.sovereigncraft.economy.SCE;
 import com.sovereigncraft.economy.lnbits.LNBitsUtils;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Bukkit command executor for the <code>/balance</code> command.
@@ -31,7 +32,9 @@ public class BalanceCommand implements CommandExecutor {
         Player player = LNBitsUtils.requirePlayer(sender, "balance");
         if (player == null) return true;
 
-        Map<String, Object> user = LNBitsCacheUsers.getOrFetchAndCacheUserWithWallets(player.getUniqueId());
+        UUID uuid = player.getUniqueId();
+
+        Map<String, Object> user = SCE.getClient().cacheUsers().getOrFetchAndCacheUserWithWallets(uuid);
         if (user == null || !user.containsKey("wallets")) {
             sender.sendMessage("§cNo Lightning wallet found for your account.");
             return true;

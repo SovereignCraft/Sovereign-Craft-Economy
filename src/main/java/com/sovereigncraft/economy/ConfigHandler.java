@@ -30,8 +30,13 @@ public class ConfigHandler {
         return getConfig().getString("AdminUser");
     }
 
-    public static UUID getServerUUID() { 
-        return UUID.fromString(getConfig().getString("ServerUUID"));
+    public static UUID getServerUUID() {
+        try {
+            return UUID.fromString(getConfig().getString("ServerUUID"));
+        } catch (Exception e) {
+            Bukkit.getLogger().warning("Invalid or missing ServerUUID in config.yml");
+            return null;
+        }
     }
 
     public static String getAdminKey() {

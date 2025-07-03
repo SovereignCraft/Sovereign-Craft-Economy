@@ -1,5 +1,7 @@
 package com.sovereigncraft.economy.lnbits;
 
+import com.sovereigncraft.economy.lnbits.logic.LNBitsCacheUsersLogic;
+
 /**
  * Root client that exposes domain specific LNBits API wrappers.
  * <p>
@@ -12,7 +14,7 @@ public class LNBitsClient {
     private final LNBitsUsers users;
     private final LNBitsPayments payments;
     private final LNBitsUtils utils;
-    private final LNBitsCacheUsers cache;
+    private final LNBitsCacheUsersLogic cache;
 
     /**
      * Constructs a new {@link LNBitsClient} with fresh instances of each
@@ -22,7 +24,7 @@ public class LNBitsClient {
         this.users = new LNBitsUsers();
         this.payments = new LNBitsPayments();
         this.utils = new LNBitsUtils();
-        this.cache = new LNBitsCacheUsers();
+        this.cache = new LNBitsCacheUsersLogic();
     }
 
     // === Accessor methods for sub-clients ===
@@ -59,7 +61,7 @@ public class LNBitsClient {
      *
      * @return cache layer for all known users and wallets
      */
-    public LNBitsCacheUsers cacheUsers() {
+    public LNBitsCacheUsersLogic cacheUsers() {
         return cache;
     }
 } 
