@@ -4,6 +4,7 @@ import com.sovereigncraft.economy.lnbits.LNBitsCacheInitializer;
 import com.sovereigncraft.economy.lnbits.LNBitsClient;
 import com.sovereigncraft.economy.lnbits.commands.BalanceCommand;
 import com.sovereigncraft.economy.lnbits.commands.PayCommand;
+import com.sovereigncraft.economy.lnbits.data.LNBitsCacheUsersData;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -23,6 +24,8 @@ public final class SCE extends JavaPlugin {
 
         LogHandler.initialize();
         validateConfig();
+
+        LNBitsCacheUsersData.load();
 
         // Initialize LNBits client
         client = new LNBitsClient();
@@ -53,6 +56,8 @@ public final class SCE extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        LNBitsCacheUsersData.save();
+        getLogger().info("Saved LNBits user cache.");
         getLogger().info("Sovereign Craft Economy disabled");
         // Add any future cleanup logic here
     }
