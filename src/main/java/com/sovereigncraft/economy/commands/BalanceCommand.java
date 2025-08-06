@@ -8,11 +8,15 @@ import org.bukkit.entity.Player;
 
 public class BalanceCommand implements org.bukkit.command.CommandExecutor {
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		
-				if (args.length == 0) {
+        @SuppressWarnings("deprecation")
+        @Override
+        public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+                                if (!sender.hasPermission("sceconomy.balance")) {
+                                        sender.sendMessage("You do not have permission to use this command.");
+                                        return true;
+                                }
+
+                                if (args.length == 0) {
 				
 				if (!(sender instanceof Player)) {
 					sender.sendMessage( "Only players can get their balance");

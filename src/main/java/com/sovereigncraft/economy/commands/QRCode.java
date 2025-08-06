@@ -15,8 +15,13 @@ public class QRCode implements CommandExecutor {
 
         String prefix = SCEconomy.getMessage("messages.prefix");
 
+        if (!sender.hasPermission("sceconomy.qrcode")) {
+            sender.sendMessage(prefix + "You do not have permission to use this command.");
+            return true;
+        }
+
         if (!(sender instanceof Player)) {
-            sender.sendMessage(prefix+SCEconomy.getMessage("messages.onlyForPlayers"));
+            sender.sendMessage(prefix + SCEconomy.getMessage("messages.onlyForPlayers"));
             return true;
         }
 

@@ -11,11 +11,16 @@ import com.google.common.collect.ImmutableMap;
 
 public class PayCommand implements org.bukkit.command.CommandExecutor {
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-			
-			if (args.length == 2) {
+        @SuppressWarnings("deprecation")
+        @Override
+        public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+
+                        if (!sender.hasPermission("sceconomy.pay")) {
+                                sender.sendMessage("You do not have permission to use this command.");
+                                return true;
+                        }
+
+                        if (args.length == 2) {
 			
 			if (!(sender instanceof Player)) {
 				sender.sendMessage("You must be a player to send money");
