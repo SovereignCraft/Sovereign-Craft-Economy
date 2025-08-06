@@ -31,6 +31,11 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
             return true;
         }
 
+        if (!sender.hasPermission("sceconomy.ln")) {
+            sender.sendMessage(prefix + "You do not have permission to use this command.");
+            return true;
+        }
+
         if (args.length == 0) {
             sender.sendMessage("You must specify an ln command");
             return true;
@@ -46,6 +51,10 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
 
         switch (subcommand) {
             case "bal":
+                if (!sender.hasPermission("sceconomy.ln.bal")) {
+                    sender.sendMessage(prefix + "This command is disabled.");
+                    return true;
+                }
                 if (args.length == 1) {
                     sender.sendMessage(" Your balance is: " + SCEconomy.getEco().getBalanceString(player.getUniqueId()));
                 } else if (args.length == 2) {
@@ -63,11 +72,19 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 return true;
 
             case "cls":
+                if (!sender.hasPermission("sceconomy.ln.cls")) {
+                    sender.sendMessage(prefix + "This command is disabled.");
+                    return true;
+                }
                 SCEconomy.playerQRInterface.remove(player.getUniqueId());
                 sender.sendMessage(prefix + SCEconomy.getMessage("messages.success"));
                 return true;
 
             case "screen":
+                if (!sender.hasPermission("sceconomy.ln.screen")) {
+                    sender.sendMessage(prefix + "This command is disabled.");
+                    return true;
+                }
                 if (player.getItemInHand().getType() != Material.AIR) {
                     sender.sendMessage(prefix + SCEconomy.getMessage("messages.handNotEmpty"));
                     return true;
@@ -85,6 +102,10 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 return true;
 
             case "deposit":
+                if (!sender.hasPermission("sceconomy.ln.deposit")) {
+                    sender.sendMessage(prefix + "This command is disabled.");
+                    return true;
+                }
                 if (args.length < 2) {
                     sender.sendMessage("Usage: /ln deposit <amount> [currency]");
                     return true;
@@ -114,6 +135,10 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 return true;
 
             case "withdraw":
+                if (!sender.hasPermission("sceconomy.ln.withdraw")) {
+                    sender.sendMessage(prefix + "This command is disabled.");
+                    return true;
+                }
                 if (args.length < 2) {
                     sender.sendMessage("Usage: /ln withdraw <amount> [currency]");
                     return true;
@@ -143,6 +168,10 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 return true;
 
             case "pay":
+                if (!sender.hasPermission("sceconomy.ln.pay")) {
+                    sender.sendMessage(prefix + "This command is disabled.");
+                    return true;
+                }
                 if (args.length != 3) {
                     sender.sendMessage("Usage: /ln pay <player> <amount>");
                     return true;
@@ -176,22 +205,38 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 return true;
 
             case "qrwebwallet":
+                if (!sender.hasPermission("sceconomy.ln.qrwebwallet")) {
+                    sender.sendMessage(prefix + "This command is disabled.");
+                    return true;
+                }
                 String webwallet = "https://wallet.sovereigncraft.com/wallet?usr=" + SCEconomy.getEco().getUser(player.getUniqueId()).get("id");
                 SCEconomy.playerQRInterface.put(player.getUniqueId(), webwallet);
                 sender.sendMessage(prefix + SCEconomy.getMessage("messages.success"));
                 return true;
 
             case "qrguide":
+                if (!sender.hasPermission("sceconomy.ln.qrguide")) {
+                    sender.sendMessage(prefix + "This command is disabled.");
+                    return true;
+                }
                 SCEconomy.playerQRInterface.put(player.getUniqueId(), "https://sovereigncraft.com/guide/");
                 sender.sendMessage(prefix + SCEconomy.getMessage("messages.success"));
                 return true;
 
             case "qrvote":
+                if (!sender.hasPermission("sceconomy.ln.qrvote")) {
+                    sender.sendMessage(prefix + "This command is disabled.");
+                    return true;
+                }
                 SCEconomy.playerQRInterface.put(player.getUniqueId(), "https://sovereigncraft.com/vote");
                 sender.sendMessage(prefix + SCEconomy.getMessage("messages.success"));
                 return true;
 
             case "refreshwallet":
+                if (!sender.hasPermission("sceconomy.ln.refreshwallet")) {
+                    sender.sendMessage(prefix + "This command is disabled.");
+                    return true;
+                }
                 double bal = SCEconomy.getEco().getBalance(player.getUniqueId());
                 SCEconomy.getEco().withdraw(player.getUniqueId(), bal);
                 SCEconomy.getEco().userDelete(player.getUniqueId());
@@ -206,6 +251,10 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 return true;
 
             case "syncwallet":
+                if (!sender.hasPermission("sceconomy.ln.syncwallet")) {
+                    sender.sendMessage(prefix + "This command is disabled.");
+                    return true;
+                }
                 SCEconomy.getEco().extension(player.getUniqueId(), "LNDHub", true);
                 String syncData = "lndhub://admin:" + SCEconomy.getEco().getWalletAdminKey(player.getUniqueId()) + "@https://" + ConfigHandler.getPubHost() + "/lndhub/ext/";
                 SCEconomy.playerQRInterface.put(player.getUniqueId(), syncData);
@@ -213,6 +262,10 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 return true;
 
             case "webwallet":
+                if (!sender.hasPermission("sceconomy.ln.webwallet")) {
+                    sender.sendMessage(prefix + "This command is disabled.");
+                    return true;
+                }
                 String url = "https://wallet.sovereigncraft.com/wallet?usr=" + SCEconomy.getEco().getUser(player.getUniqueId()).get("id");
                 Bukkit.getServer().dispatchCommand(
                         Bukkit.getConsoleSender(),
@@ -223,6 +276,10 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 return true;
 
             case "send":
+                if (!sender.hasPermission("sceconomy.ln.send")) {
+                    sender.sendMessage(prefix + "This command is disabled.");
+                    return true;
+                }
                 if (args.length == 4 && args[1].equalsIgnoreCase("lnaddress")) {
                     double sendAmount;
                     try {

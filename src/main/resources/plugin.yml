@@ -3,6 +3,7 @@ version: 1.0
 main: com.sovereigncraft.economy.SCEconomy
 api-version: 1.19
 depend: [Vault]
+softdepend: [LuckPerms]
 load: STARTUP
 author: Sovtoshi
 description: Bitcoin Lightning Economy for Minecraft
@@ -10,16 +11,76 @@ website: SovereignCraft.com
 commands:
   ln:
     description: /ln screen|webwallet|option [amount]
+    permission: sceconomy.ln
+    permission-message: You do not have permission to use this command
   pay:
     description: Send some money to another player
     aliases: [send, tip]
     usage: /pay <player> <amount>
+    permission: sceconomy.pay
+    permission-message: You do not have permission to use this command
   balance:
     description: Get your balance
     aliases: [bal]
+    permission: sceconomy.balance
+    permission-message: You do not have permission to use this command
   qrcode:
     description: Create a QR-Code
     usage: /qrcode <text|link>
     aliases:
       - qr
       - qc
+    permission: sceconomy.qrcode
+    permission-message: You do not have permission to use this command
+permissions:
+  sceconomy.ln:
+    description: Allows use of /ln command
+    default: true
+  sceconomy.ln.bal:
+    description: Allows /ln bal
+    default: true
+  sceconomy.ln.cls:
+    description: Allows /ln cls
+    default: true
+  sceconomy.ln.screen:
+    description: Allows /ln screen
+    default: true
+  sceconomy.ln.deposit:
+    description: Allows /ln deposit
+    default: true
+  sceconomy.ln.withdraw:
+    description: Allows /ln withdraw
+    default: true
+  sceconomy.ln.pay:
+    description: Allows /ln pay
+    default: true
+  sceconomy.ln.qrwebwallet:
+    description: Allows /ln qrwebwallet
+    default: true
+  sceconomy.ln.qrguide:
+    description: Allows /ln qrguide
+    default: true
+  sceconomy.ln.qrvote:
+    description: Allows /ln qrvote
+    default: true
+  sceconomy.ln.refreshwallet:
+    description: Allows /ln refreshwallet
+    default: true
+  sceconomy.ln.syncwallet:
+    description: Allows /ln syncwallet
+    default: true
+  sceconomy.ln.webwallet:
+    description: Allows /ln webwallet
+    default: true
+  sceconomy.ln.send:
+    description: Allows /ln send
+    default: true
+  sceconomy.pay:
+    description: Allows use of /pay
+    default: true
+  sceconomy.balance:
+    description: Allows use of /balance
+    default: true
+  sceconomy.qrcode:
+    description: Allows use of /qrcode
+    default: true
