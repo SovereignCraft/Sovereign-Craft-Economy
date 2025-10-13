@@ -1,10 +1,11 @@
 package com.sovereigncraft.economy;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -12,12 +13,15 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.text.DecimalFormat;
+import java.time.Duration;
 import java.util.*;
 
 public class LNBits {
     //string to construct the various API URLs for appropriate methods
     public static String extensionsCmd = "https://" + ConfigHandler.getHost() + "/api/v1/extension/";
     public static String usersCmd = "https://" + ConfigHandler.getHost() + "/usermanager/api/v1/users";
+    public static String usersV1Cmd = "https://" + ConfigHandler.getHost() + "/users/api/v1/users";
+    public static String userV1Cmd = "https://" + ConfigHandler.getHost() + "/users/api/v1/user";
     public static String invoiceCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/payments";
     public static String lnurlpCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/lnurlp/api/v1/links";
     public static String lnurlwCmd = "https://" + ConfigHandler.getHost() + "/withdraw/api/v1/links";
@@ -27,6 +31,139 @@ public class LNBits {
     public static String convertCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/conversion";
     public static String lnurlscanCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/lnurlscan/";
     public static String paylnurlCmd = "https://" + ConfigHandler.getHost() + "/api/v1/payments/lnurl";
+
+    // New method to get a user by external_id from V1 API
+    public Map getUserV1ByExternalId(UUID uuid) {
+        String userQueryCmd = userV1Cmd + "?external_id=" + uuid.toString();
+        Bukkit.getLogger().info("Request URL: " + userQueryCmd);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(userQueryCmd))
+                .header("accept", "application/json")
+                .header("Cookie", "cookie_access_token=" + ConfigHandler.getAccessToken())
+                .version(HttpClient.Version.HTTP_1_1)
+                .GET()
+                .build();
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .build();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            Bukkit.getLogger().info("Response Status: " + response.statusCode() + ", Body: " + response.body());
+            if (response.statusCode() == 200 && response.body() != null && !response.body().trim().isEmpty()) {
+                String body = response.body().trim();
+                try {
+                    Map responseMap = json.JSON2Map(body); // Assume json.JSON2Map is defined elsewhere
+                    if (responseMap != null && responseMap.containsKey("total")) {
+                        Object totalObj = responseMap.get("total");
+                        if (totalObj instanceof Number && ((Number) totalObj).intValue() == 1) {
+                            List dataList = (List) responseMap.get("data");
+                            if (dataList != null && !dataList.isEmpty()) {
+                                return (Map) dataList.get(0);
+                            }
+                        }
+                    }
+                } catch (JsonSyntaxException e) {
+                    Bukkit.getLogger().warning("JSON parsing failed for body: " + body);
+                    Bukkit.getLogger().warning("Exception: " + e.getMessage());
+                    return null;
+                }
+            } else {
+                Bukkit.getLogger().warning("Invalid response: Status=" + response.statusCode() + ", Body=" + response.body());
+            }
+        } catch (Exception e) {
+            Bukkit.getLogger().warning("Request failed: " + e.getMessage());
+            return null;
+        }
+        return null;
+    }
+
+    // New method to update a user with an external_id
+    public void updateUserWithDefaults(String walletId, Player player) {
+        Gson gson = new Gson();
+        Map<String, String> body = new HashMap<>();
+        body.put("id", walletId);
+        body.put("external_id", player.getUniqueId().toString());
+        body.put("username", player.getName());
+        String jsonBody = gson.toJson(body);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(usersV1Cmd + "/" + walletId))
+                .header("accept", "application/json")
+                .header("Content-Type", "application/json")
+                .header("Cookie", "cookie_access_token=" + ConfigHandler.getAccessToken())
+                .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .build();
+
+        HttpClient client = HttpClient.newHttpClient();
+        try {
+            client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // New method to create a user in V1
+    public boolean createWalletV1(Player player) {
+        Gson gson = new Gson();
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("username", player.getName());
+        body.put("password", UUID.randomUUID().toString()); // Generate a random password
+        body.put("password_repeat", body.get("password"));
+        body.put("external_id", player.getUniqueId().toString());
+
+        String jsonBody = gson.toJson(body);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(usersV1Cmd))
+                .header("accept", "application/json")
+                .header("Content-Type", "application/json")
+                .header("Cookie", "cookie_access_token=" + ConfigHandler.getAccessToken())
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .build();
+
+        HttpClient client = HttpClient.newHttpClient();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return response.statusCode() >= 200 && response.statusCode() < 300;
+        } catch (IOException | InterruptedException e) {
+            return false;
+        }
+    }
+
+    /* public Map getUserFromOldApi(UUID uuid) {
+        String oldUsersCmd = "https://" + ConfigHandler.getHost() + "/usermanager/api/v1/users";
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(oldUsersCmd))
+                .headers("X-Api-Key", ConfigHandler.getAdminKey())
+                .version(HttpClient.Version.HTTP_1_1)
+                .GET()
+                .build();
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response;
+        try {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        } catch (IOException | InterruptedException e) {
+            return null;
+        }
+        String responseJSON = response.body();
+        if (responseJSON == null || !responseJSON.trim().startsWith("[")) {
+             return null;
+        }
+        String cleanerJSON = "{ '''users''': " + responseJSON + " }";
+        Map map = json.JSON2Map(cleanerJSON);
+
+        List users = (List) map.get("users");
+        if (users == null) return null;
+
+        for (Object currentUser : users) {
+            Map user = (Map) currentUser;
+            if (String.valueOf(uuid).equals((String) user.get("name"))) {
+                return user;
+            }
+        }
+        return null;
+    } */
+    
     //Methods to construct a string of JSON as required for different methods
     public String processInvoicePutString(String invoice) {
         Gson gson = new Gson();
@@ -301,7 +438,7 @@ public class LNBits {
             throw new RuntimeException(e);
         }
         String responseJSON = response.body();
-        String cleanerJSON = "{ 'users': " + responseJSON + " }";
+        String cleanerJSON = "{ '''users''': " + responseJSON + " }";
         return json.JSON2Map(cleanerJSON);
     }
     public Map getUser(UUID uuid) {
@@ -399,7 +536,7 @@ public class LNBits {
             throw new RuntimeException(e);
         }
         String responseJSON = response.body();
-        String cleanerJSON = "{ 'wallets': " + responseJSON + " }";
+        String cleanerJSON = "{ '''wallets''': " + responseJSON + " }";
         return json.JSON2Map(cleanerJSON);
     }
     public boolean withdraw(UUID uuid, Double amount) {

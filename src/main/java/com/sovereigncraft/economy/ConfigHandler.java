@@ -18,6 +18,7 @@ public class ConfigHandler {
         return getConfig().getString("port");
     }
     public static String getCookie() { return getConfig().getString("cookie"); }
+    public static String getAccessToken() { return getConfig().getString("accessToken"); }
     public static String getAPIKey() {
         return getConfig().getString("APIKey");
     }

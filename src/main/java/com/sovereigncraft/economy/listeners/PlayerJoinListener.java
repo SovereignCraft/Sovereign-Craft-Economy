@@ -1,45 +1,69 @@
 package com.sovereigncraft.economy.listeners;
 
-import com.sovereigncraft.economy.SCEconomy;
 import com.sovereigncraft.economy.ConfigHandler;
+import com.sovereigncraft.economy.LNBits;
+import com.sovereigncraft.economy.SCEconomy;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Map;
+
 public class PlayerJoinListener implements Listener {
 
-	@EventHandler
-	public void onPlayerJoin(PlayerJoinEvent event) {
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        LNBits lnbits = SCEconomy.getEco();
 
-		Player player = event.getPlayer();
-		if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-			player.sendMessage("Your ⚡ wallet is being created.");
-			new BukkitRunnable() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                // Check if a user exists in the new V1 API with the player's UUID as external_id
+                Map<String, Object> userV1 = lnbits.getUserV1ByExternalId(player.getUniqueId());
 
-				@Override
-				public void run() {
-					SCEconomy.getEco().createAccount(player.getUniqueId());
-					if (SCEconomy.playerAdminKey.containsKey(player.getUniqueId())){
-						SCEconomy.playerAdminKey.remove(player.getUniqueId());
-					}
-					if (SCEconomy.playerInKey.containsKey(player.getUniqueId())){
-						SCEconomy.playerInKey.remove(player.getUniqueId());
-					}
-				}
-			}.runTaskAsynchronously(SCEconomy.getInstance());
+                if (userV1 == null) {
+                    // No user found in V1, check the old usermanager API
+                    Map<String, Object> oldUser = lnbits.getUser(player.getUniqueId());
 
-		}
-		if (SCEconomy.playerAdminKey.containsKey(player.getUniqueId())){
-			SCEconomy.playerAdminKey.remove(player.getUniqueId());
-		}
-		if (SCEconomy.playerInKey.containsKey(player.getUniqueId())){
-			SCEconomy.playerInKey.remove(player.getUniqueId());
-		}
-		if (ConfigHandler.getLNAddress().equals(true)) {
-			SCEconomy.getEco().createlnurlp(player.getUniqueId(), "SCLNAddress", 10, 5000000, "SCLNAddress", player.getName());
-		}
-	}
-	
+                    if (oldUser != null) {
+                        // User found in old system, migrate by updating with external_id
+                        player.sendMessage("§eFound your existing ⚡ wallet, migrating to the new system...");
+                        String walletId = (String) oldUser.get("id");
+                        lnbits.updateUserWithDefaults(walletId, player);
+                        player.sendMessage("§aWallet migration successful!");
+                    } else {
+                        // No user in old or new system, create a new wallet in V1
+                        player.sendMessage("§eYour ⚡ wallet is being created.");
+                        boolean created = lnbits.createWalletV1(player);
+                        if (created) {
+                            player.sendMessage("§aYour ⚡ wallet has been created!");
+                            // Attempt to deposit starting balance, mirroring old createAccount behavior
+                            boolean deposited = lnbits.deposit(player.getUniqueId(), ConfigHandler.getStartingBalance());
+                            if (!deposited) {
+                                player.sendMessage("§cWarning: Could not deposit starting balance. Wallet may need funding.");
+                            }
+                        } else {
+                            player.sendMessage("§cFailed to create your ⚡ wallet. Please contact an admin.");
+                        }
+                    }
+                }
+
+                // Clear any cached keys on join
+                if (SCEconomy.playerAdminKey.containsKey(player.getUniqueId())) {
+                    SCEconomy.playerAdminKey.remove(player.getUniqueId());
+                }
+                if (SCEconomy.playerInKey.containsKey(player.getUniqueId())) {
+                    SCEconomy.playerInKey.remove(player.getUniqueId());
+                }
+
+                // Create LNURL-Pay link if enabled
+                if (ConfigHandler.getLNAddress()) {
+                    lnbits.createlnurlp(player.getUniqueId(), "SCLNAddress", 10, 5000000, "SCLNAddress", player.getName());
+                }
+            }
+        }.runTaskAsynchronously(SCEconomy.getInstance());
+    }
 }
