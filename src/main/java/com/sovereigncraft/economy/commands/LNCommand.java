@@ -16,7 +16,9 @@ import org.bukkit.inventory.meta.MapMeta;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 public class LNCommand implements org.bukkit.command.CommandExecutor {
 
@@ -45,7 +47,7 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
         }
 
         switch (subcommand) {
-            case "bal":
+            case "bal": {
                 if (args.length == 1) {
                     sender.sendMessage(" Your balance is: " + SCEconomy.getEco().getBalanceString(player.getUniqueId()));
                 } else if (args.length == 2) {
@@ -61,13 +63,15 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                     sender.sendMessage("Usage: /ln bal [currency]");
                 }
                 return true;
+            }
 
-            case "cls":
+            case "cls": {
                 SCEconomy.playerQRInterface.remove(player.getUniqueId());
                 sender.sendMessage(prefix + SCEconomy.getMessage("messages.success"));
                 return true;
+            }
 
-            case "screen":
+            case "screen": {
                 if (player.getItemInHand().getType() != Material.AIR) {
                     sender.sendMessage(prefix + SCEconomy.getMessage("messages.handNotEmpty"));
                     return true;
@@ -83,8 +87,9 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 player.setItemInHand(map);
                 sender.sendMessage(prefix + SCEconomy.getMessage("messages.success"));
                 return true;
+            }
 
-            case "deposit":
+            case "deposit": {
                 if (args.length < 2) {
                     sender.sendMessage("Usage: /ln deposit <amount> [currency]");
                     return true;
@@ -112,8 +117,9 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 String depositData = SCEconomy.getEco().createInvoice(player.getUniqueId(), sats);
                 SCEconomy.playerQRInterface.put(player.getUniqueId(), depositData);
                 return true;
+            }
 
-            case "withdraw":
+            case "withdraw": {
                 if (args.length < 2) {
                     sender.sendMessage("Usage: /ln withdraw <amount> [currency]");
                     return true;
@@ -141,8 +147,9 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 String withdrawData = SCEconomy.getEco().createlnurlw(player.getUniqueId(), withdrawSats);
                 SCEconomy.playerQRInterface.put(player.getUniqueId(), withdrawData);
                 return true;
+            }
 
-            case "pay":
+            case "pay": {
                 if (args.length != 3) {
                     sender.sendMessage("Usage: /ln pay <player> <amount>");
                     return true;
@@ -174,46 +181,91 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                     ((Player) recipient).sendMessage("You received ⚡" + SCEconomy.getEco().numberFormat(payAmount) + " from " + player.getName());
                 }
                 return true;
+            }
 
-            case "qrwebwallet":
-                String webwallet = "https://wallet.sovereigncraft.com/wallet?usr=" + SCEconomy.getEco().getUser(player.getUniqueId()).get("id");
+            case "qrwebwallet": {
+                Map<String, Object> userV1 = SCEconomy.getEco().getUserV1ByExternalId(player.getUniqueId());
+                if (userV1 == null) {
+                    sender.sendMessage("No wallet found. Please try again or contact an admin.");
+                    return true;
+                }
+                String webwallet = "https://wallet.sovereigncraft.com/wallet?usr=" + userV1.get("id");
                 SCEconomy.playerQRInterface.put(player.getUniqueId(), webwallet);
                 sender.sendMessage(prefix + SCEconomy.getMessage("messages.success"));
                 return true;
+            }
 
-            case "qrguide":
+            case "qrguide": {
                 SCEconomy.playerQRInterface.put(player.getUniqueId(), "https://sovereigncraft.com/guide/");
                 sender.sendMessage(prefix + SCEconomy.getMessage("messages.success"));
                 return true;
+            }
 
-            case "qrvote":
+            case "qrvote": {
                 SCEconomy.playerQRInterface.put(player.getUniqueId(), "https://sovereigncraft.com/vote");
                 sender.sendMessage(prefix + SCEconomy.getMessage("messages.success"));
                 return true;
-
-            case "refreshwallet":
-                double bal = SCEconomy.getEco().getBalance(player.getUniqueId());
-                SCEconomy.getEco().withdraw(player.getUniqueId(), bal);
-                SCEconomy.getEco().userDelete(player.getUniqueId());
-                if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-                    SCEconomy.getEco().createAccount(player.getUniqueId());
-                    player.sendMessage("Your wallet has been recreated. Use the command /webwallet to access the new one and re-sync it to your mobile wallet if required.");
-                    player.sendMessage("To sync your wallet to your device add the LNDHub extension to your webwallet, click the extension & follow the LNDHub instructions in the web portal");
-                } else {
-                    player.sendMessage("Refresh failed");
+            }
+            //entire case disabled for now. May or may not re-enable
+            /*case "refreshwallet": {
+                Map<String, Object> userV1 = SCEconomy.getEco().getUserV1ByExternalId(player.getUniqueId());
+                if (userV1 == null) {
+                    sender.sendMessage("No wallet found to refresh. Please try again or contact an admin.");
+                    return true;
                 }
-                SCEconomy.getEco().deposit(player.getUniqueId(), bal);
+                String userId = (String) userV1.get("id");
+                double bal = SCEconomy.getEco().getBalance(player.getUniqueId());
+                boolean withdrawn = SCEconomy.getEco().withdraw(player.getUniqueId(), bal);
+                if (!withdrawn) {
+                    sender.sendMessage("Failed to withdraw balance. Please try again or contact an admin.");
+                    return true;
+                }
+                boolean deleted = SCEconomy.getEco().deleteUserV1(userId);
+                if (!deleted) {
+                    sender.sendMessage("Failed to delete wallet. Please try again or contact an admin.");
+                    // Attempt to redeposit withdrawn balance
+                    SCEconomy.getEco().deposit(player.getUniqueId(), bal);
+                    return true;
+                }
+                if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
+                    boolean created = SCEconomy.getEco().createAccount(player.getUniqueId());
+                    if (created) {
+                        boolean deposited = SCEconomy.getEco().deposit(player.getUniqueId(), bal);
+                        if (!deposited) {
+                            sender.sendMessage("Wallet recreated but failed to redeposit balance. Please contact an admin.");
+                        }
+                        sender.sendMessage("Your wallet has been recreated. Use the command /webwallet to access the new one and re-sync it to your mobile wallet if required.");
+                        sender.sendMessage("To sync your wallet to your device add the LNDHub extension to your webwallet, click the extension & follow the LNDHub instructions in the web portal");
+                    } else {
+                        sender.sendMessage("Failed to recreate wallet. Please contact an admin.");
+                    }
+                } else {
+                    sender.sendMessage("Refresh failed: Wallet still exists.");
+                }
                 return true;
+            }*/
 
-            case "syncwallet":
-                SCEconomy.getEco().extension(player.getUniqueId(), "lndhub", true);
-                String syncData = "lndhub://admin:" + SCEconomy.getEco().getWalletAdminKey(player.getUniqueId()) + "@https://" + ConfigHandler.getPubHost() + "/lndhub/ext/";
+            case "syncwallet": {
+                // To re-enable later. need to revisit extension code below
+                //SCEconomy.getEco().extension(player.getUniqueId(), "lndhub", true);
+                String adminKey = SCEconomy.getEco().getWalletAdminKey(player.getUniqueId());
+                if (adminKey == null || adminKey.isEmpty()) {
+                    sender.sendMessage(prefix + "Failed to get LNDHub admin key. Please try again or contact an admin.");
+                    return true;
+                }
+                String syncData = "lndhub://admin:" + adminKey + "@https://" + ConfigHandler.getPubHost() + "/lndhub/ext/";
                 SCEconomy.playerQRInterface.put(player.getUniqueId(), syncData);
                 sender.sendMessage(prefix + SCEconomy.getMessage("messages.success"));
                 return true;
+            }
 
-            case "webwallet":
-                String url = "https://wallet.sovereigncraft.com/wallet?usr=" + SCEconomy.getEco().getUser(player.getUniqueId()).get("id");
+            case "webwallet": {
+                Map<String, Object> userV1 = SCEconomy.getEco().getUserV1ByExternalId(player.getUniqueId());
+                if (userV1 == null) {
+                    sender.sendMessage("No wallet found. Please try again or contact an admin.");
+                    return true;
+                }
+                String url = "https://wallet.sovereigncraft.com/wallet?usr=" + userV1.get("id");
                 Bukkit.getServer().dispatchCommand(
                         Bukkit.getConsoleSender(),
                         "tellraw " + player.getName() +
@@ -221,8 +273,9 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                                 "\"clickEvent\":{\"action\":\"open_url\",\"value\":\"" + url + "\"}}"
                 );
                 return true;
+            }
 
-            case "send":
+            case "send": {
                 if (args.length == 4 && args[1].equalsIgnoreCase("lnaddress")) {
                     double sendAmount;
                     try {
@@ -239,10 +292,12 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                     return true;
                 }
                 break;
+            }
 
-            default:
+            default: {
                 sender.sendMessage("Command not found");
                 return true;
+            }
         }
 
         return true;
