@@ -3,6 +3,7 @@ package com.sovereigncraft.economy.listeners;
 import com.sovereigncraft.economy.ConfigHandler;
 import com.sovereigncraft.economy.LNBits;
 import com.sovereigncraft.economy.SCEconomy;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -32,15 +33,20 @@ public class PlayerJoinListener implements Listener {
                         // User found in old system, migrate by updating with external_id
                         player.sendMessage("§eFound your existing ⚡ wallet, migrating to the new system...");
                         String walletId = (String) oldUser.get("id");
-                        lnbits.updateUserWithDefaults(walletId, player);
-                        player.sendMessage("§aWallet migration successful!");
+                        try {
+                            lnbits.updateUserWithDefaults(walletId, player);
+                            player.sendMessage("§aWallet migration successful!");
+                        } catch (RuntimeException e) {
+                            player.sendMessage("§cFailed to migrate your ⚡ wallet. Please contact an admin.");
+                            Bukkit.getLogger().warning("Migration failed for player " + player.getName() + ": " + e.getMessage());
+                        }
                     } else {
                         // No user in old or new system, create a new wallet in V1
                         player.sendMessage("§eYour ⚡ wallet is being created.");
                         boolean created = lnbits.createWalletV1(player);
                         if (created) {
                             player.sendMessage("§aYour ⚡ wallet has been created!");
-                            // Attempt to deposit starting balance, mirroring old createAccount behavior
+                            // Attempt to deposit starting balance
                             boolean deposited = lnbits.deposit(player.getUniqueId(), ConfigHandler.getStartingBalance());
                             if (!deposited) {
                                 player.sendMessage("§cWarning: Could not deposit starting balance. Wallet may need funding.");
