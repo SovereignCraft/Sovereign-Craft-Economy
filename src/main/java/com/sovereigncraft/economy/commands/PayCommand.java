@@ -18,31 +18,31 @@ public class PayCommand implements org.bukkit.command.CommandExecutor {
 			if (args.length == 2) {
 			
 			if (!(sender instanceof Player)) {
-				sender.sendMessage("You must be a player to send money");
+				sender.sendMessage("§cYou must be a player to send money");
 				return true;
 			}
 			
 			Player player = (Player) sender;
 
 				if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-					sender.sendMessage("Your wallet isn't working");
+					sender.sendMessage("§cYour wallet isn't working");
 					return true;
 				}
 			
 			OfflinePlayer other = Bukkit.getOfflinePlayer(args[0]);
 			
 			if (other == null) {
-				sender.sendMessage("Could not find other player");
+				sender.sendMessage("§cCould not find other player");
 				return true;
 			}
 			
 			if (!SCEconomy.getEco().hasAccount(other.getUniqueId())) {
-				sender.sendMessage(String.join(",","This person has no wallet on this server"));
+				sender.sendMessage(String.join(",","§cThis person has no wallet on this server"));
 				return true;
 			}
 			
 			if (other.getUniqueId().equals(player.getUniqueId())) {
-				sender.sendMessage("So, if you pay yourself, nothing happens. HFSP");
+				sender.sendMessage("§cSo, if you pay yourself, nothing happens. HFSP");
 				return true;
 			}
 			
@@ -51,24 +51,24 @@ public class PayCommand implements org.bukkit.command.CommandExecutor {
 				amount = Double.parseDouble(args[1]);
 			}
 			catch (NumberFormatException e){
-				sender.sendMessage("This amount is invalid");
+				sender.sendMessage("§cThis amount is invalid");
 				return true;
 			}
 			if (amount <= 0) {
-				sender.sendMessage("Paying a negative amount is almost like stealing. No, just, no.");
+				sender.sendMessage("§cPaying a negative amount is almost like stealing. No, just, no.");
 				return true;
 			}
 			
 			if (!SCEconomy.getEco().has(player.getUniqueId(), amount)) {
-				sender.sendMessage("Stack more Sats");
+				sender.sendMessage("§cStack more Sats");
 				return true;
 			} else if (!(other instanceof Player)) {
-				sender.sendMessage("There is no player by that name");
+				sender.sendMessage("§cThere is no player by that name");
 			} else {
 				SCEconomy.getEco().withdraw(player.getUniqueId(), amount);
-				sender.sendMessage("You paid " + other.getName() + " ⚡" + SCEconomy.getEco().numberFormat(amount) );
+				sender.sendMessage("§eYou paid " + other.getName() + " §a⚡" + SCEconomy.getEco().numberFormat(amount) );
 				SCEconomy.getEco().deposit(other.getUniqueId(), amount);
-				((Player) other).sendMessage("You received" + " ⚡" + SCEconomy.getEco().numberFormat(amount) + " from " + player.getName());
+				((Player) other).sendMessage("§eYou received" + " §a⚡" + SCEconomy.getEco().numberFormat(amount) + " from " + player.getName());
 			}
 			
 			return true;
