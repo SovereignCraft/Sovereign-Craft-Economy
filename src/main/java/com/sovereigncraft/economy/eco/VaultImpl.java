@@ -65,7 +65,7 @@ public class VaultImpl implements net.milkbowl.vault.economy.Economy {
 	}
 	
 	private boolean createAccount(UUID uuid) {
-		return SCEconomy.getEco().createAccount(uuid);
+		return SCEconomy.getEco().createWalletV1(uuid);
 	}
 
 	@SuppressWarnings("deprecation")

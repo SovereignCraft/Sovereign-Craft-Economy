@@ -50,6 +50,7 @@ public class LNBits {
         }
     }
 
+
     private List<String> parseJsonToList(String jsonString) {
         String cleanedJson = jsonString.trim().replaceAll("[\\p{Cntrl}\\p{Cc}\\p{Cf}\\p{Co}\\p{Cn}]", "");
         try {
@@ -167,37 +168,11 @@ public class LNBits {
         return null;
     }
 
-    // Get wallets for a user by userId from V1 API
-    public List<Map<String, Object>> getWalletsV1(String userId) {
-        String walletQueryCmd = userV1Cmd + "/" + userId + "/wallet";
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(walletQueryCmd))
-                .header("accept", "application/json")
-                .header("Cookie", "cookie_access_token=" + ConfigHandler.getAccessToken())
-                .version(HttpClient.Version.HTTP_1_1)
-                .GET()
-                .build();
-        HttpClient client = HttpClient.newHttpClient();
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            String rawBody = response.body() != null ? response.body() : "";
-            if (response.statusCode() == 200 && !rawBody.trim().isEmpty()) {
-                return parseJsonToListOfMaps(rawBody);
-            } else {
-                Bukkit.getLogger().warning("Invalid response in getWalletsV1 for userId=" + userId + ": Status=" + response.statusCode() + ", Body=" + rawBody);
-                return new ArrayList<>();
-            }
-        } catch (IOException | InterruptedException e) {
-            Bukkit.getLogger().warning("getWalletsV1 request failed for userId=" + userId + ": " + e.getMessage());
-            return new ArrayList<>();
-        }
-    }
-
     // Get a single wallet by UUID
     public Map getWallet(UUID uuid) {
         Map user = getUserV1ByExternalId(uuid);
         if (user == null) {
-            Bukkit.getLogger().info("getWallet for " + uuid + ": user is null, returning empty map");
+            Bukkit.getLogger().info("§cCould not find the user account with UUID: " + uuid + "Failure getting the wallet");
             return new HashMap<>();
         }
         String userId = (String) user.get("id");
@@ -227,11 +202,7 @@ public class LNBits {
                             }
                         }
                         // Fallback: Return first wallet if no exact match
-                        if (!wallets.isEmpty()) {
-                            Bukkit.getLogger().warning("getWallet for " + uuid + ": no wallet with name = " + uuid + ", using first wallet = " + wallets.get(0));
-                            return wallets.get(0);
-                        }
-                        Bukkit.getLogger().info("getWallet for " + uuid + ": no wallets found, returning empty map");
+                        Bukkit.getLogger().warning("No player wallet found!");
                     }
                 } catch (JsonSyntaxException e) {
                     Bukkit.getLogger().warning("getWallet for " + uuid + ": JSON parsing failed, body = " + cleanedBody);
@@ -288,55 +259,72 @@ public class LNBits {
     }
 
     // Create a user in V1
-    public boolean createWalletV1(Player player) {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("username", player.getName());
-        body.put("password", UUID.randomUUID().toString());
-        body.put("password_repeat", body.get("password"));
-        body.put("external_id", player.getUniqueId().toString());
+    public boolean createWalletV1(UUID uuid) {
+        Player player = Bukkit.getServer().getPlayer(uuid);
+        if (getUserV1ByExternalId(uuid) == null) {
+            //make user account
+            Map<String, Object> body = new LinkedHashMap<>();
+            body.put("username", player.getName());
+            body.put("password", UUID.randomUUID().toString());
+            body.put("password_repeat", body.get("password"));
+            body.put("external_id", player.getUniqueId().toString());
+            body.put("extensions", Arrays.asList("lndhub", "boltcards", "lnurlp", "withdraw"));
 
-        String jsonBody = GSON.toJson(body);
+            String jsonBody = GSON.toJson(body);
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(userV1Cmd + "s")) // Note: /users for creation
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(userV1Cmd))
+                    .header("accept", "application/json")
+                    .header("Content-Type", "application/json")
+                    .header("Cookie", "cookie_access_token=" + ConfigHandler.getAccessToken())
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .build();
+
+            HttpClient client = HttpClient.newHttpClient();
+            try {
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                    Bukkit.getLogger().warning("Failed to create user for " + player.getName() + ". Status: " + response.statusCode() + ", Body: " + response.body());
+                    return false;
+                }
+            } catch (IOException | InterruptedException e) {
+                Bukkit.getLogger().warning("createWalletV1 user creation failed for player " + player.getName() + ": " + e.getMessage());
+                return false;
+            }
+        }
+        //create wallet for user account
+        Map<String, Object> user = getUserV1ByExternalId(uuid);
+        if (user == null) {
+            Bukkit.getLogger().warning("Could not find user account for " + uuid + " after creation attempt.");
+            return false;
+        }
+        String userId = (String) user.get("id");
+
+        Map<String, String> walletBody = new HashMap<>();
+        walletBody.put("name", uuid.toString());
+        String jsonWalletBody = GSON.toJson(walletBody);
+
+        HttpRequest walletRequest = HttpRequest.newBuilder()
+                .uri(URI.create(userV1Cmd + "/" + userId + "/wallet"))
                 .header("accept", "application/json")
                 .header("Content-Type", "application/json")
                 .header("Cookie", "cookie_access_token=" + ConfigHandler.getAccessToken())
-                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .POST(HttpRequest.BodyPublishers.ofString(jsonWalletBody))
                 .build();
 
-        HttpClient client = HttpClient.newHttpClient();
+        HttpClient walletClient = HttpClient.newHttpClient();
         try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return response.statusCode() >= 200 && response.statusCode() < 300;
-        } catch (IOException | InterruptedException e) {
-            Bukkit.getLogger().warning("createWalletV1 failed for player " + player.getName() + ": " + e.getMessage());
-            return false;
-        }
-    }
-
-    // Delete a user in V1
-    public Boolean deleteUserV1(String userId) {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(userV1Cmd + "/" + userId))
-                .header("accept", "application/json")
-                .header("Cookie", "cookie_access_token=" + ConfigHandler.getAccessToken())
-                .version(HttpClient.Version.HTTP_1_1)
-                .DELETE()
-                .build();
-        HttpClient client = HttpClient.newHttpClient();
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() >= 200 && response.statusCode() < 300) {
-                return true;
-            } else {
-                Bukkit.getLogger().warning("deleteUserV1 failed for userId=" + userId + ": Status=" + response.statusCode() + ", Body=" + response.body());
+            HttpResponse<String> response = walletClient.send(walletRequest, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                Bukkit.getLogger().warning("Failed to create wallet for user " + userId + ". Status: " + response.statusCode() + ", Body: " + response.body());
                 return false;
             }
         } catch (IOException | InterruptedException e) {
-            Bukkit.getLogger().warning("deleteUserV1 request failed for userId=" + userId + ": " + e.getMessage());
+            Bukkit.getLogger().warning("createWalletV1 wallet creation request failed for player " + player.getName() + ": " + e.getMessage());
             return false;
         }
+
+        return true;
     }
 
     // JSON construction methods
@@ -572,7 +560,7 @@ public class LNBits {
             Bukkit.getLogger().warning("createAccount failed: No player found for UUID " + uuid);
             return false;
         }
-        Boolean account = createWalletV1(player);
+        Boolean account = createWalletV1(player.getUniqueId());
         if (account) {
             Boolean deposit = deposit(uuid, ConfigHandler.getStartingBalance());
             if (deposit) {

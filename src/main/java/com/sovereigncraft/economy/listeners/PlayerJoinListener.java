@@ -31,7 +31,7 @@ public class PlayerJoinListener implements Listener {
 
                     if (oldUser != null) {
                         // User found in old system, migrate by updating with external_id
-                        player.sendMessage("§eFound your existing ⚡ wallet, migrating to the new system...");
+                        player.sendMessage("§eFound your existing ⚡ wallet in the old system, migrating to the new system...");
                         String walletId = (String) oldUser.get("id");
                         try {
                             lnbits.updateUserWithDefaults(walletId, player);
@@ -43,7 +43,7 @@ public class PlayerJoinListener implements Listener {
                     } else {
                         // No user in old or new system, create a new wallet in V1
                         player.sendMessage("§eYour ⚡ wallet is being created.");
-                        boolean created = lnbits.createWalletV1(player);
+                        boolean created = lnbits.createWalletV1(player.getUniqueId());
                         if (created) {
                             player.sendMessage("§aYour ⚡ wallet has been created!");
                             // Attempt to deposit starting balance
