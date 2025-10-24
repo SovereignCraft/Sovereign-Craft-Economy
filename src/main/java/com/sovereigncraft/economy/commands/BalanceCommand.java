@@ -15,22 +15,22 @@ public class BalanceCommand implements org.bukkit.command.CommandExecutor {
 				if (args.length == 0) {
 				
 				if (!(sender instanceof Player)) {
-					sender.sendMessage( "Only players can get their balance");
+					sender.sendMessage( "§cOnly players can get their balance");
 					return true;
 				}
 				
 				Player player = (Player) sender;
 				
 				if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-					player.sendMessage("Your wallet is not working.");
+					player.sendMessage("§cYour wallet is not working.");
 					return true;
 				}
-				sender.sendMessage(" Your balance is: " + SCEconomy.getEco().getBalanceString(player.getUniqueId()));
+				sender.sendMessage(" §eYour balance is: §a" + SCEconomy.getEco().getBalanceString(player.getUniqueId()));
 				return true;
 				
 			}
 			else {
-				sender.sendMessage("Too many arguments");
+				sender.sendMessage("§cToo many arguments");
 				
 				return true;
 				
