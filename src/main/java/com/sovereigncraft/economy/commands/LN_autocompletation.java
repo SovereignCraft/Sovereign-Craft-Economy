@@ -61,20 +61,31 @@ public class LN_autocompletation implements TabCompleter {
                         List<String> options;
                         options = Arrays.asList("[lnaddress (someone@somewhere.com)]");
                         filteredOptions.addAll(options);
+                    } else if (args[2].contains("@")) {
+                        if (SCEconomy.getEco().convertLnaddrtoLnurl((args[2]), (Player) sender).containsKey("callback")){
+                            List<String> options;
+                            options = Arrays.asList("Valid address detected! - Press space");
+                            filteredOptions.addAll(options);
+                        }
                     }
                     return filteredOptions;
                 }
             }
             if (args.length == 4) {
-                if (args[0].equals("send") && args[1].equals("lnaddress")) {
-                    List<String> filteredOptions = new ArrayList<>();
+                List<String> filteredOptions = new ArrayList<>();
+                if (!SCEconomy.getEco().convertLnaddrtoLnurl((args[2]), (Player) sender).containsKey("callback")){
+                    List<String> options;
+                    options = Arrays.asList("Address does not appear valid");
+                    filteredOptions.addAll(options);
+                } else if (args[0].equals("send") && args[1].equals("lnaddress")) {
                     if (args[3].isEmpty()) {
                         List<String> options;
                         options = Arrays.asList("[amount]");
                         filteredOptions.addAll(options);
                     }
-                    return filteredOptions;
                 }
+                return filteredOptions;
+
             }
             if (args.length == 2) {
                 if (args[0].equals("deposit") || args[0].equals("withdraw") || args[0].equals("pay")) {
