@@ -344,7 +344,7 @@ public class LNBits {
     }
 
     public void sendLNAddress(Player player, String lnaddr, Double amount) {
-        Map lnurl = convertLnaddrtoLnurl(lnaddr);
+        Map lnurl = convertLnaddrtoLnurl(lnaddr, player);
         if (lnurl.containsKey("callback")) {
             if (!lnurl.get("description").toString().isEmpty()) {
                 player.sendMessage("Sending to: " + lnurl.get("description").toString());
@@ -355,10 +355,10 @@ public class LNBits {
         } else player.sendMessage("Invalid Lightning address");
     }
 
-    public Map convertLnaddrtoLnurl(String lnaddr) {
+    public Map convertLnaddrtoLnurl(String lnaddr, Player player) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(lnurlscanCmd + URLEncoder.encode(lnaddr)))
-                .headers("X-Api-Key", ConfigHandler.getAdminKey())
+                .headers("X-Api-Key", getWalletAdminKey(player.getUniqueId()))
                 .version(HttpClient.Version.HTTP_1_1)
                 .GET()
                 .build();
