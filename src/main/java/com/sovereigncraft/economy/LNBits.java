@@ -5,6 +5,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
@@ -67,21 +68,6 @@ public class LNBits {
         }
     }
 
-    private List<Map<String, Object>> parseJsonToListOfMaps(String jsonString) {
-        String cleanedJson = jsonString.trim().replaceAll("[\\p{Cntrl}\\p{Cc}\\p{Cf}\\p{Co}\\p{Cn}]", "");
-        try {
-            TypeToken<List<Map<String, Object>>> type = new TypeToken<List<Map<String, Object>>>() {};
-            List<Map<String, Object>> result = GSON.fromJson(cleanedJson, type.getType());
-            if (result == null) {
-                Bukkit.getLogger().warning("parseJsonToListOfMaps returned null for input: " + cleanedJson);
-            }
-            return result;
-        } catch (JsonSyntaxException e) {
-            Bukkit.getLogger().warning("parseJsonToListOfMaps failed to parse: " + cleanedJson);
-            Bukkit.getLogger().warning("Exception: " + e.getMessage());
-            throw e;
-        }
-    }
 
     // Get all users' LNBits account details (for migration only)
     public Map getUsers() {
@@ -172,8 +158,50 @@ public class LNBits {
     public Map getWallet(UUID uuid) {
         Map user = getUserV1ByExternalId(uuid);
         if (user == null) {
-            Bukkit.getLogger().info("§cCould not find the user account with UUID: " + uuid + "Failure getting the wallet");
-            return new HashMap<>();
+            // No user found in V1, check the old usermanager API
+            Map<String, Object> oldUser = getUser(uuid);
+            OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
+            if (oldUser != null) {
+                // User found in old system, migrate by updating with external_id
+                if (player.isOnline()) {
+                    player.getPlayer().sendMessage("§eFound your existing ⚡ wallet in the old system, migrating to the new system...");
+                }
+                Bukkit.getLogger().info("MIgrating account for" + player.getName() + " to V1");
+                 String userID = (String) oldUser.get("id");
+                 try {
+                    updateUserWithDefaults(userID, player);
+                     if (player.isOnline()) {
+                         player.getPlayer().sendMessage("§aWallet migration successful!");
+                     }
+                 } catch (RuntimeException e) {
+                     if (player.isOnline()) {
+                          player.getPlayer().sendMessage("§cFailed to migrate your ⚡ wallet. Please contact an admin.");
+                     }
+                     Bukkit.getLogger().warning("Migration failed for player " + player.getName() + ": " + e.getMessage());
+                 }
+            } else {
+                // No user in old or new system, create a new wallet in V1
+                if (player.isOnline()) {
+                    player.getPlayer().sendMessage("§eYour ⚡ wallet is being created.");
+                }
+                Map newWallet = createWalletV1(uuid);
+                if (!newWallet.isEmpty()) {
+                    if (player.isOnline()) {
+                        player.getPlayer().sendMessage("§aYour ⚡ wallet has been created!");
+                    }
+                    // Attempt to deposit starting balance
+                    boolean deposited = deposit(uuid, ConfigHandler.getStartingBalance());
+                    if (!deposited) {
+                        if (player.isOnline()) {
+                            player.getPlayer().sendMessage("§cWarning: Could not deposit starting balance. Wallet may need funding.");
+                        }
+                    }
+                } else {
+                    if (player.isOnline()) {
+                        player.getPlayer().sendMessage("§cFailed to create your ⚡ wallet. Please contact an admin.");
+                    }
+                }
+            }
         }
         String userId = (String) user.get("id");
         HttpRequest request = HttpRequest.newBuilder()
@@ -201,8 +229,6 @@ public class LNBits {
                                 return wallet;
                             }
                         }
-                        // Fallback: Return first wallet if no exact match
-                        Bukkit.getLogger().warning("No player wallet found!");
                     }
                 } catch (JsonSyntaxException e) {
                     Bukkit.getLogger().warning("getWallet for " + uuid + ": JSON parsing failed, body = " + cleanedBody);
@@ -214,8 +240,8 @@ public class LNBits {
         } catch (Exception e) {
             Bukkit.getLogger().warning("getWallet for " + uuid + ": request failed, error = " + e.getMessage());
         }
-        Bukkit.getLogger().info("getWallet for " + uuid + ": no matching wallet found, returning empty map");
-        return new HashMap<>();
+        Bukkit.getLogger().info("getWallet for " + uuid + ": no matching wallet found, creating new wallet");
+        return createWalletV1(uuid);
     }
 
     // Check if a user has an account
@@ -225,7 +251,7 @@ public class LNBits {
     }
 
     // Update a user with an external_id
-    public void updateUserWithDefaults(String userId, Player player) {
+    public void updateUserWithDefaults(String userId, OfflinePlayer player) {
         Map<String, Object> body = new HashMap<>();
         body.put("id", userId);
         body.put("external_id", player.getUniqueId().toString());
@@ -234,7 +260,9 @@ public class LNBits {
         if (username.startsWith(bedrockPrefix)) {
             username = username.substring(bedrockPrefix.length()) + ConfigHandler.getLNBitsBedrockSuffix();
         }
-        player.sendMessage("your wallet will have a username of " + username + " .");
+        if (player.isOnline()) {
+            player.getPlayer().sendMessage("your wallet will have a username of " + username + " .");
+        }
         body.put("username", username);
         body.put("extensions", Arrays.asList("lndhub", "boltcards", "lnurlp", "withdraw"));
         String jsonBody = GSON.toJson(body);
@@ -266,8 +294,8 @@ public class LNBits {
     }
 
     // Create a user in V1
-    public boolean createWalletV1(UUID uuid) {
-        Player player = Bukkit.getServer().getPlayer(uuid);
+    public Map createWalletV1(UUID uuid) {
+        OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
         if (getUserV1ByExternalId(uuid) == null) {
             //make user account
             Map<String, Object> body = new LinkedHashMap<>();
@@ -276,11 +304,14 @@ public class LNBits {
             if (username.startsWith(bedrockPrefix)) {
                 username = username.substring(bedrockPrefix.length()) + ConfigHandler.getLNBitsBedrockSuffix();
             }
-            player.sendMessage("your wallet will have a username of " + username + " .");
             body.put("username", username);
             body.put("password", UUID.randomUUID().toString());
             body.put("password_repeat", body.get("password"));
-            player.sendMessage("Your initial password for your wallet will be: " + body.get("password") + "there's no need to write it down as you can access your wallet from other commands.");
+            if (player.isOnline()) {
+                Player onlinePlayer = player.getPlayer();
+                onlinePlayer.sendMessage("your wallet will have a username of " + username + " .", "Your initial password for your wallet will be: " + body.get("password") + "there's no need to write it down as you can access your wallet from other commands.");
+                onlinePlayer.getPlayer().sendMessage();
+            }
             body.put("external_id", player.getUniqueId().toString());
             body.put("extensions", Arrays.asList("lndhub", "boltcards", "lnurlp", "withdraw"));
 
@@ -299,18 +330,18 @@ public class LNBits {
                 HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
                 if (response.statusCode() < 200 || response.statusCode() >= 300) {
                     Bukkit.getLogger().warning("Failed to create user for " + player.getName() + ". Status: " + response.statusCode() + ", Body: " + response.body());
-                    return false;
+                    return new HashMap<>();
                 }
             } catch (IOException | InterruptedException e) {
                 Bukkit.getLogger().warning("createWalletV1 user creation failed for player " + player.getName() + ": " + e.getMessage());
-                return false;
+                return new HashMap<>();
             }
         }
-        //create wallet for user account
+        //get the user
         Map<String, Object> user = getUserV1ByExternalId(uuid);
         if (user == null) {
             Bukkit.getLogger().warning("Could not find user account for " + uuid + " after creation attempt.");
-            return false;
+            return new HashMap<>();
         }
         String userId = (String) user.get("id");
 
@@ -331,14 +362,14 @@ public class LNBits {
             HttpResponse<String> response = walletClient.send(walletRequest, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() < 200 || response.statusCode() >= 300) {
                 Bukkit.getLogger().warning("Failed to create wallet for user " + userId + ". Status: " + response.statusCode() + ", Body: " + response.body());
-                return false;
+                return new HashMap<>();
             }
         } catch (IOException | InterruptedException e) {
             Bukkit.getLogger().warning("createWalletV1 wallet creation request failed for player " + player.getName() + ": " + e.getMessage());
-            return false;
+            return new HashMap<>();
         }
 
-        return true;
+        return new HashMap<>();
     }
 
     // JSON construction methods
@@ -566,23 +597,6 @@ public class LNBits {
                 .build();
         HttpClient client = HttpClient.newHttpClient();
         client.send(request, HttpResponse.BodyHandlers.ofString());
-    }
-
-    public boolean createAccount(UUID uuid) {
-        Player player = Bukkit.getServer().getPlayer(uuid);
-        if (player == null) {
-            Bukkit.getLogger().warning("createAccount failed: No player found for UUID " + uuid);
-            return false;
-        }
-        Boolean account = createWalletV1(player.getUniqueId());
-        if (account) {
-            Boolean deposit = deposit(uuid, ConfigHandler.getStartingBalance());
-            if (deposit) {
-                return true;
-            }
-            return true;
-        }
-        return false;
     }
 
     public Map getWalletDetail(UUID uuid) {

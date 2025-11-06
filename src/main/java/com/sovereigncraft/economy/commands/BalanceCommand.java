@@ -4,6 +4,7 @@ import com.sovereigncraft.economy.SCEconomy;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 
 public class BalanceCommand implements org.bukkit.command.CommandExecutor {
@@ -25,7 +26,12 @@ public class BalanceCommand implements org.bukkit.command.CommandExecutor {
 					player.sendMessage("§cYour wallet is not working.");
 					return true;
 				}
-				sender.sendMessage(" §eYour balance is: §a" + SCEconomy.getEco().getBalanceString(player.getUniqueId()));
+					new BukkitRunnable() {
+						@Override
+						public void run() {
+							sender.sendMessage(" §eYour balance is: §a" + SCEconomy.getEco().getBalanceString(player.getUniqueId()));
+						}
+					}.runTaskAsynchronously(SCEconomy.getInstance());
 				return true;
 				
 			}
