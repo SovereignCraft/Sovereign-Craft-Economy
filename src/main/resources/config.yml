@@ -26,6 +26,8 @@ port: 5000
 TOSURL: "https://sovereigncraft.com/TOS"
 #should we make an LNAddress?
 lnaddr: true
+bedrockPrefix: "."
+lnbitsbedrocksuffix: ".b"
 
 suffixes:
   # amount is multiplied by 10^number.

@@ -229,7 +229,13 @@ public class LNBits {
         Map<String, Object> body = new HashMap<>();
         body.put("id", userId);
         body.put("external_id", player.getUniqueId().toString());
-        body.put("username", player.getName());
+        String bedrockPrefix = ConfigHandler.getBedrockPrefix();
+        String username = player.getName();
+        if (username.startsWith(bedrockPrefix)) {
+            username = username.substring(bedrockPrefix.length()) + ConfigHandler.getLNBitsBedrockSuffix();
+        }
+        player.sendMessage("your wallet will have a username of " + username + " .");
+        body.put("username", username);
         body.put("extensions", Arrays.asList("lndhub", "boltcards", "lnurlp", "withdraw"));
         String jsonBody = GSON.toJson(body);
         Bukkit.getLogger().info("updateUserWithDefaults: Sending request for userId=" + userId + ", body=" + jsonBody);
@@ -248,6 +254,7 @@ public class LNBits {
             String rawBody = response.body() != null ? response.body() : "";
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
                 Bukkit.getLogger().info("updateUserWithDefaults: Successfully updated user for userId=" + userId + ", response=" + rawBody);
+
             } else {
                 Bukkit.getLogger().warning("updateUserWithDefaults: Failed to update user for userId=" + userId + ", status=" + response.statusCode() + ", response=" + rawBody);
                 throw new RuntimeException("Failed to update user, status=" + response.statusCode());
@@ -264,9 +271,16 @@ public class LNBits {
         if (getUserV1ByExternalId(uuid) == null) {
             //make user account
             Map<String, Object> body = new LinkedHashMap<>();
-            body.put("username", player.getName());
+            String bedrockPrefix = ConfigHandler.getBedrockPrefix();
+            String username = player.getName();
+            if (username.startsWith(bedrockPrefix)) {
+                username = username.substring(bedrockPrefix.length()) + ConfigHandler.getLNBitsBedrockSuffix();
+            }
+            player.sendMessage("your wallet will have a username of " + username + " .");
+            body.put("username", username);
             body.put("password", UUID.randomUUID().toString());
             body.put("password_repeat", body.get("password"));
+            player.sendMessage("Your initial password for your wallet will be: " + body.get("password") + "there's no need to write it down as you can access your wallet from other commands.");
             body.put("external_id", player.getUniqueId().toString());
             body.put("extensions", Arrays.asList("lndhub", "boltcards", "lnurlp", "withdraw"));
 

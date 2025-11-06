@@ -39,4 +39,8 @@ public class ConfigHandler {
     public static Double getStartingBalance() {
         return getConfig().getDouble("startingBalance");
     }
+    public static String getBedrockPrefix() { return getConfig().getString("bedrockPrefix"); }
+    public static String getLNBitsBedrockSuffix() {
+        return getConfig().getString("lnbitsbedrocksuffix", ".b");
+    }
 }
