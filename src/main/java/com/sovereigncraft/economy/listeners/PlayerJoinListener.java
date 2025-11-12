@@ -22,7 +22,6 @@ public class PlayerJoinListener implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                lnbits.getWallet(player.getUniqueId());
                 // Clear any cached keys on join
                 if (SCEconomy.playerAdminKey.containsKey(player.getUniqueId())) {
                     SCEconomy.playerAdminKey.remove(player.getUniqueId());

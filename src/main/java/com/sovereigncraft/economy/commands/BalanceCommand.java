@@ -21,14 +21,14 @@ public class BalanceCommand implements org.bukkit.command.CommandExecutor {
 				}
 				
 				Player player = (Player) sender;
-				
-				if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-					player.sendMessage("§cYour wallet is not working.");
-					return true;
-				}
 					new BukkitRunnable() {
 						@Override
 						public void run() {
+				if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
+					player.sendMessage("§cYour wallet is not working.");
+					return;
+				}
+
 							sender.sendMessage(" §eYour balance is: §a" + SCEconomy.getEco().getBalanceString(player.getUniqueId()));
 						}
 					}.runTaskAsynchronously(SCEconomy.getInstance());

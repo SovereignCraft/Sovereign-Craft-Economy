@@ -13,6 +13,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.util.List;
@@ -47,7 +48,13 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
         switch (subcommand) {
             case "bal":
                 if (args.length == 1) {
-                    sender.sendMessage("§eYour balance is: §a" + SCEconomy.getEco().getBalanceString(player.getUniqueId()));
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            sender.sendMessage("§eYour balance is: §a" + SCEconomy.getEco().getBalanceString(player.getUniqueId()));
+                        }
+                    }.runTaskAsynchronously(SCEconomy.getInstance());
+
                 } else if (args.length == 2) {
                     String currency = args[1].toUpperCase();
                     List<String> options = SCEconomy.getEco().getCurrencies();
@@ -100,8 +107,9 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                     sender.sendMessage("§cyou cannot use this command to withdraw");
                     return true;
                 }
-                double sats = depositAmount;
+                Double sats = depositAmount;
                 if (args.length == 3) {
+
                     String currency = args[2].toUpperCase();
                     if (!SCEconomy.getEco().getCurrencies().contains(currency)) {
                         sender.sendMessage("§c" + currency + " currency not found.");
@@ -109,8 +117,14 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                     }
                     sats = SCEconomy.getEco().getConversion(currency, depositAmount, "sats");
                 }
-                String depositData = SCEconomy.getEco().createInvoice(player.getUniqueId(), sats);
+                Double finalSats = sats;
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                String depositData = SCEconomy.getEco().createInvoice(player.getUniqueId(), finalSats);
                 SCEconomy.playerQRInterface.put(player.getUniqueId(), depositData);
+                    }
+                }.runTaskAsynchronously(SCEconomy.getInstance());
                 return true;
 
             case "withdraw":
@@ -152,8 +166,8 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                     sender.sendMessage("§cInvalid recipient.");
                     return true;
                 }
-                if (!SCEconomy.getEco().hasAccount(recipient.getUniqueId())) {
-                    sender.sendMessage("§cThis person has no wallet on this server");
+                if (!recipient.hasPlayedBefore()) {
+                    sender.sendMessage("§cThis person has never played on this server");
                     return true;
                 }
                 double payAmount;

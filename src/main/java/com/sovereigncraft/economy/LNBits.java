@@ -1,7 +1,6 @@
 package com.sovereigncraft.economy;
 
 import com.google.gson.*;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
@@ -246,8 +245,7 @@ public class LNBits {
 
     // Check if a user has an account
     public Boolean hasAccount(UUID uuid) {
-        Map wallet = getWallet(uuid);
-        return wallet != null && wallet.containsKey("user");
+        return getWalletinkey(uuid) != null;
     }
 
     // Update a user with an external_id
@@ -658,20 +656,28 @@ public class LNBits {
     }
 
     public String getWalletinkey(UUID uuid) {
-        if (SCEconomy.playerInKey.containsKey(uuid)) {
-            return SCEconomy.playerInKey.get(uuid).toString();
+        if (SCEconomy.playerInKey.containsKey(uuid.toString())) {
+            return SCEconomy.playerInKey.get(uuid.toString()).toString();
         }
         Map wallet = getWallet(uuid);
-        SCEconomy.playerInKey.put(uuid, (String) wallet.get("inkey"));
-        return SCEconomy.playerInKey.get(uuid).toString();
+        String inkey = null;
+        if (wallet != null && wallet.containsKey("inkey")) {
+            inkey = (String) wallet.get("inkey");
+        }
+        SCEconomy.playerInKey.put(uuid.toString(), inkey);
+        return inkey;
     }
 
     public String getWalletAdminKey(UUID uuid) {
-        if (SCEconomy.playerAdminKey.containsKey(uuid)) {
-            return SCEconomy.playerAdminKey.get(uuid).toString();
+        if (SCEconomy.playerAdminKey.containsKey(uuid.toString())) {
+            return SCEconomy.playerAdminKey.get(uuid.toString()).toString();
         }
         Map wallet = getWallet(uuid);
-        SCEconomy.playerAdminKey.put(uuid, (String) wallet.get("adminkey"));
-        return SCEconomy.playerAdminKey.get(uuid).toString();
+        String adminkey = null;
+        if (wallet != null && wallet.containsKey("adminkey")) {
+            adminkey = (String) wallet.get("adminkey");
+        }
+        SCEconomy.playerAdminKey.put(uuid.toString(), adminkey);
+        return adminkey;
     }
 }
