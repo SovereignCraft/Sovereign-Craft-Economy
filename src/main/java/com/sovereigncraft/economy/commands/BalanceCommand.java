@@ -4,6 +4,7 @@ import com.sovereigncraft.economy.SCEconomy;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
 
 public class BalanceCommand implements org.bukkit.command.CommandExecutor {
@@ -15,22 +16,27 @@ public class BalanceCommand implements org.bukkit.command.CommandExecutor {
 				if (args.length == 0) {
 				
 				if (!(sender instanceof Player)) {
-					sender.sendMessage( "Only players can get their balance");
+					sender.sendMessage( "§cOnly players can get their balance");
 					return true;
 				}
 				
 				Player player = (Player) sender;
-				
+					new BukkitRunnable() {
+						@Override
+						public void run() {
 				if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-					player.sendMessage("Your wallet is not working.");
-					return true;
+					player.sendMessage("§cYour wallet is not working.");
+					return;
 				}
-				sender.sendMessage(" Your balance is: " + SCEconomy.getEco().getBalanceString(player.getUniqueId()));
+
+							sender.sendMessage(" §eYour balance is: §a" + SCEconomy.getEco().getBalanceString(player.getUniqueId()));
+						}
+					}.runTaskAsynchronously(SCEconomy.getInstance());
 				return true;
 				
 			}
 			else {
-				sender.sendMessage("Too many arguments");
+				sender.sendMessage("§cToo many arguments");
 				
 				return true;
 				

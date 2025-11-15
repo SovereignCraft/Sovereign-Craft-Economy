@@ -2,8 +2,6 @@ package com.sovereigncraft.economy;
 
 import com.sovereigncraft.economy.commands.*;
 import com.sovereigncraft.economy.listeners.MapInitialize;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.SneakyThrows;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -14,7 +12,6 @@ import com.sovereigncraft.economy.listeners.PlayerJoinListener;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 
 public final class SCEconomy extends JavaPlugin {
     private static SCEconomy instance;

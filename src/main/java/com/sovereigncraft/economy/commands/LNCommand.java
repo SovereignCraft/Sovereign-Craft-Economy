@@ -13,6 +13,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.MapMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.util.List;
@@ -32,7 +33,7 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
         }
 
         if (args.length == 0) {
-            sender.sendMessage("You must specify an ln command");
+            sender.sendMessage("§cYou must specify an ln command");
             return true;
         }
 
@@ -40,25 +41,31 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
         String subcommand = args[0].toLowerCase();
 
         if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-            sender.sendMessage("Your wallet isn't working");
+            sender.sendMessage("§cYour wallet isn't working");
             return true;
         }
 
         switch (subcommand) {
             case "bal":
                 if (args.length == 1) {
-                    sender.sendMessage(" Your balance is: " + SCEconomy.getEco().getBalanceString(player.getUniqueId()));
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            sender.sendMessage("§eYour balance is: §a" + SCEconomy.getEco().getBalanceString(player.getUniqueId()));
+                        }
+                    }.runTaskAsynchronously(SCEconomy.getInstance());
+
                 } else if (args.length == 2) {
                     String currency = args[1].toUpperCase();
                     List<String> options = SCEconomy.getEco().getCurrencies();
                     if (options.contains(currency)) {
                         double bal = SCEconomy.getEco().getConversion("sat", SCEconomy.getEco().getBalance(player.getUniqueId()), currency);
-                        sender.sendMessage(" Your balance is: " + SCEconomy.getEco().numberFiatFormat(bal) + " " + currency);
+                        sender.sendMessage("§eYour balance is: §a" + SCEconomy.getEco().numberFiatFormat(bal) + " " + currency);
                     } else {
-                        sender.sendMessage(currency + " currency not found.");
+                        sender.sendMessage("§c" + currency + " currency not found.");
                     }
                 } else {
-                    sender.sendMessage("Usage: /ln bal [currency]");
+                    sender.sendMessage("§cUsage: /ln bal [currency]");
                 }
                 return true;
 
@@ -86,54 +93,61 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
 
             case "deposit":
                 if (args.length < 2) {
-                    sender.sendMessage("Usage: /ln deposit <amount> [currency]");
+                    sender.sendMessage("§cUsage: /ln deposit <amount> [currency]");
                     return true;
                 }
                 double depositAmount;
                 try {
                     depositAmount = Double.parseDouble(args[1]);
                 } catch (NumberFormatException e) {
-                    sender.sendMessage("This amount is invalid");
+                    sender.sendMessage("§cThis amount is invalid");
                     return true;
                 }
                 if (depositAmount <= 0) {
-                    sender.sendMessage("you cannot use this command to withdraw");
+                    sender.sendMessage("§cyou cannot use this command to withdraw");
                     return true;
                 }
-                double sats = depositAmount;
+                Double sats = depositAmount;
                 if (args.length == 3) {
+
                     String currency = args[2].toUpperCase();
                     if (!SCEconomy.getEco().getCurrencies().contains(currency)) {
-                        sender.sendMessage(currency + " currency not found.");
+                        sender.sendMessage("§c" + currency + " currency not found.");
                         return true;
                     }
                     sats = SCEconomy.getEco().getConversion(currency, depositAmount, "sats");
                 }
-                String depositData = SCEconomy.getEco().createInvoice(player.getUniqueId(), sats);
+                Double finalSats = sats;
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                String depositData = SCEconomy.getEco().createInvoice(player.getUniqueId(), finalSats);
                 SCEconomy.playerQRInterface.put(player.getUniqueId(), depositData);
+                    }
+                }.runTaskAsynchronously(SCEconomy.getInstance());
                 return true;
 
             case "withdraw":
                 if (args.length < 2) {
-                    sender.sendMessage("Usage: /ln withdraw <amount> [currency]");
+                    sender.sendMessage("§cUsage: /ln withdraw <amount> [currency]");
                     return true;
                 }
                 double withdrawAmount;
                 try {
                     withdrawAmount = Double.parseDouble(args[1]);
                 } catch (NumberFormatException e) {
-                    sender.sendMessage("This amount is invalid");
+                    sender.sendMessage("§cThis amount is invalid");
                     return true;
                 }
                 if (withdrawAmount <= 0) {
-                    sender.sendMessage("you cannot use this command to deposit");
+                    sender.sendMessage("§cyou cannot use this command to deposit");
                     return true;
                 }
                 double withdrawSats = withdrawAmount;
                 if (args.length == 3) {
                     String currency = args[2].toUpperCase();
                     if (!SCEconomy.getEco().getCurrencies().contains(currency)) {
-                        sender.sendMessage(currency + " currency not found.");
+                        sender.sendMessage("§c" + currency + " currency not found.");
                         return true;
                     }
                     withdrawSats = SCEconomy.getEco().getConversion(currency, withdrawAmount, "sats");
@@ -144,34 +158,34 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
 
             case "pay":
                 if (args.length != 3) {
-                    sender.sendMessage("Usage: /ln pay <player> <amount>");
+                    sender.sendMessage("§cUsage: /ln pay <player> <amount>");
                     return true;
                 }
                 OfflinePlayer recipient = Bukkit.getOfflinePlayer(args[1]);
                 if (recipient == null || recipient.getUniqueId().equals(player.getUniqueId())) {
-                    sender.sendMessage("Invalid recipient.");
+                    sender.sendMessage("§cInvalid recipient.");
                     return true;
                 }
-                if (!SCEconomy.getEco().hasAccount(recipient.getUniqueId())) {
-                    sender.sendMessage("This person has no wallet on this server");
+                if (!recipient.hasPlayedBefore()) {
+                    sender.sendMessage("§cThis person has never played on this server");
                     return true;
                 }
                 double payAmount;
                 try {
                     payAmount = Double.parseDouble(args[2]);
                 } catch (NumberFormatException e) {
-                    sender.sendMessage("This amount is invalid");
+                    sender.sendMessage("§cThis amount is invalid");
                     return true;
                 }
                 if (payAmount <= 0 || !SCEconomy.getEco().has(player.getUniqueId(), payAmount)) {
-                    sender.sendMessage("Invalid or insufficient funds");
+                    sender.sendMessage("§cInvalid or insufficient funds");
                     return true;
                 }
                 SCEconomy.getEco().withdraw(player.getUniqueId(), payAmount);
                 SCEconomy.getEco().deposit(recipient.getUniqueId(), payAmount);
-                sender.sendMessage("You paid " + recipient.getName() + " ⚡" + SCEconomy.getEco().numberFormat(payAmount));
+                sender.sendMessage("§aYou paid " + recipient.getName() + " §e⚡" + SCEconomy.getEco().numberFormat(payAmount));
                 if (recipient instanceof Player) {
-                    ((Player) recipient).sendMessage("You received ⚡" + SCEconomy.getEco().numberFormat(payAmount) + " from " + player.getName());
+                    ((Player) recipient).sendMessage("§aYou received §e⚡" + SCEconomy.getEco().numberFormat(payAmount) + " from " + player.getName());
                 }
                 return true;
 
@@ -192,17 +206,18 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 return true;
 
             case "refreshwallet":
-                double bal = SCEconomy.getEco().getBalance(player.getUniqueId());
-                SCEconomy.getEco().withdraw(player.getUniqueId(), bal);
-                SCEconomy.getEco().userDelete(player.getUniqueId());
-                if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-                    SCEconomy.getEco().createAccount(player.getUniqueId());
-                    player.sendMessage("Your wallet has been recreated. Use the command /webwallet to access the new one and re-sync it to your mobile wallet if required.");
-                    player.sendMessage("To sync your wallet to your device add the LNDHub extension to your webwallet, click the extension & follow the LNDHub instructions in the web portal");
-                } else {
-                    player.sendMessage("Refresh failed");
-                }
-                SCEconomy.getEco().deposit(player.getUniqueId(), bal);
+                player.sendMessage("§aThis command is temporarily disabled");
+                //double bal = SCEconomy.getEco().getBalance(player.getUniqueId());
+                //SCEconomy.getEco().withdraw(player.getUniqueId(), bal);
+                //SCEconomy.getEco().userDelete(player.getUniqueId());
+                //if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
+                //    SCEconomy.getEco().createAccount(player.getUniqueId());
+                //    player.sendMessage("§aYour wallet has been recreated. Use the command /webwallet to access the new one and re-sync it to your mobile wallet if required.");
+                //    player.sendMessage("§eTo sync your wallet to your device add the LNDHub extension to your webwallet, click the extension & follow the LNDHub instructions in the web portal");
+                //} else {
+                //    player.sendMessage("§cRefresh failed");
+                //}
+                //SCEconomy.getEco().deposit(player.getUniqueId(), bal);
                 return true;
 
             case "syncwallet":
@@ -217,7 +232,7 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 Bukkit.getServer().dispatchCommand(
                         Bukkit.getConsoleSender(),
                         "tellraw " + player.getName() +
-                                " {\"text\":\"Click here for your web wallet\"," +
+                                " {\"text\":\"§aClick here for your web wallet\"," +
                                 "\"clickEvent\":{\"action\":\"open_url\",\"value\":\"" + url + "\"}}"
                 );
                 return true;
@@ -228,11 +243,11 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                     try {
                         sendAmount = Double.parseDouble(args[3]);
                     } catch (NumberFormatException e) {
-                        sender.sendMessage("This amount is invalid");
+                        sender.sendMessage("§cThis amount is invalid");
                         return true;
                     }
                     if (sendAmount <= 0 || !SCEconomy.getEco().has(player.getUniqueId(), sendAmount)) {
-                        sender.sendMessage("Stack more Sats");
+                        sender.sendMessage("§cStack more Sats");
                         return true;
                     }
                     SCEconomy.getEco().sendLNAddress(player, args[2], sendAmount);
@@ -241,7 +256,7 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 break;
 
             default:
-                sender.sendMessage("Command not found");
+                sender.sendMessage("§cCommand not found");
                 return true;
         }
 

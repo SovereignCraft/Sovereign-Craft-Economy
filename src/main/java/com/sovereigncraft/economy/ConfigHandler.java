@@ -18,6 +18,7 @@ public class ConfigHandler {
         return getConfig().getString("port");
     }
     public static String getCookie() { return getConfig().getString("cookie"); }
+    public static String getAccessToken() { return getConfig().getString("accessToken"); }
     public static String getAPIKey() {
         return getConfig().getString("APIKey");
     }
@@ -37,5 +38,9 @@ public class ConfigHandler {
 
     public static Double getStartingBalance() {
         return getConfig().getDouble("startingBalance");
+    }
+    public static String getBedrockPrefix() { return getConfig().getString("bedrockPrefix"); }
+    public static String getLNBitsBedrockSuffix() {
+        return getConfig().getString("lnbitsbedrocksuffix", ".b");
     }
 }

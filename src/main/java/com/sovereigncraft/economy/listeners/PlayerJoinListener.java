@@ -1,45 +1,42 @@
 package com.sovereigncraft.economy.listeners;
 
-import com.sovereigncraft.economy.SCEconomy;
 import com.sovereigncraft.economy.ConfigHandler;
+import com.sovereigncraft.economy.LNBits;
+import com.sovereigncraft.economy.SCEconomy;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Map;
+
 public class PlayerJoinListener implements Listener {
 
-	@EventHandler
-	public void onPlayerJoin(PlayerJoinEvent event) {
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        LNBits lnbits = SCEconomy.getEco();
 
-		Player player = event.getPlayer();
-		if (!SCEconomy.getEco().hasAccount(player.getUniqueId())) {
-			player.sendMessage("Your ⚡ wallet is being created.");
-			new BukkitRunnable() {
-
-				@Override
-				public void run() {
-					SCEconomy.getEco().createAccount(player.getUniqueId());
-					if (SCEconomy.playerAdminKey.containsKey(player.getUniqueId())){
-						SCEconomy.playerAdminKey.remove(player.getUniqueId());
-					}
-					if (SCEconomy.playerInKey.containsKey(player.getUniqueId())){
-						SCEconomy.playerInKey.remove(player.getUniqueId());
-					}
-				}
-			}.runTaskAsynchronously(SCEconomy.getInstance());
-
-		}
-		if (SCEconomy.playerAdminKey.containsKey(player.getUniqueId())){
-			SCEconomy.playerAdminKey.remove(player.getUniqueId());
-		}
-		if (SCEconomy.playerInKey.containsKey(player.getUniqueId())){
-			SCEconomy.playerInKey.remove(player.getUniqueId());
-		}
-		if (ConfigHandler.getLNAddress().equals(true)) {
-			SCEconomy.getEco().createlnurlp(player.getUniqueId(), "SCLNAddress", 10, 5000000, "SCLNAddress", player.getName());
-		}
-	}
-	
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                // Clear any cached keys on join
+                if (SCEconomy.playerAdminKey.containsKey(player.getUniqueId())) {
+                    SCEconomy.playerAdminKey.remove(player.getUniqueId());
+                }
+                if (SCEconomy.playerInKey.containsKey(player.getUniqueId())) {
+                    SCEconomy.playerInKey.remove(player.getUniqueId());
+                }
+                //cache the keys
+                lnbits.getWalletAdminKey(player.getUniqueId());
+                lnbits.getWalletinkey(player.getUniqueId());
+                // Create LNURL-Pay link if enabled
+                if (ConfigHandler.getLNAddress()) {
+                    lnbits.createlnurlp(player.getUniqueId(), "SCLNAddress", 10, 5000000, "SCLNAddress", player.getName());
+                }
+            }
+        }.runTaskAsynchronously(SCEconomy.getInstance());
+    }
 }
