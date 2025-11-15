@@ -668,20 +668,28 @@ public class LNBits {
     }
 
     public String getWalletinkey(UUID uuid) {
+        if (playerInKeyCache.containsKey(uuid)) {
+            return playerInKeyCache.get(uuid);
+        }
         Map wallet = getWallet(uuid);
         String inkey = null;
         if (wallet != null && wallet.containsKey("inkey")) {
             inkey = (String) wallet.get("inkey");
         }
+        playerInKeyCache.put(uuid, inkey);
         return inkey;
     }
 
     public String getWalletAdminKey(UUID uuid) {
+        if (playerAdminKeyCache.containsKey(uuid)) {
+            return playerAdminKeyCache.get(uuid);
+        }
         Map wallet = getWallet(uuid);
         String adminkey = null;
         if (wallet != null && wallet.containsKey("adminkey")) {
             adminkey = (String) wallet.get("adminkey");
         }
+        playerAdminKeyCache.put(uuid, adminkey);
         return adminkey;
     }
 }

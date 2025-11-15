@@ -16,6 +16,7 @@
     <name>Paper-Standalone</name>
 
     <build>
+        <finalName>SCEconomy-Paper-Standalone-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

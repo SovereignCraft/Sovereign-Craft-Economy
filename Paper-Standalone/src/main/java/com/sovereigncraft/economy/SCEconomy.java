@@ -13,7 +13,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.UUID;
 
 public final class SCEconomy extends JavaPlugin {
     @Getter
@@ -24,8 +23,6 @@ public final class SCEconomy extends JavaPlugin {
     private VaultImpl vaultImpl;
 
     public static HashMap playerQRInterface;
-    public static HashMap playerAdminKey;
-    public static HashMap playerInKey;
 
     @SneakyThrows
     @Override
@@ -64,8 +61,6 @@ public final class SCEconomy extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new MapInitialize(), this);
         playerQRInterface = new HashMap<>();
-        playerAdminKey = new HashMap<>();
-        playerInKey = new HashMap<>();
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
 
         File mapsData = new File(getDataFolder() + File.separator + "data.yml");
