@@ -1,0 +1,25 @@
+name: Sovereign-Craft-Economy
+version: 1.0
+main: com.sovereigncraft.economy.SCEconomy
+api-version: 1.19
+depend: [Vault]
+load: STARTUP
+author: Sovtoshi
+description: Bitcoin Lightning Economy for Minecraft
+website: SovereignCraft.com
+commands:
+  ln:
+    description: /ln screen|webwallet|option [amount]
+  pay:
+    description: Send some money to another player
+    aliases: [send, tip]
+    usage: /pay <player> <amount>
+  balance:
+    description: Get your balance
+    aliases: [bal]
+  qrcode:
+    description: Create a QR-Code
+    usage: /qrcode <text|link>
+    aliases:
+      - qr
+      - qc
