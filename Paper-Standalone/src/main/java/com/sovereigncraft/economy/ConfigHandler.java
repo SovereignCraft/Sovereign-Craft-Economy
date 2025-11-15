@@ -15,28 +15,12 @@ public class ConfigHandler {
         return config.getString("host");
     }
 
-    public String getPubHost() {
-        return config.getString("pubhost");
-    }
-
     public String getPort() {
         return config.getString("port");
     }
 
-    public String getCookie() {
-        return config.getString("cookie");
-    }
-
     public String getAccessToken() {
         return config.getString("accessToken");
-    }
-
-    public String getAPIKey() {
-        return config.getString("APIKey");
-    }
-
-    public String getAdminUser() {
-        return config.getString("AdminUser");
     }
 
     public UUID getServerUUID() {
@@ -45,10 +29,6 @@ public class ConfigHandler {
 
     public String getAdminKey() {
         return config.getString("AdminKey");
-    }
-
-    public Boolean getLNAddress() {
-        return (config.getBoolean("lnaddress"));
     }
 
     public Double getStartingBalance() {
