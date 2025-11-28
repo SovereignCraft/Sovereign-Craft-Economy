@@ -190,7 +190,7 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 return true;
 
             case "qrwebwallet":
-                String webwallet = "https://wallet.sovereigncraft.com/wallet?usr=" + SCEconomy.getEco().getUser(player.getUniqueId()).get("id");
+                String webwallet = "https://wallet.sovereigncraft.com/wallet?usr=" + SCEconomy.getEco().getUserV1ByExternalId(player.getUniqueId()).get("id");
                 SCEconomy.playerQRInterface.put(player.getUniqueId(), webwallet);
                 sender.sendMessage(prefix + SCEconomy.getMessage("messages.success"));
                 return true;
@@ -221,14 +221,19 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 return true;
 
             case "syncwallet":
-                SCEconomy.getEco().extension(player.getUniqueId(), "lndhub", true);
-                String syncData = "lndhub://admin:" + SCEconomy.getEco().getWalletAdminKey(player.getUniqueId()) + "@https://" + ConfigHandler.getPubHost() + "/lndhub/ext/";
-                SCEconomy.playerQRInterface.put(player.getUniqueId(), syncData);
-                sender.sendMessage(prefix + SCEconomy.getMessage("messages.success"));
+                try {
+                    SCEconomy.getEco().extension(player.getUniqueId(), "lndhub", true);
+                    String syncData = "lndhub://admin:" + SCEconomy.getEco().getWalletAdminKey(player.getUniqueId()) + "@https://" + ConfigHandler.getPubHost() + "/lndhub/ext/";
+                    SCEconomy.playerQRInterface.put(player.getUniqueId(), syncData);
+                    sender.sendMessage(prefix + SCEconomy.getMessage("messages.success"));
+                } catch (RuntimeException e) {
+                    sender.sendMessage("§cAn error occurred while syncing your wallet. Please contact an administrator.");
+                    Bukkit.getLogger().severe("Error during syncwallet command: " + e.getMessage());
+                }
                 return true;
 
             case "webwallet":
-                String url = "https://wallet.sovereigncraft.com/wallet?usr=" + SCEconomy.getEco().getUser(player.getUniqueId()).get("id");
+                String url = "https://wallet.sovereigncraft.com/wallet?usr=" + SCEconomy.getEco().getUserV1ByExternalId(player.getUniqueId()).get("id");
                 Bukkit.getServer().dispatchCommand(
                         Bukkit.getConsoleSender(),
                         "tellraw " + player.getName() +
