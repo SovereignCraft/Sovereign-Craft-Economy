@@ -586,10 +586,14 @@ public class LNBits {
         }
         String userId = (String) user.get("id");
         String action = enable ? "enable" : "disable";
+        String accessToken = ConfigHandler.getAccessToken();
+        if (accessToken == null) {
+            throw new RuntimeException("Access Token is not set in the configuration. Please check your config.yml.");
+        }
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(extensionsCmd + extension + "/" + action + "?usr=" + userId))
                 .header("accept", "application/json")
-                .header("Cookie", ConfigHandler.getCookie())
+                .header("Cookie", accessToken)
                 .version(HttpClient.Version.HTTP_1_1)
                 .PUT(HttpRequest.BodyPublishers.noBody())
                 .build();
