@@ -1,0 +1,6 @@
+# The UUID of the player who will act as the float account
+floatUUID: ""
+# The starting balance for new players
+startingBalance: 0.0
+# The URL to the Terms of Service
+TOSURL: ""

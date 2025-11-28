@@ -1,0 +1,15 @@
+name: Paper-Spoke
+version: 1.0
+main: com.sovereigncraft.economy.PaperSpoke
+api-version: 1.18
+depend: [Vault]
+commands:
+  balance:
+    description: Shows your balance.
+    usage: /balance
+  pay:
+    description: Pays another player.
+    usage: /pay <player> <amount>
+  ln:
+    description: Lightning Network commands.
+    usage: /ln <subcommand>

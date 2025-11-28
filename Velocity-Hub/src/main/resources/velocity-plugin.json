@@ -1,0 +1,12 @@
+{
+  "id": "sceconomy-velocity-hub",
+  "name": "SCEconomy-Velocity-Hub",
+  "version": "2.0",
+  "description": "Bitcoin Lightning Economy for Minecraft",
+  "url": "SovereignCraft.com",
+  "authors": [
+    "SovereignCraft"
+  ],
+  "dependencies": [],
+  "main": "com.sovereigncraft.economy.VelocityHub"
+}

@@ -405,7 +405,7 @@ public class LNBits {
         return GSON.toJson(stringMap);
     }
 
-    public void sendLNAddress(UUID playerUUID, String lnaddr, Double amount) {
+    public boolean sendLNAddress(UUID playerUUID, String lnaddr, Double amount) {
         Map lnurl = convertLnaddrtoLnurl(lnaddr, playerUUID);
         if (lnurl.containsKey("callback")) {
             if (!lnurl.get("description").toString().isEmpty()) {
@@ -415,6 +415,7 @@ public class LNBits {
             if (paid.containsKey("payment_hash")) playerBridge.sendMessage(playerUUID, "Payment Successful");
             else playerBridge.sendMessage(playerUUID, "Payment Failed");
         } else playerBridge.sendMessage(playerUUID, "Invalid Lightning address");
+        return false;
     }
 
     public Map convertLnaddrtoLnurl(String lnaddr, UUID playerUUID) {

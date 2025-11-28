@@ -1,0 +1,17 @@
+# This is the global configuration file for Paper.
+# As you can see, there's a lot to configure. Some options may impact gameplay, so use
+# with caution, and make sure you know what each option does before configuring.
+# 
+# If you need help with the configuration or have any questions related to Paper,
+# join us on Discord or IRC.
+# 
+# Discord: https://discord.gg/papermc
+# IRC: #paper @ irc.esper.net
+# Website: https://papermc.io/
+# Docs: https://docs.papermc.io/
+
+proxies:
+  velocity:
+    enabled: true
+    online-mode: true
+    secret: "your_secret_here"
