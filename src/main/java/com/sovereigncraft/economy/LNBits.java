@@ -184,7 +184,7 @@ public class LNBits {
                     player.getPlayer().sendMessage("§eYour ⚡ wallet is being created.");
                 }
                 Map newWallet = createWalletV1(uuid);
-                if (!newWallet.isEmpty()) {
+                if (newWallet != null && !newWallet.isEmpty()) {
                     if (player.isOnline()) {
                         player.getPlayer().sendMessage("§aYour ⚡ wallet has been created!");
                     }
@@ -201,7 +201,14 @@ public class LNBits {
                     }
                 }
             }
+            user = getUserV1ByExternalId(uuid);
         }
+
+        if (user == null) {
+            Bukkit.getLogger().warning("getWallet could not find or create a user for UUID: " + uuid);
+            return null;
+        }
+
         String userId = (String) user.get("id");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(userV1Cmd + "/" + userId + "/wallet"))
