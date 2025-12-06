@@ -8,16 +8,13 @@ customSymbol: "⚡"
 
 #UUID of wallet to provide liquidity or a "Float". Can be generated using a random generator
 ServerUUID: ""
-#AdminKey of Admin wallet (top level in LN bits)
-accessToken:
 #Access token generated wuth user access permissions
-AdminKey:
+accessToken:
 #API key from usermanager user
-cookie:
-#cookie for admin level commands
-APIKey:
-#Admin User for main wallet
-AdminUser:
+AdminKey:
+#AdminKey of a super user to delete lnurlp wallets
+GlobalAdminKey:
+
 #LNBits server DNS or IP
 host:
 pubhost:

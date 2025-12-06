@@ -23,7 +23,7 @@ public class LNBits {
     public static String usersCmd = "https://" + ConfigHandler.getHost() + "/usermanager/api/v1/users";
     public static String userV1Cmd = "https://" + ConfigHandler.getHost() + "/users/api/v1/user";
     public static String invoiceCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/payments";
-    public static String lnurlpCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/lnurlp/api/v1/links";
+    public static String lnurlpCmd = "https://" + ConfigHandler.getHost() + "/lnurlp/api/v1/links";
     public static String lnurlwCmd = "https://" + ConfigHandler.getHost() + "/withdraw/api/v1/links";
     public static String walletCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/wallet";
     public static String currenciesCmd = "http://" + ConfigHandler.getHost() + ":" + ConfigHandler.getPort() + "/api/v1/currencies";
@@ -503,6 +503,8 @@ public class LNBits {
         stringMap.put("max", String.valueOf(max));
         stringMap.put("fiat_base_multiplier", "100");
         stringMap.put("username", username.toLowerCase());
+        stringMap.put("comment_chars", "128");
+        stringMap.put("zaps", "true");
         return GSON.toJson(stringMap);
     }
 
@@ -519,15 +521,71 @@ public class LNBits {
     }
 
     public void createlnurlp(UUID uuid, String description, int min, int max, String comment, String username) {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(lnurlpCmd))
-                .headers("X-Api-Key", getWalletAdminKey(uuid))
-                .version(HttpClient.Version.HTTP_1_1)
-                .POST(HttpRequest.BodyPublishers.ofString(createlnurlpPutString(description, min, max, comment, username)))
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
+        Player player = offlinePlayer.isOnline() ? (Player) offlinePlayer : null;
+
+        // Check for existing link
+        String wellKnownUrl = "https://" + ConfigHandler.getHost() + "/lnurlp/api/v1/well-known/" + username;
+        HttpRequest getRequest = HttpRequest.newBuilder()
+                .uri(URI.create(wellKnownUrl))
+                .header("accept", "application/json")
+                .GET()
                 .build();
+
         HttpClient client = HttpClient.newHttpClient();
         try {
-            client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> getResponse = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
+            if (getResponse.statusCode() == 200) {
+                Map<String, Object> responseMap = parseJsonToMap(getResponse.body());
+                if (responseMap != null && responseMap.containsKey("callback")) {
+                    String callback = (String) responseMap.get("callback");
+                    String[] parts = callback.split("/");
+                    String linkId = parts[parts.length - 1];
+
+                    // Try to update first
+                    String updateUrl = lnurlpCmd + "?link_id=" + linkId;
+                    HttpRequest postRequest = HttpRequest.newBuilder()
+                            .uri(URI.create(updateUrl))
+                            .headers("X-Api-Key", getWalletAdminKey(uuid), "Content-Type", "application/json")
+                            .POST(HttpRequest.BodyPublishers.ofString(createlnurlpPutString(description, min, max, comment, username)))
+                            .build();
+                    HttpResponse<String> postResponse = client.send(postRequest, HttpResponse.BodyHandlers.ofString());
+
+                    if (postResponse.statusCode() == 201 || postResponse.statusCode() == 200) {
+                        return; // Success
+                    } else {
+                        Map<String, Object> postResponseMap = parseJsonToMap(postResponse.body());
+                        if (postResponseMap != null && "Username already taken.".equals(postResponseMap.get("detail"))) {
+                            // Delete the link
+                            String deleteUrl = lnurlpCmd + "/" + linkId;
+                            HttpRequest deleteRequest = HttpRequest.newBuilder()
+                                    .uri(URI.create(deleteUrl))
+                                    .header("accept", "application/json")
+                                    .header("X-API-KEY", ConfigHandler.getGlobalAdminKey())
+                                    .DELETE()
+                                    .build();
+                            client.send(deleteRequest, HttpResponse.BodyHandlers.ofString());
+                        }
+                    }
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            Bukkit.getLogger().warning("Error checking/updating lnurlp: " + e.getMessage());
+        }
+
+        // Create new link
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(lnurlpCmd))
+                .headers("X-Api-Key", getWalletAdminKey(uuid), "Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(createlnurlpPutString(description, min, max, comment, username)))
+                .build();
+        try {
+            HttpResponse<String> createResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (createResponse.statusCode() == 201) {
+                if (player != null) {
+                    player.sendMessage("§aA new LNAddress has been created for you: " + username + "@sovereigncraft.com");
+                }
+            }
         } catch (IOException | InterruptedException e) {
             Bukkit.getLogger().warning("createlnurlp failed: " + e.getMessage());
             throw new RuntimeException(e);
