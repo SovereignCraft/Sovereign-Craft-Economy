@@ -23,6 +23,7 @@ public class PlayerJoinListener implements Listener {
             @Override
             public void run() {
                 // Clear any cached keys on join
+
                 if (SCEconomy.playerAdminKey.containsKey(player.getUniqueId())) {
                     SCEconomy.playerAdminKey.remove(player.getUniqueId());
                 }
@@ -34,7 +35,7 @@ public class PlayerJoinListener implements Listener {
                 lnbits.getWalletinkey(player.getUniqueId());
                 // Create LNURL-Pay link if enabled
                 if (ConfigHandler.getLNAddress()) {
-                    lnbits.createlnurlp(player.getUniqueId(), "SCLNAddress", 10, 5000000, "SCLNAddress", player.getName());
+                    lnbits.createlnurlp(player, "SCLNAddress", 10, 5000000, "SCLNAddress");
                 }
             }
         }.runTaskAsynchronously(SCEconomy.getInstance());

@@ -520,12 +520,10 @@ public class LNBits {
         return GSON.toJson(stringMap);
     }
 
-    public void createlnurlp(UUID uuid, String description, int min, int max, String comment, String username) {
-        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
-        Player player = offlinePlayer.isOnline() ? (Player) offlinePlayer : null;
-
+    public void createlnurlp(Player player, String description, int min, int max, String comment) {
+        String alias = player.getName().toLowerCase();
         // Check for existing link
-        String wellKnownUrl = "https://" + ConfigHandler.getHost() + "/lnurlp/api/v1/well-known/" + username;
+        String wellKnownUrl = "https://" + ConfigHandler.getHost() + "/lnurlp/api/v1/well-known/" + alias;
         HttpRequest getRequest = HttpRequest.newBuilder()
                 .uri(URI.create(wellKnownUrl))
                 .header("accept", "application/json")
@@ -535,7 +533,7 @@ public class LNBits {
         HttpClient client = HttpClient.newHttpClient();
         try {
             HttpResponse<String> getResponse = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
-            if (getResponse.statusCode() == 200) {
+            if (getResponse.statusCode() >= 200 && getResponse.statusCode() < 300) {
                 Map<String, Object> responseMap = parseJsonToMap(getResponse.body());
                 if (responseMap != null && responseMap.containsKey("callback")) {
                     String callback = (String) responseMap.get("callback");
@@ -543,11 +541,11 @@ public class LNBits {
                     String linkId = parts[parts.length - 1];
 
                     // Try to update first
-                    String updateUrl = lnurlpCmd + "?link_id=" + linkId;
+                    String updateUrl = lnurlpCmd + "/" + linkId;
                     HttpRequest postRequest = HttpRequest.newBuilder()
                             .uri(URI.create(updateUrl))
-                            .headers("X-Api-Key", getWalletAdminKey(uuid), "Content-Type", "application/json")
-                            .POST(HttpRequest.BodyPublishers.ofString(createlnurlpPutString(description, min, max, comment, username)))
+                            .headers("X-Api-Key", getWalletAdminKey(player.getUniqueId()), "Content-Type", "application/json")
+                            .PUT(HttpRequest.BodyPublishers.ofString(createlnurlpPutString(description, min, max, comment, alias)))
                             .build();
                     HttpResponse<String> postResponse = client.send(postRequest, HttpResponse.BodyHandlers.ofString());
 
@@ -576,14 +574,14 @@ public class LNBits {
         // Create new link
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(lnurlpCmd))
-                .headers("X-Api-Key", getWalletAdminKey(uuid), "Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(createlnurlpPutString(description, min, max, comment, username)))
+                .headers("X-Api-Key", getWalletAdminKey(player.getUniqueId()), "Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(createlnurlpPutString(description, min, max, comment, alias)))
                 .build();
         try {
             HttpResponse<String> createResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (createResponse.statusCode() == 201) {
                 if (player != null) {
-                    player.sendMessage("§aA new LNAddress has been created for you: " + username + "@sovereigncraft.com");
+                    player.sendMessage("§aA new LNAddress has been created for you: " + alias + "@sovereigncraft.com");
                 }
             }
         } catch (IOException | InterruptedException e) {
