@@ -2,6 +2,7 @@ package com.sovereigncraft.economy;
 
 import com.sovereigncraft.economy.commands.*;
 import com.sovereigncraft.economy.listeners.MapInitialize;
+import com.sovereigncraft.economy.util.QRData;
 import lombok.SneakyThrows;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -12,13 +13,14 @@ import com.sovereigncraft.economy.listeners.PlayerJoinListener;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.UUID;
 
 public final class SCEconomy extends JavaPlugin {
     private static SCEconomy instance;
     private static LNBits eco;
 
     private static VaultImpl vaultImpl;
-    public static HashMap playerQRInterface;
+    public static HashMap<UUID, QRData> playerQRInterface;
     public static HashMap playerAdminKey;
     public static HashMap playerInKey;
     @SneakyThrows
@@ -78,4 +80,7 @@ public final class SCEconomy extends JavaPlugin {
         return eco;
     }
 
+    public static HashMap<UUID, QRData> getPlayerQRInterface() {
+        return playerQRInterface;
+    }
 }

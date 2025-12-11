@@ -3,6 +3,7 @@ package com.sovereigncraft.economy.commands;
 import com.sovereigncraft.economy.ConfigHandler;
 import com.sovereigncraft.economy.SCEconomy;
 import com.sovereigncraft.economy.util.MapCreator;
+import com.sovereigncraft.economy.util.QRData;
 import lombok.SneakyThrows;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -122,7 +123,7 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                     @Override
                     public void run() {
                 String depositData = SCEconomy.getEco().createInvoice(player.getUniqueId(), finalSats);
-                SCEconomy.playerQRInterface.put(player.getUniqueId(), depositData);
+                SCEconomy.playerQRInterface.put(player.getUniqueId(), new QRData(depositData, "Deposit " + finalSats.longValue() + " sats to Sovereign Craft Wallet"));
                     }
                 }.runTaskAsynchronously(SCEconomy.getInstance());
                 return true;
@@ -153,7 +154,7 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                     withdrawSats = SCEconomy.getEco().getConversion(currency, withdrawAmount, "sats");
                 }
                 String withdrawData = SCEconomy.getEco().createlnurlw(player.getUniqueId(), withdrawSats);
-                SCEconomy.playerQRInterface.put(player.getUniqueId(), withdrawData);
+                SCEconomy.playerQRInterface.put(player.getUniqueId(), new QRData(withdrawData, "Withdraw " + withdrawSats + " sats from Sovereign Craft Wallet"));
                 return true;
 
             case "pay":
@@ -191,17 +192,17 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
 
             case "qrwebwallet":
                 String webwallet = "https://wallet.sovereigncraft.com/wallet?usr=" + SCEconomy.getEco().getUserV1ByExternalId(player.getUniqueId()).get("id");
-                SCEconomy.playerQRInterface.put(player.getUniqueId(), webwallet);
+                SCEconomy.playerQRInterface.put(player.getUniqueId(), new QRData(webwallet, "Sovereign Craft Web Wallet"));
                 sender.sendMessage(prefix + SCEconomy.getMessage("messages.success"));
                 return true;
 
             case "qrguide":
-                SCEconomy.playerQRInterface.put(player.getUniqueId(), "https://sovereigncraft.com/guide/");
+                SCEconomy.playerQRInterface.put(player.getUniqueId(), new QRData("https://sovereigncraft.com/guide/", "Sovereign Craft Guide"));
                 sender.sendMessage(prefix + SCEconomy.getMessage("messages.success"));
                 return true;
 
             case "qrvote":
-                SCEconomy.playerQRInterface.put(player.getUniqueId(), "https://sovereigncraft.com/vote");
+                SCEconomy.playerQRInterface.put(player.getUniqueId(), new QRData("https://sovereigncraft.com/vote", "Vote for Sovereign Craft"));
                 sender.sendMessage(prefix + SCEconomy.getMessage("messages.success"));
                 return true;
 
@@ -224,7 +225,7 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 try {
                     SCEconomy.getEco().extension(player.getUniqueId(), "lndhub", true);
                     String syncData = "lndhub://admin:" + SCEconomy.getEco().getWalletAdminKey(player.getUniqueId()) + "@https://" + ConfigHandler.getPubHost() + "/lndhub/ext/";
-                    SCEconomy.playerQRInterface.put(player.getUniqueId(), syncData);
+                    SCEconomy.playerQRInterface.put(player.getUniqueId(), new QRData(syncData, "Sync your wallet with an LNDHub compatible mobile app"));
                     sender.sendMessage(prefix + SCEconomy.getMessage("messages.success"));
                 } catch (RuntimeException e) {
                     sender.sendMessage("§cAn error occurred while syncing your wallet. Please contact an administrator.");
