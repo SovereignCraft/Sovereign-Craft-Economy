@@ -3,13 +3,14 @@ package com.sovereigncraft.economy.util;
 import com.sovereigncraft.economy.SCEconomy;
 import lombok.SneakyThrows;
 import org.bukkit.entity.Player;
-import org.bukkit.map.MapCanvas;
-import org.bukkit.map.MapRenderer;
-import org.bukkit.map.MapView;
+import org.bukkit.map.*;
+import org.bukkit.map.MinecraftFont;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.sovereigncraft.economy.util.QRCreator.generateQRcode;
 
@@ -77,8 +78,8 @@ public class TemplateCreator {
 
     }
     public BufferedImage playerQR (Player player) {
-        String pqr = (String) SCEconomy.playerQRInterface.get(player.getUniqueId());
-        return generateQRcode(pqr);
+        QRData pqr = SCEconomy.playerQRInterface.get(player.getUniqueId());
+        return generateQRcode(pqr.qrData);
     }
     @SneakyThrows
     public void createDynQR(MapView mapView){
@@ -93,13 +94,54 @@ public class TemplateCreator {
             @SneakyThrows
             public void render(MapView mapView, MapCanvas mapCanvas, Player player) {
                 mapCanvas.drawImage(0, 0, qrbg);
-                String mapdata = (String) SCEconomy.playerQRInterface.get(player.getUniqueId());
+                QRData mapdata = SCEconomy.playerQRInterface.get(player.getUniqueId());
                 if (mapdata != null) {
                     BufferedImage image = playerQR(player);
                     int qrloc = (128 - image.getWidth()) / 2;
                     mapCanvas.drawImage(qrloc, qrloc, image);
                     if(image.getWidth() >= 80){
                         mapCanvas.drawImage(wmloc, wmloc, qrwm);
+                    }
+
+                    String text = mapdata.text;
+                    MinecraftFont font = MinecraftFont.Font;
+                    List<String> lines = new ArrayList<>();
+                    StringBuilder line = new StringBuilder();
+                    String[] words = text.split(" ");
+                    for (String word : words) {
+                        String testString = line.length() > 0 ? line + " " + word : word;
+                        if (font.getWidth(testString) > 124 && line.length() > 0) {
+                            lines.add(line.toString());
+                            line = new StringBuilder(word);
+                        } else {
+                            if (line.length() > 0) {
+                                line.append(" ");
+                            }
+                            line.append(word);
+                        }
+                    }
+                    lines.add(line.toString());
+
+                    int numLines = lines.size();
+                    int lineHeight = font.getHeight();
+                    int totalTextHeight = numLines * lineHeight + (numLines > 1 ? numLines -1 : 0);
+                    int startY = 127 - totalTextHeight;
+
+                    // Draw background
+                    for (int py = startY - 2; py < 127; py++) {
+                        for (int px = 2; px < 126; px++) {
+                            if (py >= 0 && py < 128) {
+                                mapCanvas.setPixel(px, py, MapPalette.WHITE);
+                            }
+                        }
+                    }
+
+                    // Draw text
+                    for (int i = 0; i < numLines; i++) {
+                        String currentLine = lines.get(i);
+                        int textWidth = font.getWidth(currentLine);
+                        int x = (128 - textWidth) / 2;
+                        mapCanvas.drawText(x, startY + i * (lineHeight + 1), font , currentLine);
                     }
                 }
             }
