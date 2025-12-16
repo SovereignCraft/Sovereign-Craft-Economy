@@ -31,8 +31,8 @@ public final class SCEconomy extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        
-        // Save your images to the plugin folder. 
+
+        // Save your images to the plugin folder.
         // The boolean 'false' means it won't overwrite if the file already exists.
         saveResource("qrbg.png", false);
         saveResource("qrbgsc.png", false);
@@ -71,10 +71,7 @@ public final class SCEconomy extends JavaPlugin {
                     UUID uuid = entry.getValue();
                     Map<String, Object> check = getEco().checkInvoice(uuid, paymentHash);
                     if ((boolean) check.get("paid")) {
-                        Player player = Bukkit.getPlayer(uuid);
-                        if (player != null) {
-                            player.sendMessage("§aPayment received!");
-                        }
+                        playerQRInterface.get(uuid).paid = true;
                         pendingInvoices.remove(paymentHash);
                     }
                 }

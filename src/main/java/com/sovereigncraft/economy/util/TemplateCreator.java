@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import org.bukkit.entity.Player;
 import org.bukkit.map.*;
 import org.bukkit.map.MinecraftFont;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -96,6 +97,18 @@ public class TemplateCreator {
                 mapCanvas.drawImage(0, 0, qrbg);
                 QRData mapdata = SCEconomy.playerQRInterface.get(player.getUniqueId());
                 if (mapdata != null) {
+                    if (mapdata.paid) {
+                        File paysuccessfile = new File(SCEconomy.getInstance().getDataFolder() + File.separator + "paysuccess.png");
+                        BufferedImage paysuccess = ImageIO.read(paysuccessfile);
+                        mapCanvas.drawImage(0, 0, paysuccess);
+                        new BukkitRunnable() {
+                            @Override
+                            public void run() {
+                                SCEconomy.playerQRInterface.remove(player.getUniqueId());
+                            }
+                        }.runTaskLater(SCEconomy.getInstance(), 60);
+                        return;
+                    }
                     BufferedImage image = playerQR(player);
                     int qrloc = (128 - image.getWidth()) / 2;
                     mapCanvas.drawImage(qrloc, qrloc, image);
