@@ -18,6 +18,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class LNCommand implements org.bukkit.command.CommandExecutor {
@@ -122,8 +123,11 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                String depositData = SCEconomy.getEco().createInvoice(player.getUniqueId(), finalSats);
-                SCEconomy.playerQRInterface.put(player.getUniqueId(), new QRData(depositData, "Deposit " + finalSats.longValue() + " sats to Sovereign Craft Wallet"));
+                        Map<String, Object> invoice = SCEconomy.getEco().createInvoice(player.getUniqueId(), finalSats);
+                        String paymentHash = (String) invoice.get("payment_hash");
+                        String bolt11 = (String) invoice.get("bolt11");
+                        SCEconomy.playerQRInterface.put(player.getUniqueId(), new QRData(bolt11, "Deposit " + finalSats.longValue() + " sats to Sovereign Craft Wallet"));
+                        SCEconomy.pendingInvoices.put(paymentHash, player.getUniqueId());
                     }
                 }.runTaskAsynchronously(SCEconomy.getInstance());
                 return true;

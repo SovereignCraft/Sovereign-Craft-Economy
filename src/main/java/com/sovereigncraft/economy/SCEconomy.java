@@ -6,13 +6,16 @@ import com.sovereigncraft.economy.util.QRData;
 import lombok.SneakyThrows;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.ServicePriority;
 import com.sovereigncraft.economy.eco.VaultImpl;
 import com.sovereigncraft.economy.listeners.PlayerJoinListener;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public final class SCEconomy extends JavaPlugin {
@@ -21,12 +24,21 @@ public final class SCEconomy extends JavaPlugin {
 
     private static VaultImpl vaultImpl;
     public static HashMap<UUID, QRData> playerQRInterface;
+    public static HashMap<String, UUID> pendingInvoices;
     public static HashMap playerAdminKey;
     public static HashMap playerInKey;
     @SneakyThrows
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        
+        // Save your images to the plugin folder. 
+        // The boolean 'false' means it won't overwrite if the file already exists.
+        saveResource("qrbg.png", false);
+        saveResource("qrbgsc.png", false);
+        saveResource("qrwm.png", false);
+        saveResource("paysuccess.png",false );
+
         instance = this;
         vaultImpl = new VaultImpl();
         if (!setupEconomy()) {
@@ -43,12 +55,31 @@ public final class SCEconomy extends JavaPlugin {
         playerQRInterface = new HashMap<>();
         playerAdminKey = new HashMap<>();
         playerInKey = new HashMap<>();
+        pendingInvoices = new HashMap<>();
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         eco = new LNBits();
         File mapsData = new File(getDataFolder()+File.separator+"data.yml");
         if (!mapsData.exists()) {
             mapsData.createNewFile();
         }
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Map.Entry<String, UUID> entry : new HashMap<>(pendingInvoices).entrySet()) {
+                    String paymentHash = entry.getKey();
+                    UUID uuid = entry.getValue();
+                    Map<String, Object> check = getEco().checkInvoice(uuid, paymentHash);
+                    if ((boolean) check.get("paid")) {
+                        Player player = Bukkit.getPlayer(uuid);
+                        if (player != null) {
+                            player.sendMessage("§aPayment received!");
+                        }
+                        pendingInvoices.remove(paymentHash);
+                    }
+                }
+            }
+        }.runTaskTimerAsynchronously(this, 0, 20);
     }
 
     @Override

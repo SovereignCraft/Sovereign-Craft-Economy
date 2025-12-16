@@ -607,7 +607,7 @@ public class LNBits {
         }
     }
 
-    public String createInvoice(UUID uuid, Double amount) {
+    public Map<String, Object> createInvoice(UUID uuid, Double amount) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(invoiceCmd))
                 .headers("X-Api-Key", getWalletinkey(uuid))
@@ -617,9 +617,26 @@ public class LNBits {
         HttpClient client = HttpClient.newHttpClient();
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return (String) parseJsonToMap(response.body()).get("bolt11");
+            return parseJsonToMap(response.body());
         } catch (IOException | InterruptedException e) {
             Bukkit.getLogger().warning("createInvoice failed: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Map<String, Object> checkInvoice(UUID uuid, String paymentHash) {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(invoiceCmd + "/" + paymentHash))
+                .headers("X-Api-Key", getWalletinkey(uuid))
+                .version(HttpClient.Version.HTTP_1_1)
+                .GET()
+                .build();
+        HttpClient client = HttpClient.newHttpClient();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return parseJsonToMap(response.body());
+        } catch (IOException | InterruptedException e) {
+            Bukkit.getLogger().warning("checkInvoice failed: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -682,11 +699,13 @@ public class LNBits {
     }
 
     public boolean withdraw(UUID uuid, Double amount) {
-        return processInvoice(uuid, createInvoice(ConfigHandler.getServerUUID(), amount));
+        Map<String, Object> invoice = createInvoice(ConfigHandler.getServerUUID(), amount);
+        return processInvoice(uuid, (String) invoice.get("bolt11"));
     }
 
     public boolean deposit(UUID uuid, Double amount) {
-        Boolean payment = processInvoice(ConfigHandler.getServerUUID(), createInvoice(uuid, amount));
+        Map<String, Object> invoice = createInvoice(uuid, amount);
+        Boolean payment = processInvoice(ConfigHandler.getServerUUID(), (String) invoice.get("bolt11"));
         if (payment) {
             return true;
         }
