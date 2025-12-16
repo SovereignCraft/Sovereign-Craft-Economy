@@ -6,13 +6,16 @@ import com.sovereigncraft.economy.util.QRData;
 import lombok.SneakyThrows;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.ServicePriority;
 import com.sovereigncraft.economy.eco.VaultImpl;
 import com.sovereigncraft.economy.listeners.PlayerJoinListener;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public final class SCEconomy extends JavaPlugin {
@@ -21,6 +24,8 @@ public final class SCEconomy extends JavaPlugin {
 
     private static VaultImpl vaultImpl;
     public static HashMap<UUID, QRData> playerQRInterface;
+    public static HashMap<String, UUID> pendingInvoices;
+    public static HashMap<String, UUID> pendingWithdrawals;
     public static HashMap playerAdminKey;
     public static HashMap playerInKey;
     @SneakyThrows
@@ -43,12 +48,66 @@ public final class SCEconomy extends JavaPlugin {
         playerQRInterface = new HashMap<>();
         playerAdminKey = new HashMap<>();
         playerInKey = new HashMap<>();
+        pendingInvoices = new HashMap<>();
+        pendingWithdrawals = new HashMap<>();
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         eco = new LNBits();
         File mapsData = new File(getDataFolder()+File.separator+"data.yml");
         if (!mapsData.exists()) {
             mapsData.createNewFile();
         }
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Map.Entry<String, UUID> entry : new HashMap<>(pendingInvoices).entrySet()) {
+                    String paymentHash = entry.getKey();
+                    UUID uuid = entry.getValue();
+                    try {
+                        Map<String, Object> check = getEco().checkInvoice(uuid, paymentHash);
+                        if (check != null && check.containsKey("paid") && (boolean) check.get("paid")) {
+                            if (playerQRInterface.containsKey(uuid)) {
+                                playerQRInterface.get(uuid).paid = true;
+                            }
+                            pendingInvoices.remove(paymentHash);
+                        }
+                    } catch (Exception e) {
+                        getLogger().warning("Error checking invoice " + paymentHash + ": " + e.getMessage());
+                    }
+                }
+            }
+        }.runTaskTimerAsynchronously(this, 0, 20);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Map.Entry<String, UUID> entry : new HashMap<>(pendingWithdrawals).entrySet()) {
+                    String withdrawalId = entry.getKey();
+                    UUID uuid = entry.getValue();
+                    try {
+                        Map<String, Object> check = getEco().checkWithdrawal(uuid, withdrawalId);
+                        if (check != null && check.containsKey("used")) {
+                            Object usedVal = check.get("used");
+                            boolean used = false;
+                            if (usedVal instanceof Boolean) {
+                                used = (Boolean) usedVal;
+                            } else if (usedVal instanceof Number) {
+                                used = ((Number) usedVal).intValue() >= 1;
+                            }
+
+                            if (used) {
+                                if (playerQRInterface.containsKey(uuid)) {
+                                    playerQRInterface.get(uuid).paid = true;
+                                }
+                                pendingWithdrawals.remove(withdrawalId);
+                            }
+                        }
+                    } catch (Exception e) {
+                        getLogger().warning("Error checking withdrawal " + withdrawalId + ": " + e.getMessage());
+                    }
+                }
+            }
+        }.runTaskTimerAsynchronously(this, 0, 20);
     }
 
     @Override
