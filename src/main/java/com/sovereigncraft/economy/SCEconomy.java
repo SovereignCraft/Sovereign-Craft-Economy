@@ -31,6 +31,13 @@ public final class SCEconomy extends JavaPlugin {
     @SneakyThrows
     @Override
     public void onEnable() {
+
+        // Save your images to the plugin folder.
+        // The boolean 'false' means it won't overwrite if the file already exists.
+        saveResource("qrbg.png", false);
+        saveResource("qrbgsc.png", false);
+        saveResource("qrwm.png", false);
+        saveResource("paysuccess.png",false );
         saveDefaultConfig();
         instance = this;
         vaultImpl = new VaultImpl();
