@@ -157,8 +157,11 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                     }
                     withdrawSats = SCEconomy.getEco().getConversion(currency, withdrawAmount, "sats");
                 }
-                String withdrawData = SCEconomy.getEco().createlnurlw(player.getUniqueId(), withdrawSats);
+                Map<String, Object> withdraw = SCEconomy.getEco().createlnurlw(player.getUniqueId(), withdrawSats);
+                String withdrawData = (String) withdraw.get("lnurl");
+                String withdrawId = (String) withdraw.get("id");
                 SCEconomy.playerQRInterface.put(player.getUniqueId(), new QRData(withdrawData, "Withdraw " + withdrawSats + " sats from Sovereign Craft Wallet"));
+                SCEconomy.pendingWithdrawals.put(withdrawId, player.getUniqueId());
                 return true;
 
             case "pay":

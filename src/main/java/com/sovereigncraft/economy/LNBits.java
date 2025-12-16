@@ -590,7 +590,7 @@ public class LNBits {
         }
     }
 
-    public String createlnurlw(UUID uuid, Double amt) {
+    public Map<String, Object> createlnurlw(UUID uuid, Double amt) {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(lnurlwCmd))
                 .headers("X-Api-Key", getWalletAdminKey(uuid))
@@ -600,9 +600,26 @@ public class LNBits {
         HttpClient client = HttpClient.newHttpClient();
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return (String) parseJsonToMap(response.body()).get("lnurl");
+            return parseJsonToMap(response.body());
         } catch (IOException | InterruptedException e) {
             Bukkit.getLogger().warning("createlnurlw failed: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Map<String, Object> checkWithdrawal(UUID uuid, String linkId) {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(lnurlwCmd + "/" + linkId))
+                .headers("X-Api-Key", getWalletAdminKey(uuid))
+                .version(HttpClient.Version.HTTP_1_1)
+                .GET()
+                .build();
+        HttpClient client = HttpClient.newHttpClient();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            return parseJsonToMap(response.body());
+        } catch (IOException | InterruptedException e) {
+            Bukkit.getLogger().warning("checkWithdrawal failed: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }

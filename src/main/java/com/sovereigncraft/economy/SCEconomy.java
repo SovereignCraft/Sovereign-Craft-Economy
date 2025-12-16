@@ -25,20 +25,13 @@ public final class SCEconomy extends JavaPlugin {
     private static VaultImpl vaultImpl;
     public static HashMap<UUID, QRData> playerQRInterface;
     public static HashMap<String, UUID> pendingInvoices;
+    public static HashMap<String, UUID> pendingWithdrawals;
     public static HashMap playerAdminKey;
     public static HashMap playerInKey;
     @SneakyThrows
     @Override
     public void onEnable() {
         saveDefaultConfig();
-
-        // Save your images to the plugin folder.
-        // The boolean 'false' means it won't overwrite if the file already exists.
-        saveResource("qrbg.png", false);
-        saveResource("qrbgsc.png", false);
-        saveResource("qrwm.png", false);
-        saveResource("paysuccess.png",false );
-
         instance = this;
         vaultImpl = new VaultImpl();
         if (!setupEconomy()) {
@@ -56,6 +49,7 @@ public final class SCEconomy extends JavaPlugin {
         playerAdminKey = new HashMap<>();
         playerInKey = new HashMap<>();
         pendingInvoices = new HashMap<>();
+        pendingWithdrawals = new HashMap<>();
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         eco = new LNBits();
         File mapsData = new File(getDataFolder()+File.separator+"data.yml");
@@ -69,10 +63,47 @@ public final class SCEconomy extends JavaPlugin {
                 for (Map.Entry<String, UUID> entry : new HashMap<>(pendingInvoices).entrySet()) {
                     String paymentHash = entry.getKey();
                     UUID uuid = entry.getValue();
-                    Map<String, Object> check = getEco().checkInvoice(uuid, paymentHash);
-                    if ((boolean) check.get("paid")) {
-                        playerQRInterface.get(uuid).paid = true;
-                        pendingInvoices.remove(paymentHash);
+                    try {
+                        Map<String, Object> check = getEco().checkInvoice(uuid, paymentHash);
+                        if (check != null && check.containsKey("paid") && (boolean) check.get("paid")) {
+                            if (playerQRInterface.containsKey(uuid)) {
+                                playerQRInterface.get(uuid).paid = true;
+                            }
+                            pendingInvoices.remove(paymentHash);
+                        }
+                    } catch (Exception e) {
+                        getLogger().warning("Error checking invoice " + paymentHash + ": " + e.getMessage());
+                    }
+                }
+            }
+        }.runTaskTimerAsynchronously(this, 0, 20);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Map.Entry<String, UUID> entry : new HashMap<>(pendingWithdrawals).entrySet()) {
+                    String withdrawalId = entry.getKey();
+                    UUID uuid = entry.getValue();
+                    try {
+                        Map<String, Object> check = getEco().checkWithdrawal(uuid, withdrawalId);
+                        if (check != null && check.containsKey("used")) {
+                            Object usedVal = check.get("used");
+                            boolean used = false;
+                            if (usedVal instanceof Boolean) {
+                                used = (Boolean) usedVal;
+                            } else if (usedVal instanceof Number) {
+                                used = ((Number) usedVal).intValue() >= 1;
+                            }
+
+                            if (used) {
+                                if (playerQRInterface.containsKey(uuid)) {
+                                    playerQRInterface.get(uuid).paid = true;
+                                }
+                                pendingWithdrawals.remove(withdrawalId);
+                            }
+                        }
+                    } catch (Exception e) {
+                        getLogger().warning("Error checking withdrawal " + withdrawalId + ": " + e.getMessage());
                     }
                 }
             }
