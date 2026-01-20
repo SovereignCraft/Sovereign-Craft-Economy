@@ -126,8 +126,8 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                         Map<String, Object> invoice = SCEconomy.getEco().createInvoice(player.getUniqueId(), finalSats);
                         String paymentHash = (String) invoice.get("payment_hash");
                         String bolt11 = (String) invoice.get("bolt11");
-                        SCEconomy.playerQRInterface.put(player.getUniqueId(), new QRData(bolt11, "Deposit " + finalSats.longValue() + " sats to Sovereign Craft Wallet"));
-                        SCEconomy.pendingInvoices.put(paymentHash, player.getUniqueId());
+                        SCEconomy.playerQRInterface.put(player.getUniqueId(), new QRData(bolt11, "Deposit " + finalSats.longValue() + " sats to Sovereign Craft Wallet", paymentHash, "deposit"));
+                        //SCEconomy.pendingInvoices.put(paymentHash, player.getUniqueId());
                     }
                 }.runTaskAsynchronously(SCEconomy.getInstance());
                 return true;
@@ -160,8 +160,8 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 Map<String, Object> withdraw = SCEconomy.getEco().createlnurlw(player.getUniqueId(), withdrawSats);
                 String withdrawData = (String) withdraw.get("lnurl");
                 String withdrawId = (String) withdraw.get("id");
-                SCEconomy.playerQRInterface.put(player.getUniqueId(), new QRData(withdrawData, "Withdraw " + withdrawSats + " sats from Sovereign Craft Wallet"));
-                SCEconomy.pendingWithdrawals.put(withdrawId, player.getUniqueId());
+                SCEconomy.playerQRInterface.put(player.getUniqueId(), new QRData(withdrawData, "Withdraw " + withdrawSats + " sats from Sovereign Craft Wallet", withdrawId, "withdraw"));
+                //SCEconomy.pendingWithdrawals.put(withdrawId, player.getUniqueId());
                 return true;
 
             case "pay":
