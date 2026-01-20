@@ -165,7 +165,7 @@ public class LNBits {
                 if (player.isOnline()) {
                     player.getPlayer().sendMessage("§eFound your existing ⚡ wallet in the old system, migrating to the new system...");
                 }
-                Bukkit.getLogger().info("MIgrating account for" + player.getName() + " to V1");
+                Bukkit.getLogger().info("Migrating account for " + player.getName() + " to V1");
                  String userID = (String) oldUser.get("id");
                  try {
                     updateUserWithDefaults(userID, player);
@@ -699,16 +699,25 @@ public class LNBits {
     }
 
     public Map getWalletDetail(UUID uuid) {
+        String adminKey = getWalletAdminKey(uuid);
+        if (adminKey == null) {
+            return null;
+        }
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(walletCmd))
-                .headers("X-Api-Key", getWalletAdminKey(uuid))
+                .headers("X-Api-Key", adminKey)
                 .version(HttpClient.Version.HTTP_1_1)
                 .GET()
                 .build();
         HttpClient client = HttpClient.newHttpClient();
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            return parseJsonToMap(response.body());
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                return parseJsonToMap(response.body());
+            } else {
+                Bukkit.getLogger().warning("getWalletDetail failed for " + uuid + ": Status=" + response.statusCode() + ", Body=" + response.body());
+                return null;
+            }
         } catch (IOException | InterruptedException e) {
             Bukkit.getLogger().warning("getWalletDetail failed: " + e.getMessage());
             throw new RuntimeException(e);
@@ -731,8 +740,17 @@ public class LNBits {
 
     public Double getBalance(UUID uuid) {
         Map map = getWalletDetail(uuid);
-        Double bal = (Double) map.get("balance") / 1000;
-        return bal;
+        if (map == null) {
+            return 0.0;
+        }
+        Object balanceObj = map.get("balance");
+        if (balanceObj == null) {
+            return 0.0;
+        }
+        if (balanceObj instanceof Number) {
+            return ((Number) balanceObj).doubleValue() / 1000;
+        }
+        return 0.0;
     }
 
     public String getBalanceString(UUID uuid) {

@@ -1,6 +1,7 @@
 package com.sovereigncraft.economy.eco;
 
 import com.sovereigncraft.economy.SCEconomy;
+import com.sovereigncraft.economy.util.ErrorLogger;
 
 import net.milkbowl.vault.economy.EconomyResponse;
 import net.milkbowl.vault.economy.EconomyResponse.ResponseType;
@@ -65,7 +66,13 @@ public class VaultImpl implements net.milkbowl.vault.economy.Economy {
 	}
 	
 	private boolean createAccount(UUID uuid) {
-		return SCEconomy.getEco().createWalletV1(uuid).isEmpty();
+		try {
+			return SCEconomy.getEco().createWalletV1(uuid).isEmpty();
+		} catch (Exception e) {
+			String playerName = Bukkit.getOfflinePlayer(uuid).getName();
+			ErrorLogger.log("createAccount", "Player: " + (playerName != null ? playerName : "Unknown") + " (" + uuid + ")", e);
+			return false;
+		}
 	}
 
 	@SuppressWarnings("deprecation")
@@ -91,10 +98,16 @@ public class VaultImpl implements net.milkbowl.vault.economy.Economy {
 	}
 	
 	private EconomyResponse deposit(UUID uuid, double amount) {
-		if (!SCEconomy.getEco().deposit(uuid, amount)) {
-			return new EconomyResponse(0, 0, ResponseType.FAILURE, "Failed to deposit funds.");
+		try {
+			if (!SCEconomy.getEco().deposit(uuid, amount)) {
+				return new EconomyResponse(0, 0, ResponseType.FAILURE, "Failed to deposit funds.");
+			}
+			return new EconomyResponse(amount, getBalance(uuid), ResponseType.SUCCESS, "");
+		} catch (Exception e) {
+			String playerName = Bukkit.getOfflinePlayer(uuid).getName();
+			ErrorLogger.log("deposit", "Player: " + (playerName != null ? playerName : "Unknown") + " (" + uuid + "), Amount: " + amount, e);
+			return new EconomyResponse(0, 0, ResponseType.FAILURE, "An error occurred while depositing funds. Please contact an admin.");
 		}
-		return new EconomyResponse(amount, getBalance(uuid), ResponseType.SUCCESS, "");
 	}
 
 	@SuppressWarnings("deprecation")
@@ -120,7 +133,13 @@ public class VaultImpl implements net.milkbowl.vault.economy.Economy {
 	}
 	
 	private double getBalance(UUID uuid) {
-		return SCEconomy.getEco().getBalance(uuid);
+		try {
+			return SCEconomy.getEco().getBalance(uuid);
+		} catch (Exception e) {
+			String playerName = Bukkit.getOfflinePlayer(uuid).getName();
+			ErrorLogger.log("getBalance", "Player: " + (playerName != null ? playerName : "Unknown") + " (" + uuid + ")", e);
+			return 0.0;
+		}
 	}
 
 	@Override
@@ -151,7 +170,13 @@ public class VaultImpl implements net.milkbowl.vault.economy.Economy {
 	}
 	
 	private boolean has(UUID uuid, double amount) {
-		return SCEconomy.getEco().has(uuid, amount);
+		try {
+			return SCEconomy.getEco().has(uuid, amount);
+		} catch (Exception e) {
+			String playerName = Bukkit.getOfflinePlayer(uuid).getName();
+			ErrorLogger.log("has", "Player: " + (playerName != null ? playerName : "Unknown") + " (" + uuid + "), Amount: " + amount, e);
+			return false;
+		}
 	}
 
 	@SuppressWarnings("deprecation")
@@ -177,7 +202,13 @@ public class VaultImpl implements net.milkbowl.vault.economy.Economy {
 	}
 	
 	private boolean hasAccount(UUID uuid) {
-		return SCEconomy.getEco().hasAccount(uuid);
+		try {
+			return SCEconomy.getEco().hasAccount(uuid);
+		} catch (Exception e) {
+			String playerName = Bukkit.getOfflinePlayer(uuid).getName();
+			ErrorLogger.log("hasAccount", "Player: " + (playerName != null ? playerName : "Unknown") + " (" + uuid + ")", e);
+			return false;
+		}
 	}
 
 	@SuppressWarnings("deprecation")
@@ -203,10 +234,16 @@ public class VaultImpl implements net.milkbowl.vault.economy.Economy {
 	}
 	
 	private EconomyResponse withdraw(UUID uuid, double amount) {
-		if (!SCEconomy.getEco().withdraw(uuid, amount)) {
-			return new EconomyResponse(0, 0, ResponseType.FAILURE, "Failed to withdraw funds.");
+		try {
+			if (!SCEconomy.getEco().withdraw(uuid, amount)) {
+				return new EconomyResponse(0, 0, ResponseType.FAILURE, "Failed to withdraw funds.");
+			}
+			return new EconomyResponse(amount, getBalance(uuid), ResponseType.SUCCESS, "");
+		} catch (Exception e) {
+			String playerName = Bukkit.getOfflinePlayer(uuid).getName();
+			ErrorLogger.log("withdraw", "Player: " + (playerName != null ? playerName : "Unknown") + " (" + uuid + "), Amount: " + amount, e);
+			return new EconomyResponse(0, 0, ResponseType.FAILURE, "An error occurred while withdrawing funds. Please contact an admin.");
 		}
-		return new EconomyResponse(amount, getBalance(uuid), ResponseType.SUCCESS, "");
 	}
 
 	@Override

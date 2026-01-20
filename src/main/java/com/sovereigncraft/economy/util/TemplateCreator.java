@@ -12,6 +12,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.sovereigncraft.economy.util.QRCreator.generateQRcode;
 
@@ -97,16 +99,56 @@ public class TemplateCreator {
                 mapCanvas.drawImage(0, 0, qrbg);
                 QRData mapdata = SCEconomy.playerQRInterface.get(player.getUniqueId());
                 if (mapdata != null) {
+                    if (mapdata.id != null && !mapdata.paid && System.currentTimeMillis() - mapdata.lastCheck > 2000) {
+                        mapdata.lastCheck = System.currentTimeMillis();
+                        new BukkitRunnable() {
+                            @Override
+                            public void run() {
+                                if ("deposit".equals(mapdata.type)) {
+                                    try {
+                                        Map<String, Object> check = SCEconomy.getEco().checkInvoice(player.getUniqueId(), mapdata.id);
+                                        if (check != null && check.containsKey("paid") && (boolean) check.get("paid")) {
+                                            mapdata.paid = true;
+                                        }
+                                    } catch (Exception e) {
+                                        //ignore
+                                    }
+                                } else if ("withdraw".equals(mapdata.type)) {
+                                    try {
+                                        Map<String, Object> check = SCEconomy.getEco().checkWithdrawal(player.getUniqueId(), mapdata.id);
+                                        if (check != null && check.containsKey("used")) {
+                                            Object usedVal = check.get("used");
+                                            boolean used = false;
+                                            if (usedVal instanceof Boolean) {
+                                                used = (Boolean) usedVal;
+                                            } else if (usedVal instanceof Number) {
+                                                used = ((Number) usedVal).intValue() >= 1;
+                                            }
+
+                                            if (used) {
+                                                mapdata.paid = true;
+                                            }
+                                        }
+                                    } catch (Exception e) {
+                                        //ignore
+                                    }
+                                }
+                            }
+                        }.runTaskAsynchronously(SCEconomy.getInstance());
+                    }
                     if (mapdata.paid) {
                         File paysuccessfile = new File(SCEconomy.getInstance().getDataFolder() + File.separator + "paysuccess.png");
                         BufferedImage paysuccess = ImageIO.read(paysuccessfile);
                         mapCanvas.drawImage(0, 0, paysuccess);
-                        new BukkitRunnable() {
-                            @Override
-                            public void run() {
-                                SCEconomy.playerQRInterface.remove(player.getUniqueId());
-                            }
-                        }.runTaskLater(SCEconomy.getInstance(), 60);
+                        if (!mapdata.removalScheduled) {
+                            mapdata.removalScheduled = true;
+                            new BukkitRunnable() {
+                                @Override
+                                public void run() {
+                                    SCEconomy.playerQRInterface.remove(player.getUniqueId());
+                                }
+                            }.runTaskLater(SCEconomy.getInstance(), 60);
+                        }
                         return;
                     }
                     BufferedImage image = playerQR(player);

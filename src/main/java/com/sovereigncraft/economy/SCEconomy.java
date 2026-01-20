@@ -17,17 +17,18 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class SCEconomy extends JavaPlugin {
     private static SCEconomy instance;
     private static LNBits eco;
 
     private static VaultImpl vaultImpl;
-    public static HashMap<UUID, QRData> playerQRInterface;
-    public static HashMap<String, UUID> pendingInvoices;
-    public static HashMap<String, UUID> pendingWithdrawals;
-    public static HashMap playerAdminKey;
-    public static HashMap playerInKey;
+    public static Map<UUID, QRData> playerQRInterface;
+    public static Map<String, UUID> pendingInvoices;
+    public static Map<String, UUID> pendingWithdrawals;
+    public static Map<String, String> playerAdminKey;
+    public static Map<String, String> playerInKey;
     @SneakyThrows
     @Override
     public void onEnable() {
@@ -52,11 +53,11 @@ public final class SCEconomy extends JavaPlugin {
         this.getCommand("pay").setExecutor(new PayCommand());
         this.getCommand("qrcode").setExecutor(new QRCode());
         Bukkit.getPluginManager().registerEvents(new MapInitialize(), this);
-        playerQRInterface = new HashMap<>();
-        playerAdminKey = new HashMap<>();
-        playerInKey = new HashMap<>();
-        pendingInvoices = new HashMap<>();
-        pendingWithdrawals = new HashMap<>();
+        playerQRInterface = new ConcurrentHashMap<>();
+        playerAdminKey = new ConcurrentHashMap<>();
+        playerInKey = new ConcurrentHashMap<>();
+        pendingInvoices = new ConcurrentHashMap<>();
+        pendingWithdrawals = new ConcurrentHashMap<>();
         this.getServer().getPluginManager().registerEvents(new PlayerJoinListener(), this);
         eco = new LNBits();
         File mapsData = new File(getDataFolder()+File.separator+"data.yml");
@@ -64,6 +65,7 @@ public final class SCEconomy extends JavaPlugin {
             mapsData.createNewFile();
         }
 
+        /*
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -115,6 +117,7 @@ public final class SCEconomy extends JavaPlugin {
                 }
             }
         }.runTaskTimerAsynchronously(this, 0, 20);
+        */
     }
 
     @Override
@@ -146,7 +149,7 @@ public final class SCEconomy extends JavaPlugin {
         return eco;
     }
 
-    public static HashMap<UUID, QRData> getPlayerQRInterface() {
+    public static Map<UUID, QRData> getPlayerQRInterface() {
         return playerQRInterface;
     }
 }
