@@ -5,6 +5,9 @@ import com.sovereigncraft.economy.SCEconomy;
 import com.sovereigncraft.economy.util.MapCreator;
 import com.sovereigncraft.economy.util.QRData;
 import lombok.SneakyThrows;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -198,7 +201,7 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 return true;
 
             case "qrwebwallet":
-                String webwallet = "https://wallet.sovereigncraft.com/wallet?usr=" + SCEconomy.getEco().getUserV1ByExternalId(player.getUniqueId()).get("id");
+                String webwallet = "https://" + ConfigHandler.getPubHost() + "/wallet?usr=" + SCEconomy.getEco().getUserV1ByExternalId(player.getUniqueId()).get("id");
                 SCEconomy.playerQRInterface.put(player.getUniqueId(), new QRData(webwallet, "Sovereign Craft Web Wallet"));
                 sender.sendMessage(prefix + SCEconomy.getMessage("messages.success"));
                 return true;
@@ -241,13 +244,11 @@ public class LNCommand implements org.bukkit.command.CommandExecutor {
                 return true;
 
             case "webwallet":
-                String url = "https://wallet.sovereigncraft.com/wallet?usr=" + SCEconomy.getEco().getUserV1ByExternalId(player.getUniqueId()).get("id");
-                Bukkit.getServer().dispatchCommand(
-                        Bukkit.getConsoleSender(),
-                        "tellraw " + player.getName() +
-                                " {\"text\":\"§aClick here for your web wallet\"," +
-                                "\"clickEvent\":{\"action\":\"open_url\",\"value\":\"" + url + "\"}}"
-                );
+                String url = "https://" + ConfigHandler.getPubHost() + "/wallet?usr=" + SCEconomy.getEco().getUserV1ByExternalId(player.getUniqueId()).get("id");
+                TextComponent message = new TextComponent("Click here for your web wallet");
+                message.setColor(ChatColor.GREEN);
+                message.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
+                player.spigot().sendMessage(message);
                 return true;
 
             case "send":
